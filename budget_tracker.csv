@@ -1,0 +1,645 @@
+Date,Description,Category,Expenditure,Year,Month,Day
+01/10/23,Rent payment,Home,15119.0,2023.0,10.0,1.0
+01/10/23,Buy clothes,Other,1659.0,2023.0,10.0,1.0
+02/10/23,"Groceries- fruits, biscuits",Food,144.09,2023.0,10.0,2.0
+03/10/23,Travel to office and back,Auto,27.0,2023.0,10.0,3.0
+03/10/23,Lunch,Food,38.0,2023.0,10.0,3.0
+04/10/23,Travel to office and back,Auto,25.0,2023.0,10.0,4.0
+05/10/23,Travel to office and back,Auto,25.0,2023.0,10.0,5.0
+05/10/23,Lunch,Food,50.0,2023.0,10.0,5.0
+06/10/23,Travel to office and back,Auto,25.0,2023.0,10.0,6.0
+07/10/23,Lunch,Food,70.0,2023.0,10.0,7.0
+04/10/23,Lunch,Food,50.0,2023.0,10.0,4.0
+07/10/23,Movie ticket,Entertainment,104.0,2023.0,10.0,7.0
+07/10/23,Breakfast,Food,72.0,2023.0,10.0,7.0
+07/10/23,Lunch,Food,99.01,2023.0,10.0,7.0
+07/10/23,Popcorn+ mcdonalds,Food,203.05,2023.0,10.0,7.0
+07/10/23,Travel home,Travel,84.0,2023.0,10.0,7.0
+08/10/23,Iscon travel,Travel,116.0,2023.0,10.0,8.0
+08/10/23,Biscuit+cake,Food,40.0,2023.0,10.0,8.0
+08/10/23,Tiffin,Utilities,99.0,2023.0,10.0,8.0
+09/10/23,Travel to office and back,Auto,25.0,2023.0,10.0,9.0
+09/10/23,Lunch and snacks,Food,70.0,2023.0,10.0,9.0
+10/10/23,Lunch and snacks,Food,40.0,2023.0,10.0,10.0
+10/10/23,Travel to office and back,Auto,25.0,2023.0,10.0,10.0
+11/10/23,Travel to office and back,Auto,35.0,2023.0,10.0,11.0
+11/10/23,Lunch and snacks,Food,40.0,2023.0,10.0,11.0
+12/10/23,Travel to office and back,Auto,35.0,2023.0,10.0,12.0
+12/10/23,Lunch and snacks,Food,50.0,2023.0,10.0,12.0
+13/10/23,Travel to office and back,Auto,10.0,2023.0,10.0,13.0
+13/10/23,Lunch,Food,50.0,2023.0,10.0,13.0
+14/10/23,Biscuit,Food,35.0,2023.0,10.0,14.0
+14/10/23,Deo+tissue+soap+show shine,Utilities,516.0,2023.0,10.0,14.0
+14/10/23,Fruit salad,Food,154.0,2023.0,10.0,14.0
+15/10/23,Dinner,Food,435.0,2023.0,10.0,15.0
+15/10/23,Tea,Food,46.0,2023.0,10.0,15.0
+16/10/23,Travel to office and back,Auto,25.0,2023.0,10.0,16.0
+16/10/23,Lunch,Food,50.0,2023.0,10.0,16.0
+17/10/23,Travel to office and back,Auto,25.0,2023.0,10.0,17.0
+17/10/23,Lunch,Food,90.0,2023.0,10.0,17.0
+18/10/23,Travel to office and back,Auto,35.0,2023.0,10.0,18.0
+18/10/23,Lunch,Food,78.0,2023.0,10.0,18.0
+19/10/23,Travel to office and back,Auto,15.0,2023.0,10.0,19.0
+20/10/23,Lunch and snacks,Food,307.0,2023.0,10.0,20.0
+20/10/23,Travel to office and back,Auto,20.0,2023.0,10.0,20.0
+21/10/23,Tea and samosa,Food,20.0,2023.0,10.0,21.0
+21/10/23,Lunch,Food,241.0,2023.0,10.0,21.0
+22/10/23,Lunch and tea,Food,123.0,2023.0,10.0,22.0
+22/10/23,Travel to iit madras,Travel,117.0,2023.0,10.0,22.0
+22/10/23,Spotify premium,Entertainment,119.0,2023.0,10.0,22.0
+23/10/23,Travel to office and back,Auto,10.0,2023.0,10.0,23.0
+23/10/23,Grocery- biscuits,Food,40.0,2023.0,10.0,23.0
+23/10/23,Grocery- facewash and soap and toothpaste,Utilities,316.0,2023.0,10.0,23.0
+24/10/23,Travel to pheonix,Travel,58.0,2023.0,10.0,24.0
+24/10/23,Movie ticket,Entertainment,104.0,2023.0,10.0,24.0
+24/10/23,Lunch- pizza,Food,143.9,2023.0,10.0,24.0
+24/10/23,Movie food pheonix,Food,211.5,2023.0,10.0,24.0
+25/10/23,Travel to office and back,Auto,20.0,2023.0,10.0,25.0
+25/10/23,Lunch,Food,40.0,2023.0,10.0,25.0
+26/10/23,Lunch,Food,80.0,2023.0,10.0,26.0
+26/10/23,Ac bill,Home,825.0,2023.0,10.0,26.0
+27/10/23,Lunch,Food,85.0,2023.0,10.0,27.0
+28/10/23,Lunch,Food,220.0,2023.0,10.0,28.0
+29/10/23,Buy comb,Utilities,273.0,2023.0,10.0,29.0
+29/10/23,Lunch,Food,284.94,2023.0,10.0,29.0
+30/10/23,Lunch and snacks,Food,68.0,2023.0,10.0,30.0
+31/10/23,Lunch,Food,111.0,2023.0,10.0,31.0
+31/10/23,Travel to office and back,Auto,15.0,2023.0,10.0,31.0
+01/11/23,Rent payment,Home,16206.0,2023.0,11.0,1.0
+01/11/23,Lunch,Food,30.0,2023.0,11.0,1.0
+02/11/23,Travel to office and back,Travel,25.0,2023.0,11.0,2.0
+02/11/23,Lunch,Food,30.0,2023.0,11.0,2.0
+03/11/23,Lunch and snacks,Food,70.0,2023.0,11.0,3.0
+04/11/23,Buy fruits,Food,87.0,2023.0,11.0,4.0
+05/11/23,Lunch,Food,140.71,2023.0,11.0,5.0
+05/11/23,Groceries,Food,168.0,2023.0,11.0,5.0
+06/11/23,Travel to office and back,Travel,10.0,2023.0,11.0,6.0
+06/11/23,Lunch,Food,40.0,2023.0,11.0,6.0
+07/11/23,Travel to office and back,Travel,10.0,2023.0,11.0,7.0
+07/11/23,Lunch,Food,80.0,2023.0,11.0,7.0
+08/11/23,Travel to office and back,Travel,20.0,2023.0,11.0,8.0
+08/11/23,Lunch,Food,50.0,2023.0,11.0,8.0
+09/11/23,Lunch,Food,203.0,2023.0,11.0,9.0
+09/11/23,Travel to office and back,Travel,10.0,2023.0,11.0,9.0
+10/11/23,Travel to office and back,Travel,10.0,2023.0,11.0,10.0
+10/11/23,Lunch,Food,139.0,2023.0,11.0,10.0
+11/11/23,Travel to icare,Travel,200.0,2023.0,11.0,11.0
+13/11/23,Haircut,Other,130.0,2023.0,11.0,13.0
+14/11/23,Travel to office and back,Travel,25.0,2023.0,11.0,14.0
+14/11/23,Lunch,Food,50.0,2023.0,11.0,14.0
+15/11/23,Travel to office and back,Travel,10.0,2023.0,11.0,15.0
+15/11/23,Lunch,Food,46.0,2023.0,11.0,15.0
+16/11/23,Travel to office and back,Travel,10.0,2023.0,11.0,16.0
+16/11/23,Lunch,Food,40.0,2023.0,11.0,16.0
+17/11/23,Travel to office and back,Travel,10.0,2023.0,11.0,17.0
+17/11/23,Lunch,Food,90.0,2023.0,11.0,17.0
+18/11/23,Utility groceries,Utilities,171.0,2023.0,11.0,18.0
+18/11/23,Lunch,Food,80.0,2023.0,11.0,18.0
+18/11/23,Fruits,Food,92.0,2023.0,11.0,18.0
+18/11/23,Dinner,Food,70.0,2023.0,11.0,18.0
+19/11/23,Snacks,Food,90.0,2023.0,11.0,19.0
+20/11/23,Travel to office and back,Travel,10.0,2023.0,11.0,20.0
+20/11/23,Lunch and snacks,Food,75.0,2023.0,11.0,20.0
+21/11/23,Lunch and snacks,Food,50.0,2023.0,11.0,21.0
+21/11/23,Travel to office and back,Travel,10.0,2023.0,11.0,21.0
+22/11/23,Travel to office and back,Travel,10.0,2023.0,11.0,22.0
+22/11/23,Lunch,Food,40.0,2023.0,11.0,22.0
+23/11/23,Travel to office and back,Travel,25.0,2023.0,11.0,23.0
+23/11/23,Lunch,Food,50.0,2023.0,11.0,23.0
+24/11/23,Travel to office and back,Travel,10.0,2023.0,11.0,24.0
+24/11/23,Lunch,Food,105.0,2023.0,11.0,24.0
+24/11/23,Ac bill,Home,750.0,2023.0,11.0,24.0
+25/11/23,Travel to museum and back,Travel,100.0,2023.0,11.0,25.0
+25/11/23,Museum ticket,Entertainment,15.0,2023.0,11.0,25.0
+25/11/23,Snacks,Food,75.0,2023.0,11.0,25.0
+25/11/23,Dinner,Food,211.0,2023.0,11.0,25.0
+25/11/23,Snacks,Food,8.34,2023.0,11.0,25.0
+26/11/23,Tea,Food,18.0,2023.0,11.0,26.0
+26/11/23,Fruits,Food,260.0,2023.0,11.0,26.0
+26/11/23,Electral,Food,122.0,2023.0,11.0,26.0
+26/11/23,Buy register ,Utilities,40.0,2023.0,11.0,26.0
+21/11/23,Sankat mochan,Other,1100.0,2023.0,11.0,21.0
+27/11/23,Travel to office and back,Travel,30.0,2023.0,11.0,27.0
+27/11/23,Coursera course,Entertainment,0.0,2023.0,11.0,27.0
+28/11/23,Lunch,Food,105.0,2023.0,11.0,28.0
+29/11/23,Travel to office and back,Travel,10.0,2023.0,11.0,29.0
+29/11/23,Lunch,Food,236.0,2023.0,11.0,29.0
+30/11/23,Travel to office and back,Travel,20.0,2023.0,11.0,30.0
+30/11/23,Lunch,Food,35.0,2023.0,11.0,30.0
+30/11/23,Snacks,Food,257.0,2023.0,11.0,30.0
+30/11/23,Pluxee card bill,Food,999.0,2023.0,11.0,30.0
+01/12/23,Travel to office and airport ,Travel,460.0,2023.0,12.0,1.0
+01/12/23,Lunch,Food,115.0,2023.0,12.0,1.0
+01/12/23,Rent,Home,16206.0,2023.0,12.0,1.0
+04/12/23,Lunch,Food,689.0,2023.0,12.0,4.0
+06/12/23,Travel from airport to pg,Travel,600.0,2023.0,12.0,6.0
+04/12/23,Buy comb,Utilities,90.0,2023.0,12.0,4.0
+07/12/23,Lunch,Food,335.0,2023.0,12.0,7.0
+07/12/23,Bed bug spray and utilities,Utilities,244.0,2023.0,12.0,7.0
+08/12/23,Bed bug spray and utilities,Utilities,659.0,2023.0,12.0,8.0
+09/12/23,Fruits,Food,119.0,2023.0,12.0,9.0
+09/12/23,Camphor and naphthelene balla,Utilities,100.0,2023.0,12.0,9.0
+10/12/23,Movie,Entertainment,551.0,2023.0,12.0,10.0
+11/12/23,Travel to office and airport ,Travel,10.0,2023.0,12.0,11.0
+11/12/23,Lunch,Food,80.0,2023.0,12.0,11.0
+12/12/23,Travel to office and airport ,Travel,10.0,2023.0,12.0,12.0
+13/12/23,Travel to office and airport ,Travel,10.0,2023.0,12.0,13.0
+13/12/23,Lunch,Food,180.0,2023.0,12.0,13.0
+14/12/23,Travel to office and airport ,Travel,10.0,2023.0,12.0,14.0
+14/12/23,Lunch,Food,100.0,2023.0,12.0,14.0
+15/12/23,Travel to office and airport ,Travel,25.0,2023.0,12.0,15.0
+15/12/23,Lunch,Food,40.0,2023.0,12.0,15.0
+16/12/23,Haircut ,Utilities,5.0,2023.0,12.0,16.0
+16/12/23,Odomas + camphor,Utilities,231.0,2023.0,12.0,16.0
+17/12/23,Travel to movies and back,Entertainment,158.0,2023.0,12.0,17.0
+18/12/23,Travel to office and back,Travel,10.0,2023.0,12.0,18.0
+18/12/23,Lunch,Food,40.0,2023.0,12.0,18.0
+19/12/23,Travel to office and back,Travel,10.0,2023.0,12.0,19.0
+19/12/23,Lunch,Food,95.0,2023.0,12.0,19.0
+20/12/23,Travel to office and back,Travel,10.0,2023.0,12.0,20.0
+20/12/23,Lunch,Food,58.0,2023.0,12.0,20.0
+21/12/23,Travel to office and back,Travel,10.0,2023.0,12.0,21.0
+21/12/23,Lunch,Food,100.0,2023.0,12.0,21.0
+22/12/23,Travel to office and back,Travel,10.0,2023.0,12.0,22.0
+22/12/23,Lunch,Food,40.0,2023.0,12.0,22.0
+23/12/23,Travel to airport,Entertainment,450.0,2023.0,12.0,23.0
+25/12/23,Buy masks,Utilities,85.0,2023.0,12.0,25.0
+26/12/23,Buy lunch ,Food,490.0,2023.0,12.0,26.0
+26/12/23,Cab,Entertainment,600.0,2023.0,12.0,26.0
+26/12/23,Groceries ,Utilities,511.0,2023.0,12.0,26.0
+27/12/23,Travel to office and back,Travel,50.0,2023.0,12.0,27.0
+27/12/23,Lunch,Food,55.0,2023.0,12.0,27.0
+28/12/23,Travel to office and back,Travel,10.0,2023.0,12.0,28.0
+28/12/23,Lunch,Food,35.0,2023.0,12.0,28.0
+29/12/23,Travel to office and back,Travel,40.0,2023.0,12.0,29.0
+29/12/23,Lunch,Food,100.0,2023.0,12.0,29.0
+01/01/24,Pay rent,Home,16206.0,2024.0,1.0,1.0
+01/01/24,Hit+spray bottle ,Utilities,270.0,2024.0,1.0,1.0
+01/01/24,Buy clothes,Other,2359.0,2024.0,1.0,1.0
+02/01/24,Travel to office and back,Travel,260.0,2024.0,1.0,2.0
+02/01/24,Lunch,Food,100.0,2024.0,1.0,2.0
+03/01/24,Travel to office and back,Travel,55.0,2024.0,1.0,3.0
+03/01/24,Lunch,Food,38.0,2024.0,1.0,3.0
+04/01/24,Lunch,Food,38.0,2024.0,1.0,4.0
+04/01/24,Travel to office and back,Travel,20.0,2024.0,1.0,4.0
+04/01/24,Buy fruits ,Food,209.0,2024.0,1.0,4.0
+05/01/24,Travel to office and back,Travel,56.0,2024.0,1.0,5.0
+06/01/24,Groceries ,Utilities,489.0,2024.0,1.0,6.0
+08/01/24,Travel to office and back,Travel,25.0,2024.0,1.0,8.0
+08/01/24,Lunch ,Food,100.0,2024.0,1.0,8.0
+09/01/24,Travel to office and back,Travel,10.0,2024.0,1.0,9.0
+10/01/24,Travel to office and back,Travel,25.0,2024.0,1.0,10.0
+10/01/24,Lunch ,Food,30.0,2024.0,1.0,10.0
+11/01/24,Lunch,Food,51.0,2024.0,1.0,11.0
+11/01/24,Travel to office and back,Travel,50.0,2024.0,1.0,11.0
+11/01/24,Bed bug bowl,Utilities,100.0,2024.0,1.0,11.0
+12/01/24,Travel to airport,Entertainment,420.0,2024.0,1.0,12.0
+17/01/24,Travel to pg from airport,Entertainment,550.0,2024.0,1.0,17.0
+17/01/24,Haircut,Utilities,130.0,2024.0,1.0,17.0
+17/01/24,Swiggy subscription renewal,Food,299.0,2024.0,1.0,17.0
+18/01/24,Travel to office and back,Travel,10.0,2024.0,1.0,18.0
+18/01/24,Lunch,Food,51.0,2024.0,1.0,18.0
+18/01/24,Airtel bill recharge ,Utilities,239.0,2024.0,1.0,18.0
+19/01/24,Travel to office and back,Travel,55.0,2024.0,1.0,19.0
+19/01/24,Lunch,Food,40.0,2024.0,1.0,19.0
+20/01/24,Dinner,Food,122.0,2024.0,1.0,20.0
+20/01/24,Tea,Food,30.0,2024.0,1.0,20.0
+21/01/24,Eliott beach trip,Entertainment,310.0,2024.0,1.0,21.0
+22/01/24,Travel to office and back,Travel,10.0,2024.0,1.0,22.0
+22/01/24,Lunch,Food,20.0,2024.0,1.0,22.0
+23/01/24,Travel to office and back,Travel,10.0,2024.0,1.0,23.0
+24/01/24,Travel to office and back,Travel,25.0,2024.0,1.0,24.0
+24/01/24,Lunch,Food,38.0,2024.0,1.0,24.0
+25/01/24,Travel to office and back,Travel,50.0,2024.0,1.0,25.0
+25/01/24,Lunch,Food,53.0,2024.0,1.0,25.0
+26/01/24,Vande Bharat travel,Entertainment,525.0,2024.0,1.0,26.0
+27/01/24,Tirupati trip,Entertainment,1471.0,2024.0,1.0,27.0
+28/01/24,Hit+soap,Utilities,296.0,2024.0,1.0,28.0
+29/01/24,Travel to office and back,Travel,10.0,2024.0,1.0,29.0
+29/01/24,Lunch,Food,40.0,2024.0,1.0,29.0
+30/01/24,Travel to office and back,Travel,10.0,2024.0,1.0,30.0
+30/01/24,Lunch,Food,64.0,2024.0,1.0,30.0
+31/01/24,Travel to office and back,Travel,40.0,2024.0,1.0,31.0
+31/01/24,Lunch,Food,100.0,2024.0,1.0,31.0
+01/02/24,Travel to office and back,Travel,10.0,2024.0,2.0,1.0
+01/02/24,Lunch,Food,40.0,2024.0,2.0,1.0
+02/02/24,Travel to office and back,Travel,40.0,2024.0,2.0,2.0
+02/02/24,Lunch,Food,95.0,2024.0,2.0,2.0
+02/02/24,Rent,Home,16206.0,2024.0,2.0,2.0
+03/02/24,Buy groceries ,Food,116.0,2024.0,2.0,3.0
+04/02/24,Buy feviquick,Utilities,30.0,2024.0,2.0,4.0
+04/02/24,Movie,Entertainment,146.0,2024.0,2.0,4.0
+05/02/24,Travel to office and back,Travel,20.0,2024.0,2.0,5.0
+05/02/24,Lunch,Food,30.0,2024.0,2.0,5.0
+07/02/24,Travel to office and back,Travel,45.0,2024.0,2.0,7.0
+07/02/24,Lunch,Food,25.0,2024.0,2.0,7.0
+08/02/24,Travel to office and back,Travel,10.0,2024.0,2.0,8.0
+08/02/24,Lunch,Food,57.0,2024.0,2.0,8.0
+09/02/24,Travel to office and back,Travel,10.0,2024.0,2.0,9.0
+09/02/24,Lunch,Food,40.0,2024.0,2.0,9.0
+10/02/24,Dinner,Food,260.0,2024.0,2.0,10.0
+11/02/24,Movie,Entertainment,140.0,2024.0,2.0,11.0
+11/02/24,Dinner,Food,121.0,2024.0,2.0,11.0
+12/02/24,Travel to office and back,Travel,10.0,2024.0,2.0,12.0
+12/02/24,Lunch,Food,25.0,2024.0,2.0,12.0
+13/02/24,Travel to office and back,Travel,10.0,2024.0,2.0,13.0
+13/02/24,Lunch,Food,50.0,2024.0,2.0,13.0
+14/02/24,Travel to office and back,Travel,53.0,2024.0,2.0,14.0
+14/02/24,Lunch ,Food,25.0,2024.0,2.0,14.0
+15/02/24,Lunch,Food,95.0,2024.0,2.0,15.0
+15/02/24,Travel to office and back,Travel,10.0,2024.0,2.0,15.0
+16/02/24,Airtel recharge,Utilities,239.0,2024.0,2.0,16.0
+16/02/24,Travel to office and back,Travel,10.0,2024.0,2.0,16.0
+17/02/24,Phoenix mall,Entertainment,318.0,2024.0,2.0,17.0
+18/02/24,Grocery ,Food,159.0,2024.0,2.0,18.0
+18/02/24,Haircut,Utilities,115.0,2024.0,2.0,18.0
+19/02/24,Travel to office and back,Travel,10.0,2024.0,2.0,19.0
+19/02/24,Lunch,Food,25.0,2024.0,2.0,19.0
+20/02/24,Travel to office and back,Travel,41.0,2024.0,2.0,20.0
+20/02/24,Lunch,Food,25.0,2024.0,2.0,20.0
+21/02/24,Travel to office and back,Travel,10.0,2024.0,2.0,21.0
+21/02/24,Lunch,Food,25.0,2024.0,2.0,21.0
+22/02/24,Travel to office and back,Travel,10.0,2024.0,2.0,22.0
+22/02/24,Lunch,Food,95.0,2024.0,2.0,22.0
+22/02/24,Spotify premium ,Auto,119.0,2024.0,2.0,22.0
+23/02/24,Travel to office and back,Travel,40.0,2024.0,2.0,23.0
+23/02/24,Lunch,Food,25.0,2024.0,2.0,23.0
+23/02/24,Movie,Entertainment,263.0,2024.0,2.0,23.0
+24/02/24,Grocery ,Food,209.0,2024.0,2.0,24.0
+26/02/24,Travel to office and back,Travel,40.0,2024.0,2.0,26.0
+26/02/24,Lunch,Food,100.0,2024.0,2.0,26.0
+27/02/24,Travel to office and back,Travel,50.0,2024.0,2.0,27.0
+27/02/24,Lunch,Food,125.0,2024.0,2.0,27.0
+28/02/24,Travel to office and back,Travel,35.0,2024.0,2.0,28.0
+28/02/24,Lunch,Food,325.0,2024.0,2.0,28.0
+29/02/24,Travel to office and back,Travel,40.0,2024.0,2.0,29.0
+29/02/24,Lunch ,Food,25.0,2024.0,2.0,29.0
+29/02/24,F1 subscription ,Entertainment,599.0,2024.0,2.0,29.0
+01/03/24,Pay rent,Home,16206.0,2024.0,3.0,1.0
+02/03/24,Lunch,Food,235.0,2024.0,3.0,2.0
+01/03/24,Travel to office and back,Travel,10.0,2024.0,3.0,1.0
+02/03/24,Dinner,Food,530.0,2024.0,3.0,2.0
+02/03/24,Travel home,Entertainment,500.0,2024.0,3.0,2.0
+12/03/24,Breakfast,Food,430.0,2024.0,3.0,12.0
+12/03/24,Travel to pg,Entertainment,470.0,2024.0,3.0,12.0
+13/03/24,Travel to office and back,Travel,10.0,2024.0,3.0,13.0
+13/03/24,Lunch,Food,25.0,2024.0,3.0,13.0
+14/03/24,Travel to office and back,Travel,10.0,2024.0,3.0,14.0
+14/03/24,Lunch,Food,25.0,2024.0,3.0,14.0
+14/03/24,Airtel recharge,Auto,239.0,2024.0,3.0,14.0
+15/03/24,Travel to office and back,Travel,40.0,2024.0,3.0,15.0
+15/03/24,Lunch,Food,100.0,2024.0,3.0,15.0
+16/03/24,Buy milkibat,Food,40.0,2024.0,3.0,16.0
+17/03/24,Haircut,Utilities,125.0,2024.0,3.0,17.0
+18/03/24,Travel to office and back,Travel,40.0,2024.0,3.0,18.0
+18/03/24,Lunch,Food,40.0,2024.0,3.0,18.0
+19/03/24,Travel to office and back,Travel,40.0,2024.0,3.0,19.0
+19/03/24,Lunch,Food,25.0,2024.0,3.0,19.0
+20/03/24,Travel to office and back,Travel,10.0,2024.0,3.0,20.0
+20/03/24,Lunch,Food,100.0,2024.0,3.0,20.0
+21/03/24,Travel to office and back,Travel,40.0,2024.0,3.0,21.0
+21/03/24,Lunch,Food,174.0,2024.0,3.0,21.0
+21/03/24,Dinner,Food,182.0,2024.0,3.0,21.0
+22/03/24,Travel to office and back,Travel,52.0,2024.0,3.0,22.0
+22/03/24,Lunch,Food,153.0,2024.0,3.0,22.0
+23/03/24,Spotify recharge,Auto,119.0,2024.0,3.0,23.0
+23/03/24,Jio recharge,Auto,2999.0,2024.0,3.0,23.0
+23/03/24,Groceries ,Utilities,851.0,2024.0,3.0,23.0
+23/03/24,Movie,Entertainment,180.0,2024.0,3.0,23.0
+23/03/24,Dinner,Food,418.0,2024.0,3.0,23.0
+24/03/24,Cough medicine,Utilities,70.0,2024.0,3.0,24.0
+24/03/24,Tea,Food,18.0,2024.0,3.0,24.0
+25/03/24,Travel to office and back,Travel,50.0,2024.0,3.0,25.0
+25/03/24,Lunch,Food,131.0,2024.0,3.0,25.0
+26/03/24,Travel to office and back,Travel,30.0,2024.0,3.0,26.0
+26/03/24,Lunch,Food,25.0,2024.0,3.0,26.0
+26/03/24,Groceries,Food,198.0,2024.0,3.0,26.0
+27/03/24,Travel to office and back,Travel,40.0,2024.0,3.0,27.0
+27/03/24,Lunch,Food,131.0,2024.0,3.0,27.0
+28/03/24,Travel to office and back,Travel,10.0,2024.0,3.0,28.0
+30/03/24,Snacks,Food,132.0,2024.0,3.0,30.0
+30/03/24,Snacks,Food,235.0,2024.0,3.0,30.0
+01/04/24,Rent,Home,16206.0,2024.0,4.0,1.0
+01/04/24,Travel to office and back,Travel,10.0,2024.0,4.0,1.0
+01/04/24,Lunch ,Food,25.0,2024.0,4.0,1.0
+02/04/24,Dinner,Food,244.0,2024.0,4.0,2.0
+02/04/24,Travel to office and back,Travel,40.0,2024.0,4.0,2.0
+02/04/24,Lunch ,Food,25.0,2024.0,4.0,2.0
+03/04/24,Travel to office and back,Travel,39.0,2024.0,4.0,3.0
+03/04/24,Lunch ,Food,50.0,2024.0,4.0,3.0
+04/04/24,Travel to office and back,Travel,40.0,2024.0,4.0,4.0
+04/04/24,Lunch,Food,25.0,2024.0,4.0,4.0
+05/04/24,Travel to office and back,Travel,40.0,2024.0,4.0,5.0
+05/04/24,Lunch,Food,171.0,2024.0,4.0,5.0
+05/04/24,Travel to airport ,Entertainment,381.0,2024.0,4.0,5.0
+06/04/24,Dinner,Food,510.0,2024.0,4.0,6.0
+11/04/24,Buy medicine for mummy,Medical,91.0,2024.0,4.0,11.0
+12/04/24,Airtel bill,Auto,719.0,2024.0,4.0,12.0
+15/04/24,Travel to pg from airport,Entertainment,490.0,2024.0,4.0,15.0
+15/04/24,Travel to office and back,Travel,10.0,2024.0,4.0,15.0
+15/04/24,Lunch ,Food,100.0,2024.0,4.0,15.0
+16/04/24,Travel to office and back,Travel,37.0,2024.0,4.0,16.0
+16/04/24,Lunch,Food,25.0,2024.0,4.0,16.0
+17/04/24,Travel to office and back,Travel,37.0,2024.0,4.0,17.0
+17/04/24,Lunch ,Food,25.0,2024.0,4.0,17.0
+18/04/24,Travel to office and back,Travel,42.0,2024.0,4.0,18.0
+18/04/24,Lunch,Food,100.0,2024.0,4.0,18.0
+19/04/24,Lunch,Food,582.0,2024.0,4.0,19.0
+20/04/24,Mall trip,Entertainment,331.0,2024.0,4.0,20.0
+21/04/24,Snacks,Food,140.0,2024.0,4.0,21.0
+21/04/24,Haircut,Utilities,125.0,2024.0,4.0,21.0
+22/04/24,Travel to office and back,Travel,40.0,2024.0,4.0,22.0
+22/04/24,Lunch,Food,25.0,2024.0,4.0,22.0
+23/04/24,Travel to office and back,Travel,40.0,2024.0,4.0,23.0
+23/04/24,Spotify,Auto,119.0,2024.0,4.0,23.0
+23/04/24,Lunch,Food,50.0,2024.0,4.0,23.0
+24/04/24,Travel to office and back,Travel,40.0,2024.0,4.0,24.0
+24/04/24,Lunch,Food,95.0,2024.0,4.0,24.0
+25/04/24,Travel to office and back,Travel,35.0,2024.0,4.0,25.0
+25/04/24,Lunch ,Food,25.0,2024.0,4.0,25.0
+25/04/24,Snacks,Food,244.0,2024.0,4.0,25.0
+26/04/24,Travel to office and back,Travel,50.0,2024.0,4.0,26.0
+26/04/24,Lunch ,Food,70.0,2024.0,4.0,26.0
+28/04/24,Snacks,Food,152.0,2024.0,4.0,28.0
+29/04/24,Travel to office and back,Travel,10.0,2024.0,4.0,29.0
+29/04/24,Lunch ,Food,100.0,2024.0,4.0,29.0
+30/04/24,Travel to office and back,Travel,42.0,2024.0,4.0,30.0
+30/04/24,Lunch ,Food,40.0,2024.0,4.0,30.0
+01/05/24,Rent,Home,16206.0,2024.0,5.0,1.0
+01/05/24,Trip to watsons,Entertainment,471.0,2024.0,5.0,1.0
+02/05/24,Travel to office and back,Travel,40.0,2024.0,5.0,2.0
+02/05/24,Lunch ,Food,75.0,2024.0,5.0,2.0
+03/05/24,Travel to office and back,Travel,55.0,2024.0,5.0,3.0
+03/05/24,Lunch ,Food,90.0,2024.0,5.0,3.0
+04/05/24,Trip to pheonix,Entertainment,337.0,2024.0,5.0,4.0
+05/05/24,Snacks,Food,181.0,2024.0,5.0,5.0
+06/05/24,Travel to office and back,Travel,44.0,2024.0,5.0,6.0
+06/05/24,Lunch ,Food,131.0,2024.0,5.0,6.0
+07/05/24,Travel to office and back,Travel,10.0,2024.0,5.0,7.0
+07/05/24,Lunch ,Food,25.0,2024.0,5.0,7.0
+08/05/24,Lunch,Food,131.0,2024.0,5.0,8.0
+08/05/24,Travel to office and back,Travel,62.0,2024.0,5.0,8.0
+09/05/24,Travel to office and back,Travel,40.0,2024.0,5.0,9.0
+09/05/24,Lunch,Food,90.0,2024.0,5.0,9.0
+10/05/24,Travel to office and back,Travel,40.0,2024.0,5.0,10.0
+10/05/24,Lunch,Food,25.0,2024.0,5.0,10.0
+10/05/24,Travel to airport,Entertainment,204.0,2024.0,5.0,10.0
+10/05/24,Dinner,Food,530.0,2024.0,5.0,10.0
+16/05/24,Groceries  home,Other,86.0,2024.0,5.0,16.0
+19/05/24,Travel back to pg,Entertainment,950.0,2024.0,5.0,19.0
+20/05/24,Travel to office and back,Travel,45.0,2024.0,5.0,20.0
+20/05/24,Lunch,Food,25.0,2024.0,5.0,20.0
+21/05/24,Travel to office and back,Travel,10.0,2024.0,5.0,21.0
+21/05/24,Lunch,Food,25.0,2024.0,5.0,21.0
+22/05/24,Travel to office and back,Travel,54.0,2024.0,5.0,22.0
+22/05/24,Lunch,Food,40.0,2024.0,5.0,22.0
+22/05/24,Spotify,Auto,119.0,2024.0,5.0,22.0
+23/05/24,Travel to office and back,Travel,40.0,2024.0,5.0,23.0
+23/05/24,Lunch,Food,40.0,2024.0,5.0,23.0
+23/05/24,Dinner,Food,308.0,2024.0,5.0,23.0
+24/05/24,Travel to office and back,Travel,40.0,2024.0,5.0,24.0
+24/05/24,Lunch,Food,40.0,2024.0,5.0,24.0
+25/05/24,Snacks,Food,241.0,2024.0,5.0,25.0
+25/05/24,Lunch,Food,220.0,2024.0,5.0,25.0
+26/05/24,Lunch,Food,256.0,2024.0,5.0,26.0
+26/05/24,Snacks and fruits,Food,150.0,2024.0,5.0,26.0
+26/05/24,Haircut,Utilities,125.0,2024.0,5.0,26.0
+27/05/24,Travel to office and back,Travel,40.0,2024.0,5.0,27.0
+27/05/24,Lunch,Food,25.0,2024.0,5.0,27.0
+28/05/24,Breakfast ,Food,50.0,2024.0,5.0,28.0
+28/05/24,Travel to office and back,Travel,10.0,2024.0,5.0,28.0
+28/05/24,Lunch,Food,40.0,2024.0,5.0,28.0
+29/05/24,Travel to office and back,Travel,60.0,2024.0,5.0,29.0
+30/05/24,Travel to office and back,Travel,42.0,2024.0,5.0,30.0
+30/05/24,Lunch,Food,100.0,2024.0,5.0,30.0
+31/05/24,Travel to office and back,Travel,10.0,2024.0,5.0,31.0
+31/05/24,Lunch,Food,52.0,2024.0,5.0,31.0
+01/06/24,rent,Home,16207.0,2024.0,6.0,1.0
+01/06/24,snacks,Food,87.0,2024.0,6.0,1.0
+01/06/24,lunch,Food,315.0,2024.0,6.0,1.0
+02/06/24,Snacks,Food,604.0,2024.0,6.0,2.0
+02/06/24,Dinner,Food,187.0,2024.0,6.0,2.0
+03/06/24,Travel to office and back,Travel,40.0,2024.0,6.0,3.0
+03/06/24,Lunch,Food,40.0,2024.0,6.0,3.0
+04/06/24,Lunch,Food,70.0,2024.0,6.0,4.0
+04/06/24,Travel to office and back,Travel,40.0,2024.0,6.0,4.0
+05/06/24,Travel to office and back,Travel,40.0,2024.0,6.0,5.0
+05/06/24,Lunch,Food,40.0,2024.0,6.0,5.0
+06/06/24,Travel to office and back,Travel,40.0,2024.0,6.0,6.0
+06/06/24,Lunch,Food,95.0,2024.0,6.0,6.0
+07/06/24,Travel to office and back,Travel,35.0,2024.0,6.0,7.0
+07/06/24,Lunch,Food,50.0,2024.0,6.0,7.0
+08/06/24,Lunch,Food,308.0,2024.0,6.0,8.0
+08/06/24,Movie,Entertainment,375.0,2024.0,6.0,8.0
+09/06/24,Fruits and snacks,Food,298.0,2024.0,6.0,9.0
+10/06/24,Travel to office and back,Travel,42.0,2024.0,6.0,10.0
+10/06/24,Lunch,Food,40.0,2024.0,6.0,10.0
+11/06/24,Travel to office and back,Travel,40.0,2024.0,6.0,11.0
+11/06/24,Lunch ,Food,25.0,2024.0,6.0,11.0
+12/06/24,Travel to office and back ,Travel,50.0,2024.0,6.0,12.0
+12/06/24,Lunch,Food,40.0,2024.0,6.0,12.0
+13/06/24,Travel to office and back,Travel,10.0,2024.0,6.0,13.0
+13/06/24,Travel to office and back,Travel,10.0,2024.0,6.0,13.0
+14/06/24,Travel to office and back ,Travel,42.0,2024.0,6.0,14.0
+14/06/24,Lunch,Food,75.0,2024.0,6.0,14.0
+15/06/24,Lunch,Food,446.0,2024.0,6.0,15.0
+16/06/24,Snacks,Food,213.0,2024.0,6.0,16.0
+16/06/24,Lunch,Food,191.0,2024.0,6.0,16.0
+17/06/24,Travel to office and back ,Travel,30.0,2024.0,6.0,17.0
+17/06/24,Lunch ,Food,95.0,2024.0,6.0,17.0
+18/06/24,Travel to office and back,Travel,10.0,2024.0,6.0,18.0
+18/06/24,Lunch,Food,58.0,2024.0,6.0,18.0
+19/06/24,Travel to office and back,Travel,10.0,2024.0,6.0,19.0
+20/06/24,Travel to office an back,Travel,40.0,2024.0,6.0,20.0
+20/06/24,Lunch,Food,40.0,2024.0,6.0,20.0
+21/06/24,Travel to office and back,Travel,40.0,2024.0,6.0,21.0
+21/06/24,Lunch,Food,75.0,2024.0,6.0,21.0
+22/06/24,Spotify ,Auto,119.0,2024.0,6.0,22.0
+23/06/24,Snacks and utilities,Utilities,205.0,2024.0,6.0,23.0
+23/06/24,Snacks,Food,38.0,2024.0,6.0,23.0
+23/06/24,Farewell lunch,Entertainment,462.0,2024.0,6.0,23.0
+23/06/24,Farewell lunch travel,Entertainment,65.0,2024.0,6.0,23.0
+24/06/24,Travel to office and back,Travel,50.0,2024.0,6.0,24.0
+24/06/24,Lunch,Food,95.0,2024.0,6.0,24.0
+25/06/24,Travel to office and back,Travel,40.0,2024.0,6.0,25.0
+25/06/24,Lunch,Food,100.0,2024.0,6.0,25.0
+26/06/24,Travel to office and back,Travel,40.0,2024.0,6.0,26.0
+27/06/24,Travel to office and back,Travel,10.0,2024.0,6.0,27.0
+27/06/24,Lunch,Food,10.0,2024.0,6.0,27.0
+27/06/24,Lunch,Food,95.0,2024.0,6.0,27.0
+28/06/24,Travel to office and back,Travel,40.0,2024.0,6.0,28.0
+28/06/24,Lunch,Food,25.0,2024.0,6.0,28.0
+28/06/24,Dinner,Food,288.0,2024.0,6.0,28.0
+29/06/24,Lunch,Food,211.0,2024.0,6.0,29.0
+30/06/24,Groceries,Utilities,271.0,2024.0,6.0,30.0
+30/06/24,Trip to express avenue mall,Entertainment,258.0,2024.0,6.0,30.0
+01/07/24,Rent,Home,16207.0,2024.0,7.0,1.0
+01/07/24,Cricket match ticket,Entertainment,150.0,2024.0,7.0,1.0
+01/07/24,Travel to office and back,Travel,10.0,2024.0,7.0,1.0
+01/07/24,Lunch,Food,25.0,2024.0,7.0,1.0
+02/07/24,Travel to office and back,Travel,51.0,2024.0,7.0,2.0
+02/07/24,Lunch,Food,40.0,2024.0,7.0,2.0
+02/07/24,Gift card for farewell,Entertainment,1050.0,2024.0,7.0,2.0
+03/07/24,Travel to office and back,Travel,58.0,2024.0,7.0,3.0
+03/07/24,Lunch,Food,40.0,2024.0,7.0,3.0
+04/07/24,Travel to office and back,Travel,10.0,2024.0,7.0,4.0
+04/07/24,Lunch,Food,189.0,2024.0,7.0,4.0
+04/07/24,Airtel SIM recharge ,Auto,979.0,2024.0,7.0,4.0
+05/07/24,Travel to office and back,Travel,10.0,2024.0,7.0,5.0
+05/07/24,Lunch,Food,95.0,2024.0,7.0,5.0
+06/07/24,Lunch,Food,246.0,2024.0,7.0,6.0
+06/07/24,Movie,Entertainment,429.0,2024.0,7.0,6.0
+07/07/24,Lunch,Food,288.0,2024.0,7.0,7.0
+07/07/24,IT returns filing fee,Utilities,1238.0,2024.0,7.0,7.0
+08/07/24,Travel to office and back,Travel,40.0,2024.0,7.0,8.0
+08/07/24,Lunch,Food,75.0,2024.0,7.0,8.0
+09/07/24,Travel to office and back,Travel,10.0,2024.0,7.0,9.0
+09/07/24,Lunch,Food,168.0,2024.0,7.0,9.0
+10/07/24,Travel to office and back,Travel,43.0,2024.0,7.0,10.0
+10/07/24,Lunch,Food,50.0,2024.0,7.0,10.0
+08/07/24,Haircut,Utilities,150.0,2024.0,7.0,8.0
+11/07/24,Travel to office and back,Travel,10.0,2024.0,7.0,11.0
+11/07/24,Lunch,Food,52.0,2024.0,7.0,11.0
+12/07/24,Travel to office and back,Travel,35.0,2024.0,7.0,12.0
+12/07/24,Lunch,Food,25.0,2024.0,7.0,12.0
+13/07/24,Lunch,Food,290.0,2024.0,7.0,13.0
+13/07/24,Travel to airport ,Entertainment,460.0,2024.0,7.0,13.0
+13/07/24,Dinner,Food,530.0,2024.0,7.0,13.0
+23/07/24,Spotify subscription ,Auto,119.0,2024.0,7.0,23.0
+26/07/24,Watch movie,Entertainment,414.0,2024.0,7.0,26.0
+01/08/24,rent,Home,17442.0,2024.0,8.0,1.0
+12/08/24,Security deposit,Home,6000.0,2024.0,8.0,12.0
+16/08/24,Movie,Entertainment,303.0,2024.0,8.0,16.0
+24/08/24,Spotify subscription ,Auto,119.0,2024.0,8.0,24.0
+25/08/24,Travel from airport to pg,Travel,530.0,2024.0,8.0,25.0
+25/08/24,Dinner,Food,320.0,2024.0,8.0,25.0
+26/08/24,Travel to office and back,Travel,27.0,2024.0,8.0,26.0
+26/08/24,Lunch,Food,40.0,2024.0,8.0,26.0
+27/08/24,Lunch,Food,80.0,2024.0,8.0,27.0
+27/08/24,Dinner,Food,175.0,2024.0,8.0,27.0
+27/08/24,Travel to office and back,Travel,10.0,2024.0,8.0,27.0
+28/08/24,Travel to office and back,Travel,10.0,2024.0,8.0,28.0
+28/08/24,Lunch,Food,241.8,2024.0,8.0,28.0
+29/08/24,Travel to office and back ,Travel,10.0,2024.0,8.0,29.0
+29/08/24,Lunch ,Food,175.0,2024.0,8.0,29.0
+30/08/24,Travel to offica and back,Travel,10.0,2024.0,8.0,30.0
+30/08/24,Lunch,Food,60.0,2024.0,8.0,30.0
+31/08/24,Snack,Food,356.0,2024.0,8.0,31.0
+31/08/24,Electricity bill,Home,300.0,2024.0,8.0,31.0
+31/08/24,Dinner,Food,256.0,2024.0,8.0,31.0
+01/09/24,Buy razor cartridge,Utilities,306.0,2024.0,9.0,1.0
+01/09/24,Rent,Home,985.0,2024.0,9.0,1.0
+01/09/24,Wikipedia contribution ,Auto,29.0,2024.0,9.0,1.0
+01/09/24,Lunch,Food,273.0,2024.0,9.0,1.0
+01/09/24,Snacks,Food,25.0,2024.0,9.0,1.0
+02/09/24,Travel to office and back,Travel,10.0,2024.0,9.0,2.0
+02/09/24,Lunch,Home,25.0,2024.0,9.0,2.0
+03/09/24,Travel to office and back,Travel,10.0,2024.0,9.0,3.0
+03/09/24,Lunch,Food,120.0,2024.0,9.0,3.0
+03/09/24,Rent,Home,16052.0,2024.0,9.0,3.0
+04/09/24,Travel to office and back ,Travel,10.0,2024.0,9.0,4.0
+04/09/24,Lunch,Food,70.0,2024.0,9.0,4.0
+05/09/24,Travel to office and back,Travel,10.0,2024.0,9.0,5.0
+05/09/24,Lunch,Food,50.0,2024.0,9.0,5.0
+06/09/24,Travel to office and back ,Travel,10.0,2024.0,9.0,6.0
+06/09/24,Lunch,Food,105.0,2024.0,9.0,6.0
+07/09/24,Lunch,Food,316.0,2024.0,9.0,7.0
+07/09/24,Travel to airport ,Entertainment,210.0,2024.0,9.0,7.0
+07/09/24,Dinner,Food,529.0,2024.0,9.0,7.0
+21/09/24,Movie,Entertainment,346.0,2024.0,9.0,21.0
+26/09/24,Spotify,Auto,119.0,2024.0,9.0,26.0
+29/09/24,Airtel recharge,Auto,859.0,2024.0,9.0,29.0
+01/10/24,Rent,Home,18000.0,2024.0,10.0,1.0
+04/10/24,Dinner,Food,629.0,2024.0,10.0,4.0
+08/10/24,Santro inspection booking,Other,149.0,2024.0,10.0,8.0
+08/10/24,Dinner,Food,290.0,2024.0,10.0,8.0
+12/10/24,Haircut,Utilities,170.0,2024.0,10.0,12.0
+12/10/24,Tax payment,Other,2510.0,2024.0,10.0,12.0
+19/10/24,Movie ticket booking,Entertainment,347.0,2024.0,10.0,19.0
+20/10/24,Travel to pg from airport,Entertainment,600.0,2024.0,10.0,20.0
+20/10/24,Electricity bill,Home,500.0,2024.0,10.0,20.0
+20/10/24,Lunch,Food,317.0,2024.0,10.0,20.0
+21/10/24,Travel to office and back,Travel,42.0,2024.0,10.0,21.0
+21/10/24,Lunch,Food,15.0,2024.0,10.0,21.0
+21/10/24,Groceries,Utilities,273.0,2024.0,10.0,21.0
+22/10/24,Travel to office and back,Travel,42.0,2024.0,10.0,22.0
+22/10/24,Lunch,Food,50.0,2024.0,10.0,22.0
+22/10/24,Spotify subscription renew,Auto,119.0,2024.0,10.0,22.0
+23/10/24,Travel to office and back,Travel,42.0,2024.0,10.0,23.0
+23/10/24,Lunch,Food,199.0,2024.0,10.0,23.0
+24/10/24,Travel to office and back,Travel,41.0,2024.0,10.0,24.0
+24/10/24,Lunch,Food,200.0,2024.0,10.0,24.0
+24/10/24,Snacks,Food,16.5,2024.0,10.0,24.0
+26/10/24,Movie ,Entertainment,385.0,2024.0,10.0,26.0
+25/10/24,Travel to office and back,Travel,37.0,2024.0,10.0,25.0
+25/10/24,Lunch,Food,25.0,2024.0,10.0,25.0
+26/10/24,Snacks,Food,25.0,2024.0,10.0,26.0
+26/10/24,travel to airport,Travel,230.0,2024.0,10.0,26.0
+26/10/24,dinner,Food,710.0,2024.0,10.0,26.0
+01/11/24,movies,Entertainment,601.0,2024.0,11.0,1.0
+01/11/24,Rent,Home,18611.99,2024.0,11.0,1.0
+06/11/24,Lunch,Food,112.0,2024.0,11.0,6.0
+06/11/24,Buy comb,Utilities,25.0,2024.0,11.0,6.0
+15/11/24,Farewell gift for Priya,Other,700.0,2024.0,11.0,15.0
+17/11/24,Travel to pg from airport,Travel,504.0,2024.0,11.0,17.0
+17/11/24,Electricity bill,Home,500.0,2024.0,11.0,17.0
+17/11/24,Swiggy subscription,Auto,39.0,2024.0,11.0,17.0
+17/11/24,Buy mouse,Utilities,371.0,2024.0,11.0,17.0
+17/11/24,Lunch,Food,321.0,2024.0,11.0,17.0
+18/11/24,Travel to office,Travel,42.0,2024.0,11.0,18.0
+18/11/24,Lunch,Food,271.0,2024.0,11.0,18.0
+19/11/24,Travel to office,Travel,10.0,2024.0,11.0,19.0
+19/11/24,Lunch,Food,152.0,2024.0,11.0,19.0
+20/11/24,Travel to office,Travel,52.0,2024.0,11.0,20.0
+21/11/24,Travel to office and back,Travel,57.0,2024.0,11.0,21.0
+21/11/24,Lunch,Food,70.0,2024.0,11.0,21.0
+21/11/24,Dinner,Food,168.0,2024.0,11.0,21.0
+22/11/24,Travel to office,Travel,42.0,2024.0,11.0,22.0
+22/11/24,Lunch,Food,110.0,2024.0,11.0,22.0
+22/11/24,Spotify recharge,Auto,119.0,2024.0,11.0,22.0
+23/11/24,Lunch,Food,305.0,2024.0,11.0,23.0
+23/11/24,Travel to airport,Travel,520.0,2024.0,11.0,23.0
+23/11/24,Electrcity bill,Home,500.0,2024.0,11.0,23.0
+01/12/24,Rent,Home,18612.0,2024.0,12.0,1.0
+08/12/24,trip to Aga Khan Palace with Yaman,Auto,571.0,2024.0,12.0,8.0
+22/12/24,Travel to Shanivar wada with Yaman,Entertainment,980.0,2024.0,12.0,22.0
+22/12/24,Spotify recharge,Auto,119.0,2024.0,12.0,22.0
+22/12/24,Airtel recharge,Auto,3599.0,2024.0,12.0,22.0
+01/01/25,Movie,Entertainment,302.0,2025.0,1.0,1.0
+01/01/25,rent,Home,18613.0,2025.0,1.0,1.0
+11/01/25,Visit to Rajiv Gandhi zoological park and Kumar pacific mall,Entertainment,669.0,2025.0,1.0,11.0
+14/01/25,Movie- ye jawaani hai diwani,Entertainment,273.0,2025.0,1.0,14.0
+22/01/25,Spotify subscription ,Auto,119.0,2025.0,1.0,22.0
+26/01/25,Travel to pg from airport,Travel,660.0,2025.0,1.0,26.0
+26/01/25,Electricity bill,Home,500.0,2025.0,1.0,26.0
+26/01/25,Lunch,Food,250.0,2025.0,1.0,26.0
+27/01/25,Travel to office and back,Travel,10.0,2025.0,1.0,27.0
+27/01/25,Lunch,Food,55.0,2025.0,1.0,27.0
+28/01/25,Travel to office,Travel,10.0,2025.0,1.0,28.0
+28/01/25,Lunch,Food,271.0,2025.0,1.0,28.0
+28/01/25,Dinner,Food,224.0,2025.0,1.0,28.0
+29/01/25,Travel to office,Travel,10.0,2025.0,1.0,29.0
+29/01/25,Lunch,Food,45.0,2025.0,1.0,29.0
+30/01/25,Travel to office,Travel,10.0,2025.0,1.0,30.0
+30/01/25,Lunch,Food,95.0,2025.0,1.0,30.0
+31/01/25,Travel to office,Travel,10.0,2025.0,1.0,31.0
+31/01/25,Water bottle,Food,80.0,2025.0,1.0,31.0
+01/02/25,Rent,Home,19212.0,2025.0,2.0,1.0
+01/02/25,Electricity bill,Home,400.0,2025.0,2.0,1.0
+01/02/25,Lunch,Food,331.0,2025.0,2.0,1.0
+02/02/25,Lunch,Food,321.0,2025.0,2.0,2.0
+03/02/25,Travel to office,Travel,10.0,2025.0,2.0,3.0
+03/02/25,Lunch,Food,73.0,2025.0,2.0,3.0
+04/02/25,Travel to office,Travel,10.0,2025.0,2.0,4.0
+04/02/25,Lunch,Food,55.0,2025.0,2.0,4.0
+04/02/25,Dinner,Food,331.0,2025.0,2.0,4.0
+05/02/25,Travel to office,Travel,10.0,2025.0,2.0,5.0
+05/02/25,Lunch,Food,55.0,2025.0,2.0,5.0
+05/02/25,Movie,Entertainment,300.0,2025.0,2.0,5.0
+06/02/25,Lunch,Food,311.0,2025.0,2.0,6.0
+07/02/25,Travel to office,Travel,50.0,2025.0,2.0,7.0
+07/02/25,Lunch,Food,95.0,2025.0,2.0,7.0
+08/02/25,Lunch,Food,331.0,2025.0,2.0,8.0
+08/02/25,Excess baggage fee,Other,2475.0,2025.0,2.0,8.0
+08/02/25,Travel to airport,Travel,510.0,2025.0,2.0,8.0
+

@@ -1,0 +1,151 @@
+MonthYear,Category,Budget
+10/23,Auto,500.0
+10/23,Entertainment,1000.0
+10/23,Food,4000.0
+10/23,Home,18206.0
+10/23,Medical,0.0
+10/23,Personal Items,0.0
+10/23,Travel,500.0
+10/23,Utilities,500.0
+10/23,Other,1294.0
+11/23,Auto,0.0
+11/23,Entertainment,1000.0
+11/23,Food,4000.0
+11/23,Home,18206.0
+11/23,Medical,0.0
+11/23,Personal Items,0.0
+11/23,Travel,1000.0
+11/23,Utilities,1000.0
+11/23,Other,794.0
+12/23,Auto,0.0
+12/23,Entertainment,1000.0
+12/23,Food,4000.0
+12/23,Home,18206.0
+12/23,Medical,0.0
+12/23,Personal Items,0.0
+12/23,Travel,1000.0
+12/23,Utilities,1000.0
+12/23,Other,794.0
+01/24,Auto,0.0
+01/24,Entertainment,1000.0
+01/24,Food,4000.0
+01/24,Home,18206.0
+01/24,Medical,0.0
+01/24,Personal Items,0.0
+01/24,Travel,1000.0
+01/24,Utilities,1000.0
+01/24,Other,794.0
+02/24,Auto,0.0
+02/24,Entertainment,1000.0
+02/24,Food,4000.0
+02/24,Home,18206.0
+02/24,Medical,0.0
+02/24,Personal Items,0.0
+02/24,Travel,1000.0
+02/24,Utilities,1000.0
+02/24,Other,794.0
+03/24,Auto,0.0
+03/24,Entertainment,1000.0
+03/24,Food,4000.0
+03/24,Home,18206.0
+03/24,Medical,0.0
+03/24,Personal Items,0.0
+03/24,Travel,1000.0
+03/24,Utilities,1000.0
+03/24,Other,794.0
+04/24,Auto,500.0
+04/24,Entertainment,1500.0
+04/24,Food,4000.0
+04/24,Home,17000.0
+04/24,Medical,500.0
+04/24,Personal Items,0.0
+04/24,Travel,1500.0
+04/24,Utilities,1000.0
+04/24,Other,0.0
+05/24,Auto,500.0
+05/24,Entertainment,1500.0
+05/24,Food,4000.0
+05/24,Home,17000.0
+05/24,Medical,500.0
+05/24,Personal Items,0.0
+05/24,Travel,1500.0
+05/24,Utilities,1000.0
+05/24,Other,0.0
+06/24,Auto,500.0
+06/24,Entertainment,1500.0
+06/24,Food,4000.0
+06/24,Home,17000.0
+06/24,Medical,500.0
+06/24,Personal Items,0.0
+06/24,Travel,1500.0
+06/24,Utilities,1000.0
+06/24,Other,0.0
+07/24,Auto,500.0
+07/24,Entertainment,1500.0
+07/24,Food,4000.0
+07/24,Medical,500.0
+07/24,Personal Items,0.0
+07/24,Travel,1500.0
+07/24,Utilities,1000.0
+07/24,Other,0.0
+07/24,Home,17000.0
+08/24,Auto,500.0
+08/24,Entertainment,1500.0
+08/24,Food,4000.0
+08/24,Medical,500.0
+08/24,Personal Items,0.0
+08/24,Travel,1500.0
+08/24,Utilities,1000.0
+08/24,Other,0.0
+08/24,Home,17000.0
+09/24,Auto,200.0
+09/24,Entertainment,800.0
+09/24,Food,3000.0
+09/24,Medical,0.0
+09/24,Personal Items,0.0
+09/24,Travel,500.0
+09/24,Utilities,1000.0
+09/24,Other,0.0
+09/24,Home,20000.0
+10/24,Auto,200.0
+10/24,Entertainment,2000.0
+10/24,Food,4000.0
+10/24,Home,18000.0
+10/24,Medical,0.0
+10/24,Personal Items,0.0
+10/24,Travel,1000.0
+10/24,Utilities,800.0
+11/24,Auto,200.0
+11/24,Entertainment,2000.0
+11/24,Food,3000.0
+11/24,Home,19500.0
+11/24,Medical,0.0
+11/24,Personal Items,0.0
+11/24,Travel,1500.0
+11/24,Utilities,800.0
+12/24,Auto,200.0
+12/24,Entertainment,2000.0
+12/24,Food,3000.0
+12/24,Home,19500.0
+12/24,Medical,0.0
+12/24,Personal Items,0.0
+12/24,Travel,1500.0
+12/24,Utilities,800.0
+01/25,Auto,200.0
+01/25,Entertainment,2000.0
+01/25,Food,3000.0
+01/25,Home,19500.0
+01/25,Medical,0.0
+01/25,Personal Items,0.0
+01/25,Travel,1500.0
+01/25,Utilities,800.0
+01/25,Other,0.0
+02/25,Auto,200.0
+02/25,Entertainment,2000.0
+02/25,Food,3000.0
+02/25,Home,19500.0
+02/25,Medical,0.0
+02/25,Personal Items,0.0
+02/25,Travel,1500.0
+02/25,Utilities,800.0
+02/25,Other,0.0
