@@ -76,7 +76,7 @@ def get_transactions(month, year):
     conn.close()
     return jsonify(transactions)
 
-@app.route("/expenditures", methods=["POST"])
+@app.route("/transactions", methods=["POST"])
 def add_expenditure():
     data = request.json
     conn = get_db_connection()
@@ -108,13 +108,13 @@ def add_budget():
     conn.close()
     return jsonify({"message": "Budget entry added successfully"}), 201
 
-@app.route("/expenditures/<int:id>", methods=["DELETE"])
+@app.route("/transactions/<int:id>", methods=["DELETE"])
 def delete_expenditure(id):
     conn = get_db_connection()
     conn.execute("DELETE FROM budget_tracker WHERE id = ?", (id,))
     conn.commit()
     conn.close()
-    return jsonify({"message": "Expenditure deleted successfully"}), 200
+    return jsonify({"message": "Expenditure deleted successfully"}), 204
 
 @app.route("/budget", methods=["DELETE"])
 def delete_budget():
@@ -126,7 +126,22 @@ def delete_budget():
     )
     conn.commit()
     conn.close()
-    return jsonify({"message": "Budget entry deleted successfully"}), 200
+    return jsonify({"message": "Budget entry deleted successfully"}), 204
+
+@app.route("/budget/<int:month>/<int:year>", methods=["GET"])
+def get_budget(month, year):
+    month_year = f"{month:02d}/{str(year)[-2:]}"  # e.g., 4/2024 → "04/24"
+    conn = get_db_connection()
+    cursor = conn.execute(
+        "SELECT Category, Budget FROM budget_set WHERE MonthYear = ?", (month_year,)
+    )
+    budget_entries = [dict(row) for row in cursor.fetchall()]
+    conn.close()
+
+    if not budget_entries:
+        return jsonify({"error": "No budget data found for this month"}), 404
+
+    return jsonify({"MonthYear": month_year, "Budgets": budget_entries})
 
 if __name__ == "__main__":
     app.run(debug=True)
