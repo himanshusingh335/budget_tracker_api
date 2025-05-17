@@ -2,7 +2,7 @@ import csv
 import sqlite3
 from datetime import datetime
 
-DB_NAME = "budget.db"
+DB_NAME = "data/budget.db"
 
 def init_db():
     with sqlite3.connect(DB_NAME) as conn:

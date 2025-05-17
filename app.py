@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 import sqlite3
 
 app = Flask(__name__)
-DB_NAME = "budget.db"
+DB_NAME = "data/budget.db"
 
 def get_db_connection():
     conn = sqlite3.connect(DB_NAME)
@@ -143,5 +143,5 @@ def get_budget(month, year):
 
     return jsonify({"MonthYear": month_year, "Budgets": budget_entries})
 
-if __name__ == "__main__":
-    app.run(debug=True)
+#if __name__ == "__main__":
+#    app.run(debug=True, host="0.0.0.0", port=8502)

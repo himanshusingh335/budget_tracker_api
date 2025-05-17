@@ -3,7 +3,7 @@ import pandas as pd
 import os
 
 # Path to your SQLite database
-db_path = 'budget.db'
+db_path = 'data/budget.db'
 
 # Connect to the database
 conn = sqlite3.connect(db_path)
