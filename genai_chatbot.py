@@ -1,10 +1,7 @@
-# budget_crew_ai.py
-
 import sqlite3
 import traceback
 from crewai import Crew, Task, Agent, Process
-from langchain_openai import ChatOpenAI
-import os
+from langchain_ollama import ChatOllama
 from prompts import (
     QUESTION_PARSER_ROLE, QUESTION_PARSER_GOAL,
     SQL_VALIDATOR_ROLE, SQL_VALIDATOR_GOAL,
@@ -15,14 +12,8 @@ from prompts import (
 
 DB_PATH = "data/budget.db"
 
-os.environ["OPENAI_API_KEY"] = "dummy"
 
-llm = ChatOpenAI(
-    model="ollama/llama3.2",
-    base_url="http://localhost:11434/v1",
-    api_key="ollama",  # Required by langchain_openai even if dummy
-    temperature=0
-)
+llm = ChatOllama(model="ollama/llama3.2", temperature=0)
 
 # Step 1: Agents
 question_parser = Agent(
