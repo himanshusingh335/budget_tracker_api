@@ -3,11 +3,11 @@ import io
 import sqlite3
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 
 from ..database import get_db
-from ..models.transaction import TransactionCreate
+from ..models.transaction import TransactionCreate, TransactionUpdate
 
 router = APIRouter(prefix="/transactions", tags=["Transactions"])
 
@@ -47,6 +47,26 @@ def add_transaction(payload: TransactionCreate, db: Annotated[sqlite3.Connection
     )
     db.commit()
     return {"message": "Expenditure added successfully"}
+
+
+@router.patch("/{id}", status_code=200)
+def update_transaction(id: int, payload: TransactionUpdate, db: Annotated[sqlite3.Connection, Depends(get_db)]):
+    fields = payload.model_dump(exclude_none=True)
+    if not fields:
+        raise HTTPException(status_code=400, detail="No fields provided to update")
+
+    existing = db.execute("SELECT id FROM budget_tracker WHERE id = ?", (id,)).fetchone()
+    if not existing:
+        raise HTTPException(status_code=404, detail="Transaction not found")
+
+    set_clause = ", ".join(f"{col} = ?" for col in fields)
+    db.execute(
+        f"UPDATE budget_tracker SET {set_clause} WHERE id = ?",
+        (*fields.values(), id),
+    )
+    db.commit()
+    row = db.execute("SELECT * FROM budget_tracker WHERE id = ?", (id,)).fetchone()
+    return dict(row)
 
 
 @router.delete("/{id}", status_code=200)
