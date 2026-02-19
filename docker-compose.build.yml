@@ -6,6 +6,24 @@ services:
       - "8502:8502"
     volumes:
       - budget_data:/app/data
+    networks:
+      - budget-network
+
+  frontend:
+    build:
+      context: ../budget_tracker_flutter
+      dockerfile: Dockerfile
+    image: budget-tracker-frontend:latest
+    ports:
+      - "80:80"
+    networks:
+      - budget-network
+    depends_on:
+      - api
+
+networks:
+  budget-network:
+    driver: bridge
 
 volumes:
   budget_data:

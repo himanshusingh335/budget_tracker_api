@@ -6,6 +6,22 @@ services:
     volumes:
       - budget_data:/app/data
     restart: unless-stopped
+    networks:
+      - budget-network
+
+  frontend:
+    image: mariox1105/budget-tracker-frontend:latest
+    ports:
+      - "80:80"
+    restart: unless-stopped
+    networks:
+      - budget-network
+    depends_on:
+      - api
+
+networks:
+  budget-network:
+    driver: bridge
 
 volumes:
   budget_data:
