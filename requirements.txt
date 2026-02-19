@@ -1,4 +1,4 @@
-fastapi
-uvicorn
-pydantic
-pandas
+fastapi==0.129.0
+uvicorn==0.35.0
+pydantic==2.11.7
+pandas==2.3.1

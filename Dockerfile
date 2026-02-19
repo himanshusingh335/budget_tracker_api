@@ -7,7 +7,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app/ ./app/
 COPY data/ ./data/
-COPY import_data.py export_data_to_csv.py budget_set.csv budget_tracker.csv ./
 
 EXPOSE 8502
 
