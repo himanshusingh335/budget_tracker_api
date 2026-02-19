@@ -1,0 +1,11 @@
+services:
+  api:
+    build: .
+    image: budget-tracker-api:latest
+    ports:
+      - "8502:8502"
+    volumes:
+      - budget_data:/app/data
+
+volumes:
+  budget_data:
