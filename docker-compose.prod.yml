@@ -1,6 +1,6 @@
 services:
   api:
-    image: budget-tracker-api:latest
+    image: mariox1105/budget-tracker-api:latest
     ports:
       - "8502:8502"
     volumes:
