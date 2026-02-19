@@ -5,14 +5,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-# Run locally
-python app.py                     # Starts Flask on port 8502
+# Run locally (FastAPI with uvicorn, hot-reload)
+conda run -n flask-test uvicorn app.main:app --reload --port 8502
 
-# Initialize database from CSV seed files
-python import_data.py             # Creates schema and imports budget_set.csv + budget_tracker.csv
+# Install FastAPI (one-time)
+conda run -n flask-test pip install fastapi
 
-# Export database tables to CSV
-python export_data_to_csv.py      # Writes to csv_exports/
+# Initialize database from CSV seed files (unchanged)
+conda run -n flask-test python import_data.py
+
+# Export database tables to CSV (unchanged)
+conda run -n flask-test python export_data_to_csv.py
 
 # Docker
 docker build -t budget-tracker-api .
@@ -23,9 +26,24 @@ There is no test suite currently.
 
 ## Architecture
 
-Single-file Flask REST API (`app.py`) backed by SQLite (`data/budget.db`).
+FastAPI REST API (`app/`) backed by SQLite (`data/budget.db`), served by uvicorn.
 
-**Database pattern:** `get_db_connection()` factory opens a connection with `row_factory = sqlite3.Row` for dict-like access. Connections are opened and closed manually per request.
+```
+app/
+├── __init__.py
+├── main.py              # FastAPI app, mounts all routers
+├── config.py            # DB path and app constants
+├── database.py          # get_db() dependency injection (generator)
+├── models/
+│   ├── budget.py        # Pydantic schemas: BudgetCreate, BudgetResponse, BudgetDeleteRequest, SummaryRow
+│   └── transaction.py   # Pydantic schemas: TransactionCreate, TransactionResponse
+└── routers/
+    ├── budget.py        # /budget endpoints + /budget/export/csv
+    ├── transactions.py  # /transactions endpoints + /transactions/export/csv
+    └── summary.py       # /summary endpoint
+```
+
+**Database pattern:** `get_db()` generator in `app/database.py` opens a connection with `row_factory = sqlite3.Row` and closes it unconditionally via `finally`. Injected into routes via `Depends(get_db)`.
 
 **Two tables:**
 
@@ -36,16 +54,23 @@ Single-file Flask REST API (`app.py`) backed by SQLite (`data/budget.db`).
 
 | Method | Path | Description |
 |--------|------|-------------|
-| GET | `/summary/<month>/<year>` | Budget vs actual per category |
-| GET | `/budget/<month>/<year>` | Budget allocations for a month |
-| GET | `/transactions/<month>/<year>` | Transactions for a month |
+| GET | `/` | Health check |
+| GET | `/summary/{month}/{year}` | Budget vs actual per category (INR formatted) |
+| GET | `/budget/{month}/{year}` | Budget allocations for a month |
 | POST | `/budget` | Add budget allocation |
+| DELETE | `/budget` | Delete budget by MonthYear+Category (body) |
+| GET | `/budget/export/csv` | Download full budget_set as CSV |
+| GET | `/transactions/{month}/{year}` | Transactions for a month |
 | POST | `/transactions` | Record a transaction |
-| DELETE | `/budget` | Delete budget by MonthYear+Category |
-| DELETE | `/transactions/<id>` | Delete transaction by id |
+| DELETE | `/transactions/{id}` | Delete transaction by id |
+| GET | `/transactions/export/csv` | Download full budget_tracker as CSV |
+| GET | `/docs` | Swagger UI (auto-generated) |
+| GET | `/redoc` | ReDoc (auto-generated) |
 
-`format_currency()` utility formats values as INR (₹). Month/year params are integers; `MonthYear` stored as `"MM/YY"` string.
+`format_currency()` in `summary.py` formats values as INR (₹). Month/year params are integers; `MonthYear` stored as `"MM/YY"` string.
+
+**Router ordering note:** In each router file, static paths (`/export/csv`) are registered **before** parameterised paths (`/{month}/{year}`, `/{id}`) to prevent FastAPI treating "export" as an integer.
 
 ## Dependencies
 
-Only `flask` is required for the API. `pandas` is needed for `export_data_to_csv.py`. No requirements.txt exists — install manually.
+See `requirements.txt`: `fastapi`, `uvicorn`, `pydantic`, `pandas` (for `export_data_to_csv.py`).
