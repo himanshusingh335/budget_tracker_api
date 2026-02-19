@@ -38,7 +38,7 @@ def get_transactions(month: int, year: int, db: Annotated[sqlite3.Connection, De
     return [dict(r) for r in rows]
 
 
-@router.post("/", status_code=201)
+@router.post("", status_code=201)
 def add_transaction(payload: TransactionCreate, db: Annotated[sqlite3.Connection, Depends(get_db)]):
     db.execute(
         "INSERT INTO budget_tracker (Date, Description, Category, Expenditure, Year, Month, Day) VALUES (?, ?, ?, ?, ?, ?, ?)",

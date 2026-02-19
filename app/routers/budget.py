@@ -39,7 +39,7 @@ def get_budget(month: int, year: int, db: Annotated[sqlite3.Connection, Depends(
     return {"MonthYear": month_year, "Budgets": [dict(r) for r in rows]}
 
 
-@router.post("/", status_code=201)
+@router.post("", status_code=201)
 def add_budget(payload: BudgetCreate, db: Annotated[sqlite3.Connection, Depends(get_db)]):
     db.execute(
         "INSERT INTO budget_set (MonthYear, Category, Budget) VALUES (?, ?, ?)",
@@ -49,7 +49,7 @@ def add_budget(payload: BudgetCreate, db: Annotated[sqlite3.Connection, Depends(
     return {"message": "Budget entry added successfully"}
 
 
-@router.delete("/", status_code=200)
+@router.delete("", status_code=200)
 def delete_budget(payload: BudgetDeleteRequest, db: Annotated[sqlite3.Connection, Depends(get_db)]):
     db.execute(
         "DELETE FROM budget_set WHERE MonthYear = ? AND Category = ?",
