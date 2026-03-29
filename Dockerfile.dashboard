@@ -8,4 +8,4 @@ COPY dashboard.py .
 
 EXPOSE 8080
 
-CMD ["textual", "serve", "--host", "0.0.0.0", "--port", "8080", "dashboard.py"]
+CMD ["python", "-m", "textual", "serve", "--host", "0.0.0.0", "--port", "8080", "dashboard.py"]
