@@ -93,8 +93,10 @@ async def api_patch(path: str, data: dict):
 
 async def api_delete(path: str, data: dict = None):
     async with httpx.AsyncClient(timeout=10.0) as c:
-        kwargs = {"content": json.dumps(data), "headers": {"Content-Type": "application/json"}} if data else {}
-        r = await c.delete(f"{API_BASE}{path}", **kwargs)
+        if data:
+            r = await c.request("DELETE", f"{API_BASE}{path}", content=json.dumps(data), headers={"Content-Type": "application/json"})
+        else:
+            r = await c.delete(f"{API_BASE}{path}")
         r.raise_for_status()
         return r.json()
 
