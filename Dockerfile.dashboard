@@ -2,10 +2,12 @@ FROM python:3.13-slim
 
 WORKDIR /app
 
-RUN pip install --no-cache-dir textual httpx
+RUN pip install --no-cache-dir textual httpx textual-serve
 
 COPY dashboard.py .
 
+RUN echo 'from textual_serve.server import Server\nServer("python /app/dashboard.py", host="0.0.0.0", port=8080).serve()' > /serve.py
+
 EXPOSE 8080
 
-CMD ["python", "-m", "textual", "serve", "--host", "0.0.0.0", "--port", "8080", "dashboard.py"]
+CMD ["python", "/serve.py"]
