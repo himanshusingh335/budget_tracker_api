@@ -9,10 +9,12 @@ services:
     networks:
       - budget-network
 
-  frontend:
-    image: mariox1105/budget-tracker-frontend:latest
+  dashboard:
+    image: mariox1105/budget-tracker-dashboard:latest
     ports:
-      - "80:80"
+      - "8090:8080"
+    environment:
+      - BUDGET_API_URL=http://api:8502
     restart: unless-stopped
     networks:
       - budget-network
@@ -25,3 +27,5 @@ networks:
 
 volumes:
   budget_data:
+    name: budget_data
+    external: true

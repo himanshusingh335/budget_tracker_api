@@ -2,22 +2,20 @@
 set -euo pipefail
 
 DOCKERHUB_USER="mariox1105"
-IMAGE_NAME="budget-tracker-api"
-FRONTEND_IMAGE="budget-tracker-frontend"
+API_IMAGE="budget-tracker-api"
+DASHBOARD_IMAGE="budget-tracker-dashboard"
 TAG="${1:-latest}"
-FULL_IMAGE="$DOCKERHUB_USER/$IMAGE_NAME:$TAG"
-FULL_FRONTEND_IMAGE="$DOCKERHUB_USER/$FRONTEND_IMAGE:$TAG"
 
-echo "Building $FULL_IMAGE ..."
-docker build -t "$FULL_IMAGE" .
+echo "Building $DOCKERHUB_USER/$API_IMAGE:$TAG ..."
+docker build -t "$DOCKERHUB_USER/$API_IMAGE:$TAG" .
 
-echo "Pushing $FULL_IMAGE ..."
-docker push "$FULL_IMAGE"
+echo "Pushing $DOCKERHUB_USER/$API_IMAGE:$TAG ..."
+docker push "$DOCKERHUB_USER/$API_IMAGE:$TAG"
 
-echo "Building $FULL_FRONTEND_IMAGE ..."
-docker build -t "$FULL_FRONTEND_IMAGE" ../budget_tracker_flutter
+echo "Building $DOCKERHUB_USER/$DASHBOARD_IMAGE:$TAG ..."
+docker build -t "$DOCKERHUB_USER/$DASHBOARD_IMAGE:$TAG" -f Dockerfile.dashboard .
 
-echo "Pushing $FULL_FRONTEND_IMAGE ..."
-docker push "$FULL_FRONTEND_IMAGE"
+echo "Pushing $DOCKERHUB_USER/$DASHBOARD_IMAGE:$TAG ..."
+docker push "$DOCKERHUB_USER/$DASHBOARD_IMAGE:$TAG"
 
-echo "Done: $FULL_IMAGE, $FULL_FRONTEND_IMAGE"
+echo "Done: $DOCKERHUB_USER/$API_IMAGE:$TAG, $DOCKERHUB_USER/$DASHBOARD_IMAGE:$TAG"
