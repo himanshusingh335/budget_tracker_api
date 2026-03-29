@@ -1,0 +1,157 @@
+# Budget Tracker API
+
+A FastAPI REST API for tracking monthly budgets and transactions, backed by SQLite.
+
+---
+
+## Prerequisites
+
+- [Conda](https://docs.conda.io/en/latest/miniconda.html) (Miniconda or Anaconda)
+- [Docker](https://docs.docker.com/get-docker/) + [Docker Compose](https://docs.docker.com/compose/)
+- Docker Hub account (only needed if you want to push images)
+
+---
+
+## Local Setup (Conda)
+
+```bash
+conda create -n flask-test python=3.13
+conda activate flask-test
+pip install -r requirements.txt
+```
+
+> Note: The environment is named `flask-test` — this is a legacy name kept for consistency.
+
+---
+
+## Database Initialisation
+
+```bash
+python import_data.py
+```
+
+This creates `data/budget.db` from the CSV seed files. Only needed on first run or after a DB reset.
+
+---
+
+## Run Locally
+
+```bash
+uvicorn app.main:app --reload --port 8502
+```
+
+Or via `conda run` (without activating the environment first):
+
+```bash
+conda run -n flask-test uvicorn app.main:app --reload --port 8502
+```
+
+- API base: http://localhost:8502
+- Swagger UI: http://localhost:8502/docs
+- ReDoc: http://localhost:8502/redoc
+
+---
+
+## Testing the API
+
+**Health check**
+```bash
+curl http://localhost:8502/
+```
+
+**Get budget summary for a month**
+```bash
+curl http://localhost:8502/summary/1/2025
+```
+
+**Get budget allocations for a month**
+```bash
+curl http://localhost:8502/budget/1/2025
+```
+
+**Add a budget allocation**
+```bash
+curl -X POST http://localhost:8502/budget \
+  -H "Content-Type: application/json" \
+  -d '{"MonthYear": "01/25", "Category": "Groceries", "Budget": 5000}'
+```
+
+**Add a transaction**
+```bash
+curl -X POST http://localhost:8502/transactions \
+  -H "Content-Type: application/json" \
+  -d '{"Date": "2025-01-15", "Description": "Supermarket", "Category": "Groceries", "Expenditure": 1200, "Year": 2025, "Month": 1, "Day": 15}'
+```
+
+**Partial update a transaction**
+```bash
+curl -X PATCH http://localhost:8502/transactions/42 \
+  -H "Content-Type: application/json" \
+  -d '{"Expenditure": 1350}'
+```
+
+---
+
+## Docker — Build & Push
+
+Make the script executable, then run it:
+
+```bash
+chmod +x docker_push.sh
+./docker_push.sh              # builds and pushes as :latest
+./docker_push.sh v1.0.0       # builds and pushes with a custom tag
+```
+
+This builds the image locally and pushes it to `mariox1105/budget-tracker-api` on Docker Hub. Requires `docker login` beforehand.
+
+**Alternative — local build only (no push):**
+
+```bash
+docker compose -f docker-compose.build.yml up --build
+```
+
+---
+
+## Run in Container
+
+**Build and run from local source:**
+
+```bash
+docker compose -f docker-compose.build.yml up --build
+```
+
+**Pull and run the production image from Docker Hub:**
+
+```bash
+docker compose -f docker-compose.prod.yml up -d
+```
+
+Both options expose the API on port **8502**. Transaction and budget data is persisted in a named Docker volume (`budget_data`).
+
+---
+
+## Project Structure
+
+```
+budget_tracker_api/
+├── app/
+│   ├── main.py              # FastAPI app, mounts all routers
+│   ├── config.py            # DB path and app constants
+│   ├── database.py          # get_db() dependency (SQLite connection)
+│   ├── models/
+│   │   ├── budget.py        # Pydantic schemas for budget endpoints
+│   │   └── transaction.py   # Pydantic schemas for transaction endpoints
+│   └── routers/
+│       ├── budget.py        # /budget endpoints
+│       ├── transactions.py  # /transactions endpoints
+│       └── summary.py       # /summary endpoint
+├── data/
+│   └── budget.db            # SQLite database (git-ignored)
+├── import_data.py           # Seed DB from CSV files
+├── export_data_to_csv.py    # Export DB tables to CSV
+├── requirements.txt
+├── Dockerfile
+├── docker-compose.build.yml
+├── docker-compose.prod.yml
+└── docker_push.sh
+```
