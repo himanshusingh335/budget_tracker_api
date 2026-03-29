@@ -16,6 +16,7 @@ Usage:
     BUDGET_API_URL=http://localhost:8502 python dashboard.py
 """
 
+import json
 import os
 from datetime import datetime
 
@@ -92,7 +93,7 @@ async def api_patch(path: str, data: dict):
 
 async def api_delete(path: str, data: dict = None):
     async with httpx.AsyncClient(timeout=10.0) as c:
-        kwargs = {"json": data} if data else {}
+        kwargs = {"content": json.dumps(data), "headers": {"Content-Type": "application/json"}} if data else {}
         r = await c.delete(f"{API_BASE}{path}", **kwargs)
         r.raise_for_status()
         return r.json()
