@@ -30,3 +30,4 @@ networks:
 volumes:
   budget_data:
     name: budget_data
+    external: true
