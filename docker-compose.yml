@@ -1,6 +1,9 @@
 services:
   api:
     image: mariox1105/budget-tracker-api:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "8502:8502"
     volumes:
@@ -11,6 +14,9 @@ services:
 
   dashboard:
     image: mariox1105/budget-tracker-dashboard:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.dashboard
     ports:
       - "8090:8080"
     environment:
