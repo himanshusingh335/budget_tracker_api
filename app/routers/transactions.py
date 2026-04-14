@@ -15,6 +15,7 @@ router = APIRouter(prefix="/transactions", tags=["Transactions"])
 # Static path MUST be registered before parameterized path /{id}
 @router.get("/export/csv")
 def export_transactions_csv(db: Annotated[sqlite3.Connection, Depends(get_db)]):
+    """Download the full budget_tracker table as a CSV file containing all transactions across all months."""
     rows = db.execute(
         "SELECT id, Date, Description, Category, Expenditure, Year, Month, Day FROM budget_tracker"
     ).fetchall()
@@ -32,6 +33,7 @@ def export_transactions_csv(db: Annotated[sqlite3.Connection, Depends(get_db)]):
 
 @router.get("/{month}/{year}")
 def get_transactions(month: int, year: int, db: Annotated[sqlite3.Connection, Depends(get_db)]):
+    """Return all transactions (expenditures) for a given month and year (month: 1-12, year: e.g. 2024)."""
     rows = db.execute(
         "SELECT * FROM budget_tracker WHERE Month = ? AND Year = ?", (month, year)
     ).fetchall()
@@ -40,6 +42,7 @@ def get_transactions(month: int, year: int, db: Annotated[sqlite3.Connection, De
 
 @router.post("", status_code=201)
 def add_transaction(payload: TransactionCreate, db: Annotated[sqlite3.Connection, Depends(get_db)]):
+    """Record a new transaction (expenditure). Provide Date (DD/MM/YYYY), Description, Category, Expenditure amount, and Year/Month/Day as integers."""
     db.execute(
         "INSERT INTO budget_tracker (Date, Description, Category, Expenditure, Year, Month, Day) VALUES (?, ?, ?, ?, ?, ?, ?)",
         (payload.Date, payload.Description, payload.Category, payload.Expenditure,
@@ -51,6 +54,7 @@ def add_transaction(payload: TransactionCreate, db: Annotated[sqlite3.Connection
 
 @router.patch("/{id}", status_code=200)
 def update_transaction(id: int, payload: TransactionUpdate, db: Annotated[sqlite3.Connection, Depends(get_db)]):
+    """Partially update a transaction by its ID. Only provide the fields you want to change (Date, Description, Category, Expenditure, Year, Month, Day)."""
     fields = payload.model_dump(exclude_none=True)
     if not fields:
         raise HTTPException(status_code=400, detail="No fields provided to update")
@@ -71,6 +75,7 @@ def update_transaction(id: int, payload: TransactionUpdate, db: Annotated[sqlite
 
 @router.delete("/{id}", status_code=200)
 def delete_transaction(id: int, db: Annotated[sqlite3.Connection, Depends(get_db)]):
+    """Delete a transaction by its integer ID."""
     db.execute("DELETE FROM budget_tracker WHERE id = ?", (id,))
     db.commit()
     return {"message": "Expenditure deleted successfully"}

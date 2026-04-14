@@ -1,6 +1,7 @@
 import logging
 
 from fastapi import FastAPI
+from fastapi_mcp import FastApiMCP
 
 logging.basicConfig(
     level=logging.INFO,
@@ -20,3 +21,7 @@ app.include_router(transactions.router)
 @app.get("/", tags=["Health"])
 def root():
     return {"status": "ok", "version": APP_VERSION}
+
+
+mcp = FastApiMCP(app)
+mcp.mount()

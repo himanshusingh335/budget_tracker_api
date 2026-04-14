@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "budget-tracker": {
+      "type": "sse",
+      "url": "http://raspberrypi4.tailad9f80.ts.net:8502/mcp"
+    }
+  }
+}

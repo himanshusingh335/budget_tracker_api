@@ -102,31 +102,30 @@ chmod +x docker_push.sh
 ./docker_push.sh v1.0.0       # builds and pushes with a custom tag
 ```
 
-This builds the image locally and pushes it to `mariox1105/budget-tracker-api` on Docker Hub. Requires `docker login` beforehand.
-
-**Alternative — local build only (no push):**
-
-```bash
-docker compose -f docker-compose.build.yml up --build
-```
+This builds both the API and dashboard images and pushes them to Docker Hub. Requires `docker login` beforehand.
 
 ---
 
 ## Run in Container
 
+A single `docker-compose.yml` handles both local builds and production pulls.
+
 **Build and run from local source:**
 
 ```bash
-docker compose -f docker-compose.build.yml up --build
+docker compose up --build
 ```
 
-**Pull and run the production image from Docker Hub:**
+**Pull and run the production images from Docker Hub:**
 
 ```bash
-docker compose -f docker-compose.prod.yml up -d
+docker compose up -d
 ```
 
-Both options expose the API on port **8502**. Transaction and budget data is persisted in a named Docker volume (`budget_data`).
+- API: http://localhost:8502
+- Dashboard: http://localhost:8090
+
+Transaction and budget data is persisted in a named Docker volume (`budget_data`).
 
 ---
 
@@ -151,7 +150,7 @@ budget_tracker_api/
 ├── export_data_to_csv.py    # Export DB tables to CSV
 ├── requirements.txt
 ├── Dockerfile
-├── docker-compose.build.yml
-├── docker-compose.prod.yml
+├── docker-compose.yml
+├── .mcp.json                # MCP server config (SSE endpoint on Pi)
 └── docker_push.sh
 ```
