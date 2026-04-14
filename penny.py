@@ -9,19 +9,19 @@ Requirements:
     pip install smolagents litellm mcp
 
 Model config (env vars):
-    PENNY_MODEL     — LiteLLM model string (default: anthropic/claude-sonnet-4-6)
-    ANTHROPIC_API_KEY / OPENAI_API_KEY / etc. — provider credentials
+    PENNY_MODEL     — OpenAI model name (default: gpt-4o)
+    OPENAI_API_KEY  — your OpenAI API key
 """
 
 import os
 import sys
 
-from smolagents import CodeAgent, LiteLLMModel, ToolCollection
+from smolagents import CodeAgent, OpenAIServerModel, ToolCollection
 
 
 MCP_SSE_URL = "http://raspberrypi4.tailad9f80.ts.net:8502/mcp"
 
-MODEL_ID = os.environ.get("PENNY_MODEL", "openai/gpt-4o")
+MODEL_ID = os.environ.get("PENNY_MODEL", "gpt-4o")
 
 SYSTEM_PROMPT = """You are Penny, a friendly and precise personal finance assistant.
 You have access to the user's Budget Tracker — a tool that stores monthly budgets and
@@ -39,7 +39,7 @@ Guidelines:
 
 
 def build_agent(tools: list) -> CodeAgent:
-    model = LiteLLMModel(model_id=MODEL_ID)
+    model = OpenAIServerModel(model_id=MODEL_ID)
     return CodeAgent(
         tools=tools,
         model=model,
