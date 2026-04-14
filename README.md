@@ -16,7 +16,7 @@ A FastAPI REST API for tracking monthly budgets and transactions, backed by SQLi
 
 ```bash
 python3.13 -m venv .venv
-source .venv/bin/activate
+conda activate /Users/himanshusingh/Developer/budget-tracker/budget_tracker_api/.venv
 pip install -r requirements.txt
 ```
 
@@ -35,7 +35,7 @@ This creates `data/budget.db` from the CSV seed files. Only needed on first run 
 ## Run Locally
 
 ```bash
-source .venv/bin/activate
+conda activate /Users/himanshusingh/Developer/budget-tracker/budget_tracker_api/.venv
 uvicorn app.main:app --reload --port 8502
 ```
 
