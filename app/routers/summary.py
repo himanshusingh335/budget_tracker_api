@@ -3,8 +3,8 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
 
-from ..database import get_db
-from ..models.budget import SummaryRow
+from app.database import get_db
+from app.models.budget import SummaryRow
 
 router = APIRouter(prefix="/summary", tags=["Summary"])
 

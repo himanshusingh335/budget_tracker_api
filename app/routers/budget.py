@@ -6,8 +6,8 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 
-from ..database import get_db
-from ..models.budget import BudgetCreate, BudgetDeleteRequest
+from app.database import get_db
+from app.models.budget import BudgetCreate, BudgetDeleteRequest
 
 router = APIRouter(prefix="/budget", tags=["Budget"])
 

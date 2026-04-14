@@ -6,21 +6,19 @@ A FastAPI REST API for tracking monthly budgets and transactions, backed by SQLi
 
 ## Prerequisites
 
-- [Conda](https://docs.conda.io/en/latest/miniconda.html) (Miniconda or Anaconda)
+- Python 3.13+
 - [Docker](https://docs.docker.com/get-docker/) + [Docker Compose](https://docs.docker.com/compose/)
 - Docker Hub account (only needed if you want to push images)
 
 ---
 
-## Local Setup (Conda)
+## Local Setup
 
 ```bash
-conda create -n flask-test python=3.13
-conda activate flask-test
+python3.13 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 ```
-
-> Note: The environment is named `flask-test` — this is a legacy name kept for consistency.
 
 ---
 
@@ -37,14 +35,17 @@ This creates `data/budget.db` from the CSV seed files. Only needed on first run 
 ## Run Locally
 
 ```bash
+source .venv/bin/activate
 uvicorn app.main:app --reload --port 8502
 ```
 
-Or via `conda run` (without activating the environment first):
+Or without activating the environment:
 
 ```bash
-conda run -n flask-test uvicorn app.main:app --reload --port 8502
+.venv/bin/uvicorn app.main:app --reload --port 8502
 ```
+
+> Note: Do not run `python app/main.py` directly — use `uvicorn` or `python -m app.main` from the project root.
 
 - API base: http://localhost:8502
 - Swagger UI: http://localhost:8502/docs

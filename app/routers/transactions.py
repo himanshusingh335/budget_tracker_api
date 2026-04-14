@@ -6,8 +6,8 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 
-from ..database import get_db
-from ..models.transaction import TransactionCreate, TransactionUpdate
+from app.database import get_db
+from app.models.transaction import TransactionCreate, TransactionUpdate
 
 router = APIRouter(prefix="/transactions", tags=["Transactions"])
 

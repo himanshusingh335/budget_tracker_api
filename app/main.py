@@ -8,8 +8,8 @@ logging.basicConfig(
     format="%(asctime)s %(levelname)s %(name)s: %(message)s",
 )
 
-from .config import APP_TITLE, APP_VERSION
-from .routers import budget, summary, transactions
+from app.config import APP_TITLE, APP_VERSION
+from app.routers import budget, summary, transactions
 
 app = FastAPI(title=APP_TITLE, version=APP_VERSION)
 
@@ -25,3 +25,8 @@ def root():
 
 mcp = FastApiMCP(app)
 mcp.mount()
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("app.main:app", host="0.0.0.0", port=8502, reload=True)
