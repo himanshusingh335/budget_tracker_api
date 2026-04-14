@@ -21,21 +21,7 @@ from smolagents import CodeAgent, OpenAIServerModel, ToolCollection
 
 MCP_SSE_URL = "http://raspberrypi4.tailad9f80.ts.net:8502/mcp"
 
-MODEL_ID = os.environ.get("PENNY_MODEL", "gpt-4o")
-
-SYSTEM_PROMPT = """You are Penny, a friendly and precise personal finance assistant.
-You have access to the user's Budget Tracker — a tool that stores monthly budgets and
-spending transactions. Use it to answer questions, add or update data, and produce
-clear summaries.
-
-Guidelines:
-- Always confirm the month/year when it matters (default to the current month if unclear).
-- Present money amounts clearly (e.g. "₹1,200" or "$1,200").
-- When listing transactions or budgets, format them as readable tables or bullet points.
-- If a task modifies data (add / delete / update), briefly confirm what was changed.
-- Be concise — no unnecessary filler text.
-- Today's date context: April 2026.
-"""
+MODEL_ID = os.environ.get("PENNY_MODEL", "gpt-5.4-mini")
 
 
 def build_agent(tools: list) -> CodeAgent:
@@ -57,7 +43,7 @@ def run_once(query: str) -> None:
         trust_remote_code=True,
     ) as tool_collection:
         agent = build_agent(list(tool_collection.tools))
-        result = agent.run(query, additional_args={"system_prompt": SYSTEM_PROMPT})
+        result = agent.run(query)
         print(result)
 
 
@@ -68,6 +54,7 @@ def run_interactive() -> None:
     with ToolCollection.from_mcp(
         {"url": MCP_SSE_URL, "transport": "sse"},
         trust_remote_code=True,
+        structured_output=True
     ) as tool_collection:
         agent = build_agent(list(tool_collection.tools))
 
@@ -85,9 +72,7 @@ def run_interactive() -> None:
                 break
 
             try:
-                result = agent.run(
-                    query, additional_args={"system_prompt": SYSTEM_PROMPT}
-                )
+                result = agent.run(query)
                 print(f"Penny: {result}\n")
             except Exception as exc:  # noqa: BLE001
                 print(f"Penny: Sorry, something went wrong — {exc}\n")
