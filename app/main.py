@@ -20,11 +20,12 @@ app.include_router(transactions.router)
 
 @app.get("/", tags=["Health"])
 def root():
+    """Health check endpoint. Returns API status and current version."""
     return {"status": "ok", "version": APP_VERSION}
 
 
 mcp = FastApiMCP(app)
-mcp.mount()
+mcp.mount_http()
 
 
 if __name__ == "__main__":
