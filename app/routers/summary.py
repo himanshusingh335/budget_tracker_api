@@ -15,7 +15,14 @@ def format_currency(value: float) -> str:
 
 @router.get("/{month}/{year}", response_model=list[SummaryRow])
 def get_summary(month: int, year: int, db: Annotated[sqlite3.Connection, Depends(get_db)]):
-    """Return a budget vs actual spending summary per category for a given month and year. Includes totals row. Amounts are formatted in INR (₹)."""
+    """Return a budget vs actual spending summary per category for a given month and year.
+
+    Includes a totals row at the end. All amounts are formatted in INR (₹).
+
+    Args:
+        month: Month number (1-12)
+        year: Full year, e.g. 2025
+    """
     month_year = f"{month:02d}/{str(year)[-2:]}"
 
     budget_cursor = db.execute(
