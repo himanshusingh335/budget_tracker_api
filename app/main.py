@@ -25,7 +25,7 @@ def root():
 
 
 mcp = FastApiMCP(app)
-mcp.mount()
+mcp.mount_http()
 
 
 if __name__ == "__main__":

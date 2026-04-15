@@ -19,9 +19,10 @@ import sys
 from smolagents import CodeAgent, OpenAIServerModel, ToolCollection
 
 
-MCP_SSE_URL = "http://raspberrypi4.tailad9f80.ts.net:8502/mcp"
+#MCP_URL = "http://raspberrypi4.tailad9f80.ts.net:8502/mcp"
+MCP_URL = "http://localhost:8502/mcp"
 
-MODEL_ID = os.environ.get("PENNY_MODEL", "gpt-5.4-mini")
+MODEL_ID = os.environ.get("PENNY_MODEL", "gpt-5.4")
 
 
 def build_agent(tools: list) -> CodeAgent:
@@ -39,7 +40,7 @@ def build_agent(tools: list) -> CodeAgent:
 def run_once(query: str) -> None:
     """Run a single query and print the result."""
     with ToolCollection.from_mcp(
-        {"url": MCP_SSE_URL, "transport": "sse"},
+        {"url": MCP_URL, "transport": "streamable-http"},
         trust_remote_code=True,
     ) as tool_collection:
         agent = build_agent(list(tool_collection.tools))
@@ -52,7 +53,7 @@ def run_interactive() -> None:
     print("Hi, I'm Penny — your budget assistant. Type 'exit' or Ctrl-C to quit.\n")
 
     with ToolCollection.from_mcp(
-        {"url": MCP_SSE_URL, "transport": "sse"},
+        {"url": MCP_URL, "transport": "streamable-http"},
         trust_remote_code=True,
         structured_output=True
     ) as tool_collection:
