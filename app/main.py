@@ -9,13 +9,14 @@ logging.basicConfig(
 )
 
 from app.config import APP_TITLE, APP_VERSION
-from app.routers import budget, summary, transactions
+from app.routers import budget, query, summary, transactions
 
 app = FastAPI(title=APP_TITLE, version=APP_VERSION)
 
 app.include_router(summary.router)
 app.include_router(budget.router)
 app.include_router(transactions.router)
+app.include_router(query.router)
 
 
 @app.get("/", tags=["Health"])
