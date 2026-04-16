@@ -1,63 +1,95 @@
 """
-Penny — a budget assistant agent powered by smolagents and the Budget Tracker MCP server.
+Penny — a budget assistant powered by the OpenAI Agents SDK + Budget Tracker MCP server.
 
 Usage:
     python penny.py
     python penny.py "How much did I spend in March 2026?"
 
 Requirements:
-    pip install smolagents litellm mcp
+    pip install openai-agents
 
-Model config (env vars):
+Config (env vars):
     PENNY_MODEL     — OpenAI model name (default: gpt-4o)
     OPENAI_API_KEY  — your OpenAI API key
 """
 
+import asyncio
 import os
 import sys
+from datetime import date
 
-from smolagents import CodeAgent, OpenAIServerModel, ToolCollection
-
-
-#MCP_URL = "http://raspberrypi4.tailad9f80.ts.net:8502/mcp"
-MCP_URL = "http://localhost:8502/mcp"
-
-MODEL_ID = os.environ.get("PENNY_MODEL", "gpt-5.4")
+from agents import Agent, Runner, SQLiteSession, function_tool
+from agents.mcp import MCPServerStreamableHttp
 
 
-def build_agent(tools: list) -> CodeAgent:
-    model = OpenAIServerModel(model_id=MODEL_ID)
-    return CodeAgent(
-        tools=tools,
-        model=model,
-        name="penny",
-        description="Penny — your personal budget assistant",
-        additional_authorized_imports=["json", "datetime"],
-        max_steps=10,
-    )
+MCP_URL = "http://raspberrypi4.tailad9f80.ts.net:8502/mcp"
+#MCP_URL = "http://localhost:8502/mcp"
+
+MODEL = os.environ.get("PENNY_MODEL", "gpt-5.4")
+SESSION_ID = "penny-default"  # reused across runs so history persists
 
 
-def run_once(query: str) -> None:
+@function_tool
+def get_today() -> dict:
+    """Return today's date in the formats used by the Budget Tracker API."""
+    today = date.today()
+    return {
+        "date": today.strftime("%Y-%m-%d"),      # transaction Date field
+        "month_year": today.strftime("%m/%y"),   # MonthYear field (MM/YY)
+        "month": today.month,
+        "year": today.year,
+        "day": today.day,
+    }
+
+
+INSTRUCTIONS = (
+    "You are Penny, a concise and friendly personal budget assistant. "
+    "Use the available tools to answer questions about the user's budgets and transactions. "
+    "Formatting rules you must always follow:\n"
+    "1. Currency: always prefix amounts with ₹ and no other symbol. Never use 'INR' or 'Rs'.\n"
+    "2. Number formatting: use Indian-style comma grouping (e.g. ₹1,23,456.00 not ₹123,456.00).\n"
+    "3. Structure: present any comparison, breakdown, or multi-item answer as a plain-text table "
+    "using aligned columns. Use a table even for two rows if there are multiple fields.\n"
+    "4. Brevity: keep prose to one sentence max; let the table carry the detail."
+)
+
+
+async def run_once(query: str) -> None:
     """Run a single query and print the result."""
-    with ToolCollection.from_mcp(
-        {"url": MCP_URL, "transport": "streamable-http"},
-        trust_remote_code=True,
-    ) as tool_collection:
-        agent = build_agent(list(tool_collection.tools))
-        result = agent.run(query)
-        print(result)
+    async with MCPServerStreamableHttp(
+        name="budget-tracker",
+        params={"url": MCP_URL},
+        cache_tools_list=True,
+    ) as server:
+        agent = Agent(
+            name="Penny",
+            instructions=INSTRUCTIONS,
+            model=MODEL,
+            tools=[get_today],
+            mcp_servers=[server],
+        )
+        result = await Runner.run(agent, query)
+        print(result.final_output)
 
 
-def run_interactive() -> None:
-    """Start an interactive REPL session with Penny."""
+async def run_interactive() -> None:
+    """Start an interactive REPL session with Penny. History is kept via SQLiteSession."""
     print("Hi, I'm Penny — your budget assistant. Type 'exit' or Ctrl-C to quit.\n")
 
-    with ToolCollection.from_mcp(
-        {"url": MCP_URL, "transport": "streamable-http"},
-        trust_remote_code=True,
-        structured_output=True
-    ) as tool_collection:
-        agent = build_agent(list(tool_collection.tools))
+    session = SQLiteSession(SESSION_ID)
+
+    async with MCPServerStreamableHttp(
+        name="budget-tracker",
+        params={"url": MCP_URL},
+        cache_tools_list=True,
+    ) as server:
+        agent = Agent(
+            name="Penny",
+            instructions=INSTRUCTIONS,
+            model=MODEL,
+            tools=[get_today],
+            mcp_servers=[server],
+        )
 
         while True:
             try:
@@ -73,15 +105,14 @@ def run_interactive() -> None:
                 break
 
             try:
-                result = agent.run(query)
-                print(f"Penny: {result}\n")
+                result = await Runner.run(agent, query, session=session)
+                print(f"Penny: {result.final_output}\n")
             except Exception as exc:  # noqa: BLE001
                 print(f"Penny: Sorry, something went wrong — {exc}\n")
 
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
-        # Single query passed as CLI argument
-        run_once(" ".join(sys.argv[1:]))
+        asyncio.run(run_once(" ".join(sys.argv[1:])))
     else:
-        run_interactive()
+        asyncio.run(run_interactive())
