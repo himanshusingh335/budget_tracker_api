@@ -18,9 +18,11 @@ Usage:
 
 import json
 import os
-from datetime import datetime
+from datetime import date, datetime
 
 import httpx
+from agents import Agent, Runner, SQLiteSession, function_tool
+from agents.mcp import MCPServerStreamableHttp
 from rich.text import Text
 from textual import on, work
 from textual.app import App, ComposeResult
@@ -35,6 +37,7 @@ from textual.widgets import (
     Header,
     Input,
     Label,
+    RichLog,
     Select,
     Static,
     TabbedContent,
@@ -56,6 +59,34 @@ GREEN    = "#2ECC71"
 BG_DARK  = "#1a1a2e"
 BG_MID   = "#16213e"
 BG_CARD  = "#0f3460"
+
+# ── Penny config ───────────────────────────────────────────────────────────────
+
+MCP_URL = os.environ.get("BUDGET_MCP_URL", "http://raspberrypi4.tailad9f80.ts.net:8502/mcp")
+PENNY_MODEL = os.environ.get("PENNY_MODEL", "gpt-5.4")
+PENNY_INSTRUCTIONS = (
+    "You are Penny, a concise and friendly personal budget assistant. "
+    "Use the available tools to answer questions about the user's budgets and transactions. "
+    "Formatting rules you must always follow:\n"
+    "1. Currency: always prefix amounts with ₹ and no other symbol. Never use 'INR' or 'Rs'.\n"
+    "2. Number formatting: use Indian-style comma grouping (e.g. ₹1,23,456.00 not ₹123,456.00).\n"
+    "3. Structure: present any comparison, breakdown, or multi-item answer as a plain-text table "
+    "using aligned columns. Use a table even for two rows if there are multiple fields.\n"
+    "4. Brevity: keep prose to one sentence max; let the table carry the detail."
+)
+
+
+@function_tool
+def get_today() -> dict:
+    """Return today's date in the formats used by the Budget Tracker API."""
+    today = date.today()
+    return {
+        "date": today.strftime("%Y-%m-%d"),
+        "month_year": today.strftime("%m/%y"),
+        "month": today.month,
+        "year": today.year,
+        "day": today.day,
+    }
 
 
 # ── API helpers ────────────────────────────────────────────────────────────────
@@ -736,6 +767,89 @@ class BudgetView(Widget):
         return [r["Category"] for r in self._rows]
 
 
+# ── Penny chat view ───────────────────────────────────────────────────────────
+
+class PennyView(Widget):
+    """Penny tab: conversational AI chat panel backed by the MCP server."""
+
+    DEFAULT_CSS = f"""
+    PennyView {{
+        height: 100%;
+    }}
+    #chat-log {{
+        height: 1fr;
+        border: round {PURPLE};
+        background: {BG_CARD};
+        padding: 0 1;
+    }}
+    #penny-status {{
+        height: 1;
+        padding: 0 1;
+        color: $text-muted;
+    }}
+    #penny-input {{
+        width: 100%;
+        margin-top: 1;
+    }}
+    """
+
+    def __init__(self, **kwargs) -> None:
+        super().__init__(**kwargs)
+        self._session = SQLiteSession("penny-dashboard")
+        self._busy = False
+
+    def compose(self) -> ComposeResult:
+        yield RichLog(id="chat-log", markup=True, wrap=True, highlight=False)
+        yield Label("", id="penny-status")
+        yield Input(placeholder="Ask Penny anything about your budget…", id="penny-input")
+
+    def on_mount(self) -> None:
+        log = self.query_one("#chat-log", RichLog)
+        log.write(f"[bold {PURPLE}]Penny[/] [dim]is ready. Ask me anything about your budget.[/]")
+
+    @on(Input.Submitted, "#penny-input")
+    def on_message_submitted(self, event: Input.Submitted) -> None:
+        query = event.value.strip()
+        if not query or self._busy:
+            return
+        inp = self.query_one("#penny-input", Input)
+        inp.value = ""
+        inp.disabled = True
+        self._busy = True
+        log = self.query_one("#chat-log", RichLog)
+        log.write(f"\n[bold {PURPLE}]You:[/] {query}")
+        self._run_penny(query)
+
+    @work
+    async def _run_penny(self, query: str) -> None:
+        status = self.query_one("#penny-status", Label)
+        log    = self.query_one("#chat-log", RichLog)
+        status.update("[dim]Penny is thinking…[/]")
+        try:
+            async with MCPServerStreamableHttp(
+                name="budget-tracker",
+                params={"url": MCP_URL},
+                cache_tools_list=True,
+            ) as server:
+                agent = Agent(
+                    name="Penny",
+                    instructions=PENNY_INSTRUCTIONS,
+                    model=PENNY_MODEL,
+                    tools=[get_today],
+                    mcp_servers=[server],
+                )
+                result = await Runner.run(agent, query, session=self._session)
+            log.write(f"[bold {GREEN}]Penny:[/] {result.final_output}")
+        except Exception as exc:
+            log.write(f"[bold {RED}]Penny:[/] Sorry, something went wrong — {exc}")
+        finally:
+            status.update("")
+            inp = self.query_one("#penny-input", Input)
+            inp.disabled = False
+            self._busy = False
+            inp.focus()
+
+
 # ── Main App ───────────────────────────────────────────────────────────────────
 
 class BudgetDashboard(App):
@@ -798,6 +912,7 @@ class BudgetDashboard(App):
         Binding("x",     "export_csv",  "Export CSV"),
         Binding("[",     "prev_month",  "◀ Month"),
         Binding("]",     "next_month",  "Month ▶"),
+        Binding("p",     "penny_tab",   "Penny"),
     ]
 
     def __init__(self) -> None:
@@ -819,6 +934,8 @@ class BudgetDashboard(App):
                 yield TransactionsView(id="tv")
             with TabPane("  Budget  ", id="tab-budget"):
                 yield BudgetView(id="bv")
+            with TabPane("  Penny  ", id="tab-penny"):
+                yield PennyView(id="pv")
         yield Footer()
 
     def on_mount(self) -> None:
@@ -909,6 +1026,10 @@ class BudgetDashboard(App):
         self._shift_month(1)
 
     # ── Global actions ─────────────────────────────────────────────────────────
+
+    def action_penny_tab(self) -> None:
+        self.query_one(TabbedContent).active = "tab-penny"
+        self.query_one("#penny-input", Input).focus()
 
     def action_refresh(self) -> None:
         self._reload_all()

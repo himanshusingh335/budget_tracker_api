@@ -2,7 +2,7 @@ FROM python:3.13-slim
 
 WORKDIR /app
 
-RUN pip install --no-cache-dir textual httpx textual-serve
+RUN pip install --no-cache-dir textual httpx textual-serve openai-agents
 
 COPY dashboard.py .
 
