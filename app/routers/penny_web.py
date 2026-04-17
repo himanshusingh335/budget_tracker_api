@@ -115,7 +115,7 @@ class ConfirmRequest(BaseModel):
 @router.post("/chat")
 async def chat(req: ChatRequest):
     await _init()
-    session = SQLiteSession(req.session_id)
+    session = SQLiteSession(req.session_id, db_path="data/penny_sessions.db")
     result = await Runner.run(_agent, req.message, session=session)
 
     if result.interruptions:
