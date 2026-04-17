@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Budget Tracker</title>
+  <style>
+    :root {
+      --bg: #1a1a2e;
+      --card: #16213e;
+      --nav: #0f3460;
+      --primary: #6C47FF;
+      --danger: #E74C3C;
+      --success: #2ECC71;
+      --text: #e0e0e0;
+      --muted: #7a7a9a;
+      --border: #252545;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── Header ── */
+    .header {
+      background: var(--nav);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-title { font-size: 17px; font-weight: 700; color: var(--primary); }
+    .month-nav { display: flex; align-items: center; gap: 4px; }
+    .month-nav button {
+      background: none; border: none; color: var(--text);
+      font-size: 18px; cursor: pointer;
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 8px;
+    }
+    .month-nav button:active { background: var(--border); }
+    .month-label { font-size: 14px; font-weight: 600; min-width: 120px; text-align: center; }
+
+    /* ── Tab area ── */
+    .tabs { flex: 1; overflow: hidden; position: relative; }
+    .tab-panel {
+      position: absolute; inset: 0;
+      overflow-y: auto; overflow-x: hidden;
+      padding: 16px;
+      display: none;
+    }
+    .tab-panel.active { display: block; }
+    #panel-penny { display: none; flex-direction: column; padding: 12px 16px; overflow: hidden; }
+    #panel-penny.active { display: flex; }
+
+    /* ── Bottom nav ── */
+    .bottom-nav {
+      background: var(--nav);
+      display: flex;
+      flex-shrink: 0;
+      border-top: 1px solid var(--border);
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .nav-btn {
+      flex: 1; border: none; background: none;
+      color: var(--muted);
+      padding: 10px 4px 8px;
+      display: flex; flex-direction: column; align-items: center;
+      gap: 3px; cursor: pointer; font-size: 10px; font-weight: 500;
+      transition: color 0.15s;
+      min-height: 54px;
+    }
+    .nav-btn .nav-icon { font-size: 22px; line-height: 1; }
+    .nav-btn.active { color: var(--primary); }
+
+    /* ── Cards ── */
+    .card { background: var(--card); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+
+    /* ── Stat row ── */
+    .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px; }
+    .stat-card { background: var(--card); border-radius: 10px; padding: 12px 8px; text-align: center; }
+    .stat-card .slabel { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+    .stat-card .svalue { font-size: 13px; font-weight: 700; word-break: break-all; }
+    .c-purple { color: var(--primary); }
+    .c-red { color: var(--danger); }
+    .c-green { color: var(--success); }
+
+    /* ── Table ── */
+    .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .data-table th { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--border); color: var(--muted); font-weight: 500; font-size: 11px; text-transform: uppercase; }
+    .data-table td { padding: 10px 6px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+
+    /* ── List items ── */
+    .item-list { border-radius: 12px; overflow: hidden; }
+    .item-row {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 13px 16px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .item-row:last-child { border-bottom: none; }
+    .item-row:active { filter: brightness(1.15); }
+    .item-row.expanded { cursor: default; }
+    .item-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .item-main { flex: 1; min-width: 0; }
+    .item-title { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .item-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .item-amount { font-size: 15px; font-weight: 600; white-space: nowrap; flex-shrink: 0; }
+    .action-row { display: flex; gap: 8px; margin-top: 10px; }
+    .act-btn {
+      flex: 1; padding: 9px; border-radius: 8px; border: none;
+      font-size: 13px; font-weight: 600; cursor: pointer;
+    }
+    .act-edit { background: rgba(108,71,255,0.18); color: var(--primary); }
+    .act-delete { background: rgba(231,76,60,0.18); color: var(--danger); }
+
+    /* ── FAB ── */
+    .fab {
+      position: fixed; bottom: calc(64px + env(safe-area-inset-bottom) + 12px); right: 20px;
+      width: 52px; height: 52px; border-radius: 50%;
+      background: var(--primary); border: none; color: white;
+      font-size: 26px; cursor: pointer;
+      display: none; align-items: center; justify-content: center;
+      box-shadow: 0 4px 20px rgba(108,71,255,0.45);
+      z-index: 50;
+    }
+
+    /* ── Bottom sheet ── */
+    .overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.65);
+      z-index: 100; display: none; align-items: flex-end;
+    }
+    .overlay.open { display: flex; }
+    .sheet {
+      background: var(--card);
+      border-radius: 18px 18px 0 0;
+      padding: 8px 20px calc(28px + env(safe-area-inset-bottom));
+      width: 100%; max-height: 92dvh; overflow-y: auto;
+    }
+    .sheet-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 10px auto 18px; }
+    .sheet-title { font-size: 18px; font-weight: 700; margin-bottom: 20px; }
+
+    /* ── Forms ── */
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 7px; font-weight: 600; }
+    .form-group input, .form-group select {
+      width: 100%; background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 10px; padding: 13px 14px;
+      color: var(--text); font-size: 16px;
+      -webkit-appearance: none; appearance: none;
+      outline: none;
+    }
+    .form-group input:focus, .form-group select:focus { border-color: var(--primary); }
+    .btn {
+      width: 100%; padding: 15px; border-radius: 12px; border: none;
+      font-size: 16px; font-weight: 700; cursor: pointer; margin-bottom: 10px;
+    }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-danger { background: var(--danger); color: white; }
+    .btn-ghost { background: var(--border); color: var(--text); }
+
+    /* ── Section label ── */
+    .section-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+
+    /* ── Penny chat ── */
+    .chat-messages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; padding-bottom: 8px; }
+    .msg { max-width: 88%; }
+    .msg.user { align-self: flex-end; }
+    .msg.penny { align-self: flex-start; }
+    .msg-who { font-size: 11px; color: var(--muted); margin-bottom: 4px; font-weight: 600; }
+    .msg-bubble {
+      padding: 10px 14px; border-radius: 16px;
+      font-size: 14px; line-height: 1.55;
+      white-space: pre-wrap; word-break: break-word;
+    }
+    .msg.user .msg-bubble { background: var(--primary); color: white; border-bottom-right-radius: 4px; }
+    .msg.penny .msg-bubble { background: var(--card); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+    .msg.penny.thinking .msg-bubble { color: var(--muted); font-style: italic; }
+    .chat-input-bar {
+      display: flex; gap: 10px; align-items: flex-end;
+      padding-top: 12px; border-top: 1px solid var(--border); flex-shrink: 0;
+    }
+    .chat-input {
+      flex: 1; background: var(--card); border: 1.5px solid var(--border);
+      border-radius: 20px; padding: 10px 16px;
+      color: var(--text); font-size: 15px;
+      resize: none; max-height: 120px; line-height: 1.45;
+      outline: none; font-family: inherit;
+    }
+    .chat-input:focus { border-color: var(--primary); }
+    .send-btn {
+      width: 42px; height: 42px; border-radius: 50%;
+      background: var(--primary); border: none; color: white;
+      font-size: 16px; cursor: pointer; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: opacity 0.15s;
+    }
+    .send-btn:disabled { opacity: 0.4; cursor: default; }
+
+    /* ── Approval card ── */
+    .approval-wrap { align-self: flex-start; width: 100%; max-width: 100%; }
+    .approval-card {
+      background: rgba(108,71,255,0.08);
+      border: 1px solid var(--primary);
+      border-radius: 12px; padding: 14px; margin-bottom: 8px;
+    }
+    .approval-tool { color: var(--primary); font-weight: 700; font-size: 13px; margin-bottom: 8px; }
+    .approval-args { font-size: 12px; color: var(--muted); white-space: pre-wrap; word-break: break-word; margin-bottom: 10px; background: var(--bg); border-radius: 8px; padding: 8px 10px; font-family: 'Menlo', 'Courier New', monospace; }
+    .approval-btns { display: flex; gap: 8px; }
+    .appr-btn { flex: 1; padding: 9px; border-radius: 8px; border: none; font-size: 14px; font-weight: 600; cursor: pointer; transition: opacity 0.15s; }
+    .appr-approve { background: rgba(46,204,113,0.18); color: var(--success); }
+    .appr-reject  { background: rgba(231,76,60,0.18);  color: var(--danger); }
+    .appr-approve.selected { background: var(--success); color: #fff; }
+    .appr-reject.selected  { background: var(--danger);  color: #fff; }
+    .approval-submit { margin-top: 10px; }
+
+    /* ── Utilities ── */
+    .loading { text-align: center; padding: 32px 16px; color: var(--muted); }
+    .spinner { display: inline-block; width: 22px; height: 22px; border: 2px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.75s linear infinite; vertical-align: middle; margin-right: 8px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .empty { text-align: center; padding: 40px 16px; color: var(--muted); font-size: 15px; }
+    .positive { color: var(--success); }
+    .negative { color: var(--danger); }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+  <div class="header-title">💰 Budget</div>
+  <div class="month-nav">
+    <button id="prev-month" aria-label="Previous month">&#9664;</button>
+    <span class="month-label" id="month-label">April 2026</span>
+    <button id="next-month" aria-label="Next month">&#9654;</button>
+  </div>
+</header>
+
+<!-- Tab panels -->
+<div class="tabs">
+
+  <!-- Summary -->
+  <div class="tab-panel active" id="panel-summary">
+    <div class="stat-row">
+      <div class="stat-card"><div class="slabel">Budget</div><div class="svalue c-purple" id="s-budget">—</div></div>
+      <div class="stat-card"><div class="slabel">Spent</div><div class="svalue c-red" id="s-spent">—</div></div>
+      <div class="stat-card"><div class="slabel">Left</div><div class="svalue" id="s-left">—</div></div>
+    </div>
+    <div class="section-label">By Category</div>
+    <div class="card" id="summary-body"><div class="loading"><span class="spinner"></span>Loading…</div></div>
+  </div>
+
+  <!-- Transactions -->
+  <div class="tab-panel" id="panel-transactions">
+    <div id="tx-list"><div class="loading"><span class="spinner"></span>Loading…</div></div>
+  </div>
+
+  <!-- Budget -->
+  <div class="tab-panel" id="panel-budget">
+    <div id="budget-list"><div class="loading"><span class="spinner"></span>Loading…</div></div>
+  </div>
+
+  <!-- Penny -->
+  <div class="tab-panel" id="panel-penny">
+    <div class="chat-messages" id="chat-msgs">
+      <div class="msg penny">
+        <div class="msg-who">Penny</div>
+        <div class="msg-bubble">Hi! I'm Penny, your budget assistant. Ask me anything about your finances 💜</div>
+      </div>
+    </div>
+    <div class="chat-input-bar">
+      <textarea class="chat-input" id="chat-input" rows="1" placeholder="Ask Penny…"></textarea>
+      <button class="send-btn" id="send-btn" aria-label="Send">&#9658;</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Bottom nav -->
+<nav class="bottom-nav">
+  <button class="nav-btn active" data-tab="summary"><span class="nav-icon">📊</span>Summary</button>
+  <button class="nav-btn" data-tab="transactions"><span class="nav-icon">📋</span>Spend</button>
+  <button class="nav-btn" data-tab="budget"><span class="nav-icon">🎯</span>Budget</button>
+  <button class="nav-btn" data-tab="penny"><span class="nav-icon">💬</span>Penny</button>
+</nav>
+
+<!-- FAB -->
+<button class="fab" id="fab" aria-label="Add">+</button>
+
+<!-- Bottom sheet overlay -->
+<div class="overlay" id="overlay">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div id="sheet-body"></div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+// ── Constants ──────────────────────────────────────────────────────────────────
+
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const CATEGORIES = ['Auto','Entertainment','Food','Home','Medical','Personal Items','Travel','Utilities','Other'];
+
+// ── State ──────────────────────────────────────────────────────────────────────
+
+let month = new Date().getMonth() + 1;
+let year  = new Date().getFullYear();
+let tab   = 'summary';
+
+let txList      = [];
+let txExpanded  = null;
+let budgets     = [];
+let budgetMY    = '';
+let budgExpanded = null;
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function fmt(n) {
+  const v = parseFloat(n) || 0;
+  return '₹\u00a0' + Math.abs(v).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+}
+
+function parseAmt(s) {
+  return parseFloat(String(s).replace(/[₹\s,\u00a0]/g, '')) || 0;
+}
+
+function todayDDMMYY() {
+  const d = new Date();
+  const dd = String(d.getDate()).padStart(2,'0');
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  const yy = String(d.getFullYear()).slice(-2);
+  return `${dd}/${mm}/${yy}`;
+}
+
+function parseDDMMYY(s) {
+  const [dd, mm, yy] = s.split('/').map(Number);
+  return { day: dd, month: mm, year: 2000 + yy };
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── API ───────────────────────────────────────────────────────────────────────
+
+async function api(method, path, body) {
+  const opts = { method, headers: {} };
+  if (body) { opts.body = JSON.stringify(body); opts.headers['Content-Type'] = 'application/json'; }
+  const res = await fetch(path, opts);
+  if (res.status === 404) return null;
+  if (!res.ok) {
+    const j = await res.json().catch(() => ({}));
+    throw new Error(j.detail || `HTTP ${res.status}`);
+  }
+  return res.json();
+}
+
+// ── Month nav ─────────────────────────────────────────────────────────────────
+
+function renderMonthLabel() {
+  document.getElementById('month-label').textContent = MONTHS[month-1] + ' ' + year;
+}
+
+document.getElementById('prev-month').addEventListener('click', () => {
+  if (--month < 1) { month = 12; year--; }
+  renderMonthLabel();
+  refreshTab();
+});
+
+document.getElementById('next-month').addEventListener('click', () => {
+  if (++month > 12) { month = 1; year++; }
+  renderMonthLabel();
+  refreshTab();
+});
+
+// ── Tab switching ─────────────────────────────────────────────────────────────
+
+document.querySelectorAll('.nav-btn').forEach(btn => {
+  btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+});
+
+function switchTab(t) {
+  tab = t;
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === t));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + t));
+  const fab = document.getElementById('fab');
+  fab.style.display = (t === 'transactions' || t === 'budget') ? 'flex' : 'none';
+  fab.onclick = t === 'transactions' ? showAddTx : showAddBudget;
+  refreshTab();
+}
+
+function refreshTab() {
+  if (tab === 'summary')      loadSummary();
+  else if (tab === 'transactions') loadTx();
+  else if (tab === 'budget')  loadBudget();
+}
+
+// ── Summary ───────────────────────────────────────────────────────────────────
+
+async function loadSummary() {
+  document.getElementById('summary-body').innerHTML = '<div class="loading"><span class="spinner"></span>Loading…</div>';
+  ['s-budget','s-spent','s-left'].forEach(id => document.getElementById(id).textContent = '—');
+
+  try {
+    const rows = await api('GET', `/summary/${month}/${year}`);
+    if (!rows) {
+      document.getElementById('summary-body').innerHTML = '<div class="empty">No budget set for this month</div>';
+      return;
+    }
+    const total = rows.find(r => r.MonthYear === 'Total');
+    const items = rows.filter(r => r.MonthYear !== 'Total');
+
+    if (total) {
+      document.getElementById('s-budget').textContent = total.Budget;
+      document.getElementById('s-spent').textContent  = total.Expenditure;
+      const diff = parseAmt(total.Difference);
+      const leftEl = document.getElementById('s-left');
+      leftEl.textContent = total.Difference;
+      leftEl.className = 'svalue ' + (diff >= 0 ? 'c-green' : 'c-red');
+    }
+
+    if (!items.length) {
+      document.getElementById('summary-body').innerHTML = '<div class="empty">No data</div>';
+      return;
+    }
+
+    let html = '<table class="data-table"><thead><tr><th>Category</th><th class="num">Budget</th><th class="num">Spent</th><th class="num">Left</th></tr></thead><tbody>';
+    for (const r of items) {
+      const diff = parseAmt(r.Difference);
+      html += `<tr>
+        <td>${esc(r.Category)}</td>
+        <td class="num">${esc(r.Budget)}</td>
+        <td class="num">${esc(r.Expenditure)}</td>
+        <td class="num ${diff >= 0 ? 'positive' : 'negative'}">${esc(r.Difference)}</td>
+      </tr>`;
+    }
+    html += '</tbody></table>';
+    document.getElementById('summary-body').innerHTML = html;
+  } catch (e) {
+    document.getElementById('summary-body').innerHTML = `<div class="empty">${esc(e.message)}</div>`;
+  }
+}
+
+// ── Transactions ──────────────────────────────────────────────────────────────
+
+async function loadTx() {
+  document.getElementById('tx-list').innerHTML = '<div class="loading"><span class="spinner"></span>Loading…</div>';
+  try {
+    const data = await api('GET', `/transactions/${month}/${year}`);
+    txList = data || [];
+    renderTx();
+  } catch (e) {
+    document.getElementById('tx-list').innerHTML = `<div class="empty">${esc(e.message)}</div>`;
+  }
+}
+
+function renderTx() {
+  const el = document.getElementById('tx-list');
+  if (!txList.length) { el.innerHTML = '<div class="empty">No transactions this month</div>'; return; }
+
+  let html = '<div class="item-list">';
+  for (const tx of txList) {
+    const exp = txExpanded === tx.id;
+    html += `<div class="item-row${exp ? ' expanded' : ''}" ${exp ? '' : `onclick="toggleTx(${tx.id})"`}>
+      <div class="item-head" ${exp ? `onclick="toggleTx(${tx.id})" style="cursor:pointer"` : ''}>
+        <div class="item-main">
+          <div class="item-title">${esc(tx.Description)}</div>
+          <div class="item-sub">${esc(tx.Date)} · ${esc(tx.Category)}</div>
+        </div>
+        <div class="item-amount c-red">${fmt(tx.Expenditure)}</div>
+      </div>`;
+    if (exp) {
+      html += `<div class="action-row">
+        <button class="act-btn act-edit"  onclick="showEditTx(${tx.id})">Edit</button>
+        <button class="act-btn act-delete" onclick="deleteTx(${tx.id})">Delete</button>
+      </div>`;
+    }
+    html += '</div>';
+  }
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+function toggleTx(id) {
+  txExpanded = txExpanded === id ? null : id;
+  renderTx();
+}
+
+async function deleteTx(id) {
+  if (!confirm('Delete this transaction?')) return;
+  try {
+    await api('DELETE', `/transactions/${id}`);
+    txExpanded = null;
+    await loadTx();
+  } catch (e) { alert(e.message); }
+}
+
+function showAddTx() {
+  openSheet('Add Transaction', `
+    <div class="form-group"><label>Date (DD/MM/YY)</label>
+      <input type="text" id="f-date" value="${todayDDMMYY()}" placeholder="DD/MM/YY" inputmode="numeric">
+    </div>
+    <div class="form-group"><label>Description</label>
+      <input type="text" id="f-desc" placeholder="e.g. Supermarket" autocomplete="off">
+    </div>
+    <div class="form-group"><label>Amount (₹)</label>
+      <input type="number" id="f-amt" placeholder="0.00" min="0.01" step="0.01" inputmode="decimal">
+    </div>
+    <div class="form-group"><label>Category</label>
+      <select id="f-cat">${CATEGORIES.map(c => `<option>${c}</option>`).join('')}</select>
+    </div>
+    <button class="btn btn-primary" onclick="submitAddTx()">Add Transaction</button>
+    <button class="btn btn-ghost"   onclick="closeSheet()">Cancel</button>
+  `);
+}
+
+async function submitAddTx() {
+  const dateStr = document.getElementById('f-date').value.trim();
+  const desc    = document.getElementById('f-desc').value.trim();
+  const amt     = parseFloat(document.getElementById('f-amt').value);
+  const cat     = document.getElementById('f-cat').value;
+  if (!dateStr || !desc || !amt) { alert('Fill in all fields'); return; }
+  if (!/^\d{2}\/\d{2}\/\d{2}$/.test(dateStr)) { alert('Date must be DD/MM/YY'); return; }
+  const { day, month: m, year: y } = parseDDMMYY(dateStr);
+  try {
+    await api('POST', '/transactions', { Date: dateStr, Description: desc, Category: cat, Expenditure: amt, Year: y, Month: m, Day: day });
+    closeSheet();
+    await loadTx();
+  } catch (e) { alert(e.message); }
+}
+
+function showEditTx(id) {
+  const tx = txList.find(t => t.id === id);
+  if (!tx) return;
+  openSheet('Edit Transaction', `
+    <div class="form-group"><label>Description</label>
+      <input type="text" id="f-desc" value="${esc(tx.Description)}" autocomplete="off">
+    </div>
+    <div class="form-group"><label>Amount (₹)</label>
+      <input type="number" id="f-amt" value="${tx.Expenditure}" min="0.01" step="0.01" inputmode="decimal">
+    </div>
+    <div class="form-group"><label>Category</label>
+      <select id="f-cat">${CATEGORIES.map(c => `<option${c===tx.Category?' selected':''}>${c}</option>`).join('')}</select>
+    </div>
+    <button class="btn btn-primary" onclick="submitEditTx(${id})">Save Changes</button>
+    <button class="btn btn-ghost"   onclick="closeSheet()">Cancel</button>
+  `);
+}
+
+async function submitEditTx(id) {
+  const desc = document.getElementById('f-desc').value.trim();
+  const amt  = parseFloat(document.getElementById('f-amt').value);
+  const cat  = document.getElementById('f-cat').value;
+  try {
+    await api('PATCH', `/transactions/${id}`, { Description: desc, Expenditure: amt, Category: cat });
+    closeSheet();
+    txExpanded = null;
+    await loadTx();
+  } catch (e) { alert(e.message); }
+}
+
+// ── Budget ────────────────────────────────────────────────────────────────────
+
+async function loadBudget() {
+  document.getElementById('budget-list').innerHTML = '<div class="loading"><span class="spinner"></span>Loading…</div>';
+  try {
+    const data = await api('GET', `/budget/${month}/${year}`);
+    if (!data) { budgets = []; budgetMY = ''; renderBudget(); return; }
+    budgets  = data.Budgets || [];
+    budgetMY = data.MonthYear || '';
+    renderBudget();
+  } catch (e) {
+    document.getElementById('budget-list').innerHTML = `<div class="empty">${esc(e.message)}</div>`;
+  }
+}
+
+function renderBudget() {
+  const el = document.getElementById('budget-list');
+  if (!budgets.length) { el.innerHTML = '<div class="empty">No budget set for this month</div>'; return; }
+
+  let html = '<div class="item-list">';
+  for (const b of budgets) {
+    const exp = budgExpanded === b.Category;
+    html += `<div class="item-row${exp ? ' expanded' : ''}" ${exp ? '' : `onclick="toggleBudg('${b.Category.replace(/'/g,"\\'")}')"` }>
+      <div class="item-head" ${exp ? `onclick="toggleBudg('${b.Category.replace(/'/g,"\\'")}') " style="cursor:pointer"` : ''}>
+        <div class="item-main"><div class="item-title">${esc(b.Category)}</div></div>
+        <div class="item-amount c-purple">${fmt(b.Budget)}</div>
+      </div>`;
+    if (exp) {
+      html += `<div class="action-row">
+        <button class="act-btn act-edit"   onclick="showEditBudget('${b.Category.replace(/'/g,"\\'")}', ${b.Budget})">Edit</button>
+        <button class="act-btn act-delete" onclick="deleteBudget('${b.Category.replace(/'/g,"\\'")}')">Delete</button>
+      </div>`;
+    }
+    html += '</div>';
+  }
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+function toggleBudg(cat) {
+  budgExpanded = budgExpanded === cat ? null : cat;
+  renderBudget();
+}
+
+async function deleteBudget(cat) {
+  if (!confirm(`Delete budget for ${cat}?`)) return;
+  const my = `${String(month).padStart(2,'0')}/${String(year).slice(-2)}`;
+  try {
+    await api('DELETE', `/budget?MonthYear=${encodeURIComponent(my)}&Category=${encodeURIComponent(cat)}`);
+    budgExpanded = null;
+    await loadBudget();
+  } catch (e) { alert(e.message); }
+}
+
+function showAddBudget() {
+  const used = new Set(budgets.map(b => b.Category));
+  const avail = CATEGORIES.filter(c => !used.has(c));
+  if (!avail.length) { alert('All categories already have budgets set.'); return; }
+  openSheet('Add Budget', `
+    <div class="form-group"><label>Category</label>
+      <select id="f-cat">${avail.map(c => `<option>${c}</option>`).join('')}</select>
+    </div>
+    <div class="form-group"><label>Amount (₹)</label>
+      <input type="number" id="f-amt" placeholder="0.00" min="0.01" step="0.01" inputmode="decimal">
+    </div>
+    <button class="btn btn-primary" onclick="submitAddBudget()">Add Budget</button>
+    <button class="btn btn-ghost"   onclick="closeSheet()">Cancel</button>
+  `);
+}
+
+async function submitAddBudget() {
+  const cat = document.getElementById('f-cat').value;
+  const amt = parseFloat(document.getElementById('f-amt').value);
+  if (!amt) { alert('Enter an amount'); return; }
+  const my = `${String(month).padStart(2,'0')}/${String(year).slice(-2)}`;
+  try {
+    await api('POST', '/budget', { MonthYear: my, Category: cat, Budget: amt });
+    closeSheet();
+    await loadBudget();
+  } catch (e) { alert(e.message); }
+}
+
+function showEditBudget(cat, current) {
+  openSheet(`Edit: ${cat}`, `
+    <div class="form-group"><label>Amount (₹)</label>
+      <input type="number" id="f-amt" value="${current}" min="0.01" step="0.01" inputmode="decimal">
+    </div>
+    <button class="btn btn-primary" onclick="submitEditBudget('${cat.replace(/'/g,"\\'")}')">Save</button>
+    <button class="btn btn-ghost"   onclick="closeSheet()">Cancel</button>
+  `);
+}
+
+async function submitEditBudget(cat) {
+  const amt = parseFloat(document.getElementById('f-amt').value);
+  if (!amt) { alert('Enter an amount'); return; }
+  const my = `${String(month).padStart(2,'0')}/${String(year).slice(-2)}`;
+  try {
+    await api('DELETE', `/budget?MonthYear=${encodeURIComponent(my)}&Category=${encodeURIComponent(cat)}`);
+    await api('POST', '/budget', { MonthYear: my, Category: cat, Budget: amt });
+    closeSheet();
+    budgExpanded = null;
+    await loadBudget();
+  } catch (e) { alert(e.message); }
+}
+
+// ── Sheet ─────────────────────────────────────────────────────────────────────
+
+function openSheet(title, bodyHtml) {
+  document.getElementById('sheet-body').innerHTML = `<div class="sheet-title">${esc(title)}</div>${bodyHtml}`;
+  document.getElementById('overlay').classList.add('open');
+  // Focus first input after render
+  setTimeout(() => {
+    const first = document.querySelector('#sheet-body input, #sheet-body select');
+    if (first && first.type !== 'text' || !first) return;
+    first.focus();
+  }, 100);
+}
+
+function closeSheet() {
+  document.getElementById('overlay').classList.remove('open');
+}
+
+document.getElementById('overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('overlay')) closeSheet();
+});
+
+// ── Penny chat ────────────────────────────────────────────────────────────────
+
+const chatMsgs = document.getElementById('chat-msgs');
+const chatInput = document.getElementById('chat-input');
+const sendBtn = document.getElementById('send-btn');
+
+chatInput.addEventListener('input', () => {
+  chatInput.style.height = 'auto';
+  chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + 'px';
+});
+
+chatInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendPenny(); }
+});
+
+sendBtn.addEventListener('click', sendPenny);
+
+function addMsg(role, text, cls = '') {
+  const d = document.createElement('div');
+  d.className = `msg ${role}${cls ? ' ' + cls : ''}`;
+  d.innerHTML = `<div class="msg-who">${role === 'user' ? 'You' : 'Penny'}</div><div class="msg-bubble">${esc(text)}</div>`;
+  chatMsgs.appendChild(d);
+  chatMsgs.scrollTop = chatMsgs.scrollHeight;
+  return d;
+}
+
+function addApproval(interruptions, stateId) {
+  const wrap = document.createElement('div');
+  wrap.className = 'approval-wrap';
+  wrap.id = 'appr-' + stateId;
+
+  const decisions = new Array(interruptions.length).fill(null);
+
+  let html = '<div class="msg-who">Penny — approval needed</div>';
+  interruptions.forEach((item, i) => {
+    html += `<div class="approval-card" id="aprc-${stateId}-${i}">
+      <div class="approval-tool">🔧 ${esc(item.tool_name.replace(/_/g,' '))}</div>
+      <pre class="approval-args">${esc(JSON.stringify(item.args, null, 2))}</pre>
+      <div class="approval-btns">
+        <button class="appr-btn appr-approve" id="aappr-${stateId}-${i}" onclick="setDecision('${stateId}',${i},true)">✓ Approve</button>
+        <button class="appr-btn appr-reject"  id="arejc-${stateId}-${i}" onclick="setDecision('${stateId}',${i},false)">✗ Reject</button>
+      </div>
+    </div>`;
+  });
+  html += `<button class="btn btn-primary approval-submit" onclick="submitApprovals('${stateId}',${interruptions.length})">Submit decisions</button>`;
+  wrap.innerHTML = html;
+
+  // store decisions on element
+  wrap._decisions = decisions;
+
+  chatMsgs.appendChild(wrap);
+  chatMsgs.scrollTop = chatMsgs.scrollHeight;
+}
+
+window.setDecision = (stateId, idx, approved) => {
+  const wrap = document.getElementById('appr-' + stateId);
+  if (!wrap) return;
+  wrap._decisions[idx] = approved;
+  document.getElementById(`aappr-${stateId}-${idx}`).classList.toggle('selected', approved);
+  document.getElementById(`arejc-${stateId}-${idx}`).classList.toggle('selected', !approved);
+};
+
+window.submitApprovals = async (stateId, count) => {
+  const wrap = document.getElementById('appr-' + stateId);
+  const decisions = wrap ? wrap._decisions.map(d => d === true) : new Array(count).fill(false);
+  if (wrap) wrap.remove();
+
+  const thinking = addMsg('penny', '⏳ Processing…', 'thinking');
+  sendBtn.disabled = true;
+
+  try {
+    const data = await fetch('/penny/confirm', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ state_id: stateId, decisions }),
+    }).then(r => r.json());
+    thinking.remove();
+    handlePennyResp(data);
+  } catch (e) {
+    thinking.remove();
+    addMsg('penny', 'Error: ' + e.message);
+  } finally {
+    sendBtn.disabled = false;
+  }
+};
+
+function handlePennyResp(data) {
+  if (data.type === 'approval_needed') {
+    addApproval(data.interruptions, data.state_id);
+  } else {
+    addMsg('penny', data.message || '✓ Done');
+    // Silently refresh data
+    if (tab === 'summary')      loadSummary();
+    if (tab === 'transactions') loadTx();
+    if (tab === 'budget')       loadBudget();
+  }
+}
+
+async function sendPenny() {
+  const text = chatInput.value.trim();
+  if (!text || sendBtn.disabled) return;
+
+  addMsg('user', text);
+  chatInput.value = '';
+  chatInput.style.height = 'auto';
+  sendBtn.disabled = true;
+
+  const thinking = addMsg('penny', '⏳ Thinking…', 'thinking');
+
+  try {
+    const data = await fetch('/penny/chat', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ message: text }),
+    }).then(r => r.json());
+    thinking.remove();
+    handlePennyResp(data);
+  } catch (e) {
+    thinking.remove();
+    addMsg('penny', 'Error: ' + e.message);
+  } finally {
+    sendBtn.disabled = false;
+  }
+}
+
+// ── Boot ──────────────────────────────────────────────────────────────────────
+
+renderMonthLabel();
+loadSummary();
+</script>
+</body>
+</html>
