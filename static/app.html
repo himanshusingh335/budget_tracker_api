@@ -349,6 +349,7 @@ let txExpanded  = null;
 let budgets     = [];
 let budgetMY    = '';
 let budgExpanded = null;
+const pennySessionId = crypto.randomUUID();
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -906,7 +907,7 @@ async function sendPenny() {
     const data = await fetch('/penny/chat', {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ message: text }),
+      body: JSON.stringify({ message: text, session_id: pennySessionId }),
     }).then(r => r.json());
     thinking.remove();
     handlePennyResp(data);

@@ -16,6 +16,9 @@ env/
 
 # Database
 data/budget.db
+data/penny_sessions.db
+data/penny_sessions.db-shm
+data/penny_sessions.db-wal
 
 # CSV exports
 csv_exports/
