@@ -188,6 +188,13 @@
       font-size: 14px; line-height: 1.55;
       white-space: pre-wrap; word-break: break-word;
     }
+    .msg.penny .msg-bubble { overflow-x: auto; white-space: normal; }
+    .msg.penny .msg-bubble table { width: 100%; border-collapse: collapse; margin: 4px 0; font-size: 13px; }
+    .msg.penny .msg-bubble th { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); color: var(--muted); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; white-space: nowrap; }
+    .msg.penny .msg-bubble td { padding: 7px 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    .msg.penny .msg-bubble tr:last-child td { border-bottom: none; }
+    .msg.penny .msg-bubble td:not(:first-child), .msg.penny .msg-bubble th:not(:first-child) { text-align: right; font-variant-numeric: tabular-nums; }
+    .msg.penny .msg-bubble strong { color: var(--text); font-weight: 700; }
     .msg.user .msg-bubble { background: var(--primary); color: white; border-bottom-right-radius: 4px; }
     .msg.penny .msg-bubble { background: var(--card); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
     .msg.penny.thinking .msg-bubble { color: var(--muted); font-style: italic; }
@@ -804,7 +811,9 @@ sendBtn.addEventListener('click', sendPenny);
 function addMsg(role, text, cls = '') {
   const d = document.createElement('div');
   d.className = `msg ${role}${cls ? ' ' + cls : ''}`;
-  d.innerHTML = `<div class="msg-who">${role === 'user' ? 'You' : 'Penny'}</div><div class="msg-bubble">${esc(text)}</div>`;
+  const isHtml = role === 'penny' && !cls;
+  const content = isHtml ? text : esc(text);
+  d.innerHTML = `<div class="msg-who">${role === 'user' ? 'You' : 'Penny'}</div><div class="msg-bubble">${content}</div>`;
   chatMsgs.appendChild(d);
   chatMsgs.scrollTop = chatMsgs.scrollHeight;
   return d;
