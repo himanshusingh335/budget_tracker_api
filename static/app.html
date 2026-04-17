@@ -332,7 +332,8 @@ let budgExpanded = null;
 
 function fmt(n) {
   const v = parseFloat(n) || 0;
-  return '₹\u00a0' + Math.abs(v).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+  const abs = Math.abs(v).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+  return (v < 0 ? '-' : '') + '₹\u00a0' + abs;
 }
 
 function parseAmt(s) {
@@ -426,11 +427,11 @@ async function loadSummary() {
     const items = rows.filter(r => r.MonthYear !== 'Total');
 
     if (total) {
-      document.getElementById('s-budget').textContent = total.Budget;
-      document.getElementById('s-spent').textContent  = total.Expenditure;
+      document.getElementById('s-budget').textContent = fmt(parseAmt(total.Budget));
+      document.getElementById('s-spent').textContent  = fmt(parseAmt(total.Expenditure));
       const diff = parseAmt(total.Difference);
       const leftEl = document.getElementById('s-left');
-      leftEl.textContent = total.Difference;
+      leftEl.textContent = fmt(diff);
       leftEl.className = 'svalue ' + (diff >= 0 ? 'c-green' : 'c-red');
     }
 
@@ -444,9 +445,9 @@ async function loadSummary() {
       const diff = parseAmt(r.Difference);
       html += `<tr>
         <td>${esc(r.Category)}</td>
-        <td class="num">${esc(r.Budget)}</td>
-        <td class="num">${esc(r.Expenditure)}</td>
-        <td class="num ${diff >= 0 ? 'positive' : 'negative'}">${esc(r.Difference)}</td>
+        <td class="num">${fmt(parseAmt(r.Budget))}</td>
+        <td class="num">${fmt(parseAmt(r.Expenditure))}</td>
+        <td class="num ${diff >= 0 ? 'positive' : 'negative'}">${fmt(parseAmt(r.Difference))}</td>
       </tr>`;
     }
     html += '</tbody></table>';

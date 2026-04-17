@@ -25,4 +25,6 @@ There is no test suite currently.
 
 **`penny.py` is the local test harness.** New Penny features (tools, instructions, HITL flow, model config) are prototyped and validated here via a CLI REPL before being promoted to the frontend.
 
-**`dashboard.py` is the frontend.** Once a Penny feature is confirmed working in `penny.py`, it is replicated into `PennyView` in `dashboard.py`. The two files should stay in sync on anything Penny-related: `WRITE_TOOL_NAMES`, `require_approval` config, `_handle_interruptions` logic, and `PENNY_INSTRUCTIONS`.
+**`app/routers/penny_web.py` is the web backend for Penny.** Once a Penny feature is confirmed working in `penny.py`, it is replicated into `penny_web.py`. The two files should stay in sync on: `WRITE_TOOL_NAMES`, `require_approval` config, `_serialise_interruptions` logic, and `INSTRUCTIONS`.
+
+**`static/app.html` is the frontend.** Served at `/app`. Single-page web UI covering Summary, Spend, Budget, and Penny chat tabs. Works on both mobile and desktop browsers.

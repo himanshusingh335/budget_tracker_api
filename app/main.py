@@ -38,9 +38,9 @@ def root():
     return {"status": "ok", "version": APP_VERSION}
 
 
-@app.get("/mobile", include_in_schema=False)
-def mobile():
-    return FileResponse("static/mobile.html")
+@app.get("/app", include_in_schema=False)
+def web_app():
+    return FileResponse("static/app.html")
 
 
 mcp = FastApiMCP(app)
