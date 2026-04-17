@@ -14,6 +14,7 @@ Config (env vars):
 """
 
 import asyncio
+import json
 import os
 import sys
 from datetime import date
@@ -27,6 +28,14 @@ MCP_URL = "http://raspberrypi4.tailad9f80.ts.net:8502/mcp"
 
 MODEL = os.environ.get("PENNY_MODEL", "gpt-5.4")
 SESSION_ID = "penny-default"  # reused across runs so history persists
+
+WRITE_TOOL_NAMES = [
+    "add_transaction_transactions_post",
+    "update_transaction_transactions__id__patch",
+    "delete_transaction_transactions__id__delete",
+    "add_budget_budget_post",
+    "delete_budget_budget_delete",
+]
 
 
 @function_tool
@@ -42,6 +51,42 @@ def get_today() -> dict:
     }
 
 
+# ── Approval prompt ───────────────────────────────────────────────────────────
+
+def _prompt_approval(item) -> bool:
+    try:
+        args = json.loads(item.arguments or "{}")
+        args_pretty = json.dumps(args, indent=2)
+    except Exception:
+        args_pretty = item.arguments or "(no arguments)"
+
+    print(f"\n  Penny wants to call: {item.tool_name}")
+    print(f"  Arguments:\n{_indent(args_pretty, 4)}")
+    answer = input("  Approve? [y/N]: ").strip().lower()
+    return answer == "y"
+
+
+def _indent(text: str, spaces: int) -> str:
+    pad = " " * spaces
+    return "\n".join(pad + line for line in text.splitlines())
+
+
+async def _handle_interruptions(result, agent, session=None):
+    """Loop: show pending approvals, collect decisions, resume until no more interruptions."""
+    while result.interruptions:
+        state = result.to_state()
+        for item in result.interruptions:
+            if _prompt_approval(item):
+                state.approve(item)
+            else:
+                state.reject(item, rejection_message="Action declined by user.")
+        kwargs = {"session": session} if session is not None else {}
+        result = await Runner.run(agent, state, **kwargs)
+    return result
+
+
+# ── Agent ─────────────────────────────────────────────────────────────────────
+
 INSTRUCTIONS = (
     "You are Penny, a concise and friendly personal budget assistant. "
     "Use the available tools to answer questions about the user's budgets and transactions. "
@@ -54,12 +99,15 @@ INSTRUCTIONS = (
 )
 
 
+# ── Run modes ─────────────────────────────────────────────────────────────────
+
 async def run_once(query: str) -> None:
     """Run a single query and print the result."""
     async with MCPServerStreamableHttp(
         name="budget-tracker",
         params={"url": MCP_URL},
         cache_tools_list=True,
+        require_approval={"always": {"tool_names": WRITE_TOOL_NAMES}},
     ) as server:
         agent = Agent(
             name="Penny",
@@ -69,6 +117,7 @@ async def run_once(query: str) -> None:
             mcp_servers=[server],
         )
         result = await Runner.run(agent, query)
+        result = await _handle_interruptions(result, agent)
         print(result.final_output)
 
 
@@ -82,6 +131,7 @@ async def run_interactive() -> None:
         name="budget-tracker",
         params={"url": MCP_URL},
         cache_tools_list=True,
+        require_approval={"always": {"tool_names": WRITE_TOOL_NAMES}},
     ) as server:
         agent = Agent(
             name="Penny",
@@ -106,6 +156,7 @@ async def run_interactive() -> None:
 
             try:
                 result = await Runner.run(agent, query, session=session)
+                result = await _handle_interruptions(result, agent, session=session)
                 print(f"Penny: {result.final_output}\n")
             except Exception as exc:  # noqa: BLE001
                 print(f"Penny: Sorry, something went wrong — {exc}\n")
