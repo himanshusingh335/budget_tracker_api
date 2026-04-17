@@ -3,11 +3,11 @@ import io
 import sqlite3
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import StreamingResponse
 
 from app.database import get_db
-from app.models.budget import BudgetCreate, BudgetDeleteRequest
+from app.models.budget import BudgetCreate
 
 router = APIRouter(prefix="/budget", tags=["Budget"])
 
@@ -65,15 +65,20 @@ def add_budget(payload: BudgetCreate, db: Annotated[sqlite3.Connection, Depends(
 
 
 @router.delete("", status_code=200)
-def delete_budget(payload: BudgetDeleteRequest, db: Annotated[sqlite3.Connection, Depends(get_db)]):
+def delete_budget(
+    MonthYear: Annotated[str, Query()],
+    Category: Annotated[str, Query()],
+    db: Annotated[sqlite3.Connection, Depends(get_db)],
+):
     """Delete a budget allocation for a specific category and month.
 
     Args:
-        payload: Identifies the entry to delete via MonthYear (MM/YY format, e.g. '04/25') and Category
+        MonthYear: MM/YY format, e.g. '04/25'
+        Category: Category name to delete
     """
     db.execute(
         "DELETE FROM budget_set WHERE MonthYear = ? AND Category = ?",
-        (payload.MonthYear, payload.Category),
+        (MonthYear, Category),
     )
     db.commit()
     return {"message": "Budget entry deleted successfully"}
