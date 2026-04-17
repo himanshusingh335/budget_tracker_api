@@ -20,3 +20,9 @@ There is no test suite currently.
 **MonthYear format:** Stored as `"MM/YY"`. Route params `month`/`year` (int) are converted via `f"{month:02d}/{str(year)[-2:]}"` in `budget.py` and `summary.py`.
 
 **MCP:** `.mcp.json` exposes the API as an MCP server via SSE at `http://raspberrypi4.tailad9f80.ts.net:8502/mcp`.
+
+## Penny — AI Budget Assistant
+
+**`penny.py` is the local test harness.** New Penny features (tools, instructions, HITL flow, model config) are prototyped and validated here via a CLI REPL before being promoted to the frontend.
+
+**`dashboard.py` is the frontend.** Once a Penny feature is confirmed working in `penny.py`, it is replicated into `PennyView` in `dashboard.py`. The two files should stay in sync on anything Penny-related: `WRITE_TOOL_NAMES`, `require_approval` config, `_handle_interruptions` logic, and `PENNY_INSTRUCTIONS`.

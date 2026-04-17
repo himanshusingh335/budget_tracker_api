@@ -53,6 +53,14 @@ CATEGORIES = [
     "Medical", "Personal Items", "Travel", "Utilities", "Other",
 ]
 
+WRITE_TOOL_NAMES = [
+    "add_transaction_transactions_post",
+    "update_transaction_transactions__id__patch",
+    "delete_transaction_transactions__id__delete",
+    "add_budget_budget_post",
+    "delete_budget_budget_delete",
+]
+
 PURPLE   = "#6C47FF"
 RED      = "#E74C3C"
 GREEN    = "#2ECC71"
@@ -820,6 +828,25 @@ class PennyView(Widget):
         log.write(f"\n[bold {PURPLE}]You:[/] {query}")
         self._run_penny(query)
 
+    async def _handle_interruptions(self, result, agent) -> object:
+        """Show a ConfirmModal for each pending tool approval, then resume the run."""
+        while result.interruptions:
+            state = result.to_state()
+            for item in result.interruptions:
+                try:
+                    args = json.loads(item.arguments or "{}")
+                    args_pretty = "\n".join(f"  {k}: {v}" for k, v in args.items())
+                except Exception:
+                    args_pretty = item.arguments or ""
+                msg = f"Penny wants to call: [bold]{item.tool_name}[/bold]\n\n{args_pretty}"
+                approved = await self.app.push_screen_wait(ConfirmModal(msg))
+                if approved:
+                    state.approve(item)
+                else:
+                    state.reject(item, rejection_message="Action declined by user.")
+            result = await Runner.run(agent, state, session=self._session)
+        return result
+
     @work
     async def _run_penny(self, query: str) -> None:
         status = self.query_one("#penny-status", Label)
@@ -830,6 +857,7 @@ class PennyView(Widget):
                 name="budget-tracker",
                 params={"url": MCP_URL},
                 cache_tools_list=True,
+                require_approval={"always": {"tool_names": WRITE_TOOL_NAMES}},
             ) as server:
                 agent = Agent(
                     name="Penny",
@@ -839,6 +867,7 @@ class PennyView(Widget):
                     mcp_servers=[server],
                 )
                 result = await Runner.run(agent, query, session=self._session)
+                result = await self._handle_interruptions(result, agent)
             log.write(f"[bold {GREEN}]Penny:[/] {result.final_output}")
         except Exception as exc:
             log.write(f"[bold {RED}]Penny:[/] Sorry, something went wrong — {exc}")
