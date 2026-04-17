@@ -48,6 +48,7 @@ Or without activating the environment:
 > Note: Do not run `python app/main.py` directly — use `uvicorn` or `python -m app.main` from the project root.
 
 - API base: http://localhost:8502
+- Web UI: http://localhost:8502/app
 - Swagger UI: http://localhost:8502/docs
 - ReDoc: http://localhost:8502/redoc
 
@@ -103,7 +104,7 @@ chmod +x docker_push.sh
 ./docker_push.sh v1.0.0       # builds and pushes with a custom tag
 ```
 
-This builds both the API and dashboard images and pushes them to Docker Hub. Requires `docker login` beforehand.
+This builds and pushes the API image to Docker Hub. Requires `docker login` beforehand.
 
 ---
 
@@ -124,7 +125,7 @@ docker compose up -d
 ```
 
 - API: http://localhost:8502
-- Dashboard: http://localhost:8090
+- Web UI: http://localhost:8502/app
 
 Transaction and budget data is persisted in a named Docker volume (`budget_data`).
 
@@ -144,9 +145,13 @@ budget_tracker_api/
 │   └── routers/
 │       ├── budget.py        # /budget endpoints
 │       ├── transactions.py  # /transactions endpoints
-│       └── summary.py       # /summary endpoint
+│       ├── summary.py       # /summary endpoint
+│       └── penny_web.py     # /penny/chat and /penny/confirm endpoints
+├── static/
+│   └── app.html             # Web UI (served at /app)
 ├── data/
 │   └── budget.db            # SQLite database (git-ignored)
+├── penny.py                 # Penny CLI test harness
 ├── import_data.py           # Seed DB from CSV files
 ├── export_data_to_csv.py    # Export DB tables to CSV
 ├── requirements.txt

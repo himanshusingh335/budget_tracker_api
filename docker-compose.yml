@@ -6,29 +6,14 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8502:8502"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - PENNY_MODEL=${PENNY_MODEL:-gpt-5.4}
     volumes:
       - budget_data:/app/data
     restart: unless-stopped
     networks:
       - budget-network
-
-  dashboard:
-    image: mariox1105/budget-tracker-dashboard:latest
-    build:
-      context: .
-      dockerfile: Dockerfile.dashboard
-    ports:
-      - "8090:8080"
-    environment:
-      - BUDGET_API_URL=http://api:8502
-      - BUDGET_MCP_URL=http://api:8502/mcp
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - PENNY_MODEL=${PENNY_MODEL:-gpt-5.4}
-    restart: unless-stopped
-    networks:
-      - budget-network
-    depends_on:
-      - api
 
 networks:
   budget-network:
