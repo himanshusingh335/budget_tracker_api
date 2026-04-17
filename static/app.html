@@ -229,6 +229,19 @@
     .appr-reject.selected  { background: var(--danger);  color: #fff; }
     .approval-submit { margin-top: 10px; }
 
+    /* ── Ring chart ── */
+    .ring-wrap { display: flex; flex-direction: column; align-items: center; padding: 20px 0 12px; }
+    .ring-insight { font-size: 12px; color: var(--muted); margin-top: 10px; text-align: center; letter-spacing: 0.2px; }
+
+    /* ── Category bars ── */
+    .cat-bar-row { padding: 11px 0; border-bottom: 1px solid var(--border); }
+    .cat-bar-row:last-child { border-bottom: none; }
+    .cat-bar-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 7px; }
+    .cat-bar-name { font-size: 14px; }
+    .cat-bar-meta { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+    .bar-track { height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 2px; }
+
     /* ── Utilities ── */
     .loading { text-align: center; padding: 32px 16px; color: var(--muted); }
     .spinner { display: inline-block; width: 22px; height: 22px; border: 2px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.75s linear infinite; vertical-align: middle; margin-right: 8px; }
@@ -260,6 +273,7 @@
       <div class="stat-card"><div class="slabel">Spent</div><div class="svalue c-red" id="s-spent">—</div></div>
       <div class="stat-card"><div class="slabel">Left</div><div class="svalue" id="s-left">—</div></div>
     </div>
+    <div class="card" id="summary-chart" style="display:none"></div>
     <div class="section-label">By Category</div>
     <div class="card" id="summary-body"><div class="loading"><span class="spinner"></span>Loading…</div></div>
   </div>
@@ -414,8 +428,53 @@ function refreshTab() {
 
 // ── Summary ───────────────────────────────────────────────────────────────────
 
+function renderRing(pct) {
+  const r = 52, sw = 7, size = 120;
+  const circ = 2 * Math.PI * r;
+  const safePct = Math.min(Math.max(pct, 0), 1);
+  const offset = circ * (1 - safePct);
+  const color = safePct >= 1 ? 'var(--danger)' : safePct >= 0.8 ? 'var(--primary)' : 'var(--success)';
+  return `<svg viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" style="display:block">
+    <circle cx="60" cy="60" r="${r}" fill="none" stroke="var(--border)" stroke-width="${sw}"/>
+    <circle cx="60" cy="60" r="${r}" fill="none" stroke="${color}" stroke-width="${sw}"
+      stroke-dasharray="${circ.toFixed(2)}" stroke-dashoffset="${offset.toFixed(2)}"
+      stroke-linecap="round" transform="rotate(-90 60 60)"
+      style="transition:stroke-dashoffset 0.7s cubic-bezier(.4,0,.2,1)"/>
+    <text x="60" y="55" text-anchor="middle" fill="var(--text)" font-size="20" font-weight="700"
+      font-family="-apple-system,BlinkMacSystemFont,sans-serif">${Math.round(safePct * 100)}%</text>
+    <text x="60" y="71" text-anchor="middle" fill="var(--muted)" font-size="9" letter-spacing="1"
+      font-family="-apple-system,BlinkMacSystemFont,sans-serif">USED</text>
+  </svg>`;
+}
+
+function insightText(pct, totalBudget, totalSpent, items) {
+  const now = new Date();
+  const isCurrentMonth = (month === now.getMonth() + 1 && year === now.getFullYear());
+  const topCat = items.filter(r => parseAmt(r.Expenditure) > 0)
+    .sort((a, b) => parseAmt(b.Expenditure) - parseAmt(a.Expenditure))[0];
+  const parts = [];
+
+  if (isCurrentMonth) {
+    const daysLeft = new Date(year, month, 0).getDate() - now.getDate();
+    const dailyLeft = daysLeft > 0 ? (totalBudget - totalSpent) / daysLeft : 0;
+    if (pct === 0) parts.push(`Nothing spent yet`);
+    else if (pct < 0.5) parts.push(`On track`);
+    else if (pct < 0.8) parts.push(`Moderate spend`);
+    else if (pct < 1) parts.push(`Near limit`);
+    else parts.push(`Over budget`);
+    if (daysLeft > 0 && pct < 1) parts.push(`${daysLeft}d left · ${fmt(dailyLeft)}/day available`);
+  } else {
+    if (pct === 0) parts.push(`No spend recorded`);
+    else if (pct <= 1) parts.push(`${Math.round(pct * 100)}% of budget used`);
+    else parts.push(`${Math.round(pct * 100)}% — over budget`);
+  }
+  if (topCat) parts.push(`Top: ${topCat.Category}`);
+  return parts.join('  ·  ');
+}
+
 async function loadSummary() {
   document.getElementById('summary-body').innerHTML = '<div class="loading"><span class="spinner"></span>Loading…</div>';
+  document.getElementById('summary-chart').style.display = 'none';
   ['s-budget','s-spent','s-left'].forEach(id => document.getElementById(id).textContent = '—');
 
   try {
@@ -427,31 +486,54 @@ async function loadSummary() {
     const total = rows.find(r => r.MonthYear === 'Total');
     const items = rows.filter(r => r.MonthYear !== 'Total');
 
+    const totalBudget = total ? parseAmt(total.Budget) : 0;
+    const totalSpent  = total ? parseAmt(total.Expenditure) : 0;
+
     if (total) {
-      document.getElementById('s-budget').textContent = fmt(parseAmt(total.Budget));
-      document.getElementById('s-spent').textContent  = fmt(parseAmt(total.Expenditure));
+      document.getElementById('s-budget').textContent = fmt(totalBudget);
+      document.getElementById('s-spent').textContent  = fmt(totalSpent);
       const diff = parseAmt(total.Difference);
       const leftEl = document.getElementById('s-left');
       leftEl.textContent = fmt(diff);
       leftEl.className = 'svalue ' + (diff >= 0 ? 'c-green' : 'c-red');
     }
 
+    // Ring chart
+    const pct = totalBudget > 0 ? totalSpent / totalBudget : 0;
+    const chartEl = document.getElementById('summary-chart');
+    chartEl.style.display = '';
+    chartEl.innerHTML = `<div class="ring-wrap">
+      ${renderRing(pct)}
+      <div class="ring-insight">${esc(insightText(pct, totalBudget, totalSpent, items))}</div>
+    </div>`;
+
     if (!items.length) {
       document.getElementById('summary-body').innerHTML = '<div class="empty">No data</div>';
       return;
     }
 
-    let html = '<table class="data-table"><thead><tr><th>Category</th><th class="num">Budget</th><th class="num">Spent</th><th class="num">Left</th></tr></thead><tbody>';
-    for (const r of items) {
-      const diff = parseAmt(r.Difference);
-      html += `<tr>
-        <td>${esc(r.Category)}</td>
-        <td class="num">${fmt(parseAmt(r.Budget))}</td>
-        <td class="num">${fmt(parseAmt(r.Expenditure))}</td>
-        <td class="num ${diff >= 0 ? 'positive' : 'negative'}">${fmt(parseAmt(r.Difference))}</td>
-      </tr>`;
+    // Category progress bars
+    const activeItems = items.filter(r => parseAmt(r.Budget) > 0 || parseAmt(r.Expenditure) > 0);
+    if (!activeItems.length) {
+      document.getElementById('summary-body').innerHTML = '<div class="empty">No data</div>';
+      return;
     }
-    html += '</tbody></table>';
+
+    let html = '';
+    for (const r of activeItems) {
+      const budget = parseAmt(r.Budget);
+      const spent  = parseAmt(r.Expenditure);
+      const p = budget > 0 ? Math.min(spent / budget, 1) : (spent > 0 ? 1 : 0);
+      const barColor = p >= 1 ? 'var(--danger)' : p >= 0.8 ? 'var(--primary)' : 'var(--success)';
+      const metaColor = spent > budget && budget > 0 ? 'var(--danger)' : 'var(--muted)';
+      html += `<div class="cat-bar-row">
+        <div class="cat-bar-head">
+          <span class="cat-bar-name">${esc(r.Category)}</span>
+          <span class="cat-bar-meta" style="color:${metaColor}">${fmt(spent)}<span style="color:var(--border)"> / </span>${fmt(budget)}</span>
+        </div>
+        ${budget > 0 ? `<div class="bar-track"><div class="bar-fill" style="width:${(p*100).toFixed(1)}%;background:${barColor}"></div></div>` : ''}
+      </div>`;
+    }
     document.getElementById('summary-body').innerHTML = html;
   } catch (e) {
     document.getElementById('summary-body').innerHTML = `<div class="empty">${esc(e.message)}</div>`;
