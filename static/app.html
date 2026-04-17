@@ -5,18 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Budget Tracker</title>
+  <title>Mariox's Budget Tracker</title>
   <style>
     :root {
-      --bg: #1a1a2e;
-      --card: #16213e;
-      --nav: #0f3460;
-      --primary: #6C47FF;
-      --danger: #E74C3C;
-      --success: #2ECC71;
-      --text: #e0e0e0;
-      --muted: #7a7a9a;
-      --border: #252545;
+      --bg: #0c0c0c;
+      --card: #141414;
+      --nav: #0f0f0f;
+      --primary: #c8965a;
+      --danger: #d95f5f;
+      --success: #5aad7a;
+      --text: #e2e2e2;
+      --muted: #555555;
+      --border: #222222;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     body {
@@ -39,7 +39,7 @@
       flex-shrink: 0;
       border-bottom: 1px solid var(--border);
     }
-    .header-title { font-size: 17px; font-weight: 700; color: var(--primary); }
+    .header-title { font-size: 15px; font-weight: 600; color: var(--text); letter-spacing: 0.2px; }
     .month-nav { display: flex; align-items: center; gap: 4px; }
     .month-nav button {
       background: none; border: none; color: var(--text);
@@ -74,14 +74,15 @@
     .nav-btn {
       flex: 1; border: none; background: none;
       color: var(--muted);
-      padding: 10px 4px 8px;
+      padding: 14px 4px 10px;
       display: flex; flex-direction: column; align-items: center;
-      gap: 3px; cursor: pointer; font-size: 10px; font-weight: 500;
+      cursor: pointer; font-size: 11px; font-weight: 600; letter-spacing: 0.3px;
       transition: color 0.15s;
       min-height: 54px;
+      border-top: 2px solid transparent;
+      text-transform: uppercase;
     }
-    .nav-btn .nav-icon { font-size: 22px; line-height: 1; }
-    .nav-btn.active { color: var(--primary); }
+    .nav-btn.active { color: var(--primary); border-top-color: var(--primary); }
 
     /* ── Cards ── */
     .card { background: var(--card); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
@@ -124,7 +125,7 @@
       flex: 1; padding: 9px; border-radius: 8px; border: none;
       font-size: 13px; font-weight: 600; cursor: pointer;
     }
-    .act-edit { background: rgba(108,71,255,0.18); color: var(--primary); }
+    .act-edit { background: rgba(200,150,90,0.15); color: var(--primary); }
     .act-delete { background: rgba(231,76,60,0.18); color: var(--danger); }
 
     /* ── FAB ── */
@@ -134,7 +135,7 @@
       background: var(--primary); border: none; color: white;
       font-size: 26px; cursor: pointer;
       display: none; align-items: center; justify-content: center;
-      box-shadow: 0 4px 20px rgba(108,71,255,0.45);
+      box-shadow: 0 4px 20px rgba(200,150,90,0.35);
       z-index: 50;
     }
 
@@ -214,7 +215,7 @@
     /* ── Approval card ── */
     .approval-wrap { align-self: flex-start; width: 100%; max-width: 100%; }
     .approval-card {
-      background: rgba(108,71,255,0.08);
+      background: rgba(200,150,90,0.07);
       border: 1px solid var(--primary);
       border-radius: 12px; padding: 14px; margin-bottom: 8px;
     }
@@ -241,7 +242,7 @@
 
 <!-- Header -->
 <header class="header">
-  <div class="header-title">💰 Budget</div>
+  <div class="header-title">Mariox's Budget Tracker</div>
   <div class="month-nav">
     <button id="prev-month" aria-label="Previous month">&#9664;</button>
     <span class="month-label" id="month-label">April 2026</span>
@@ -278,7 +279,7 @@
     <div class="chat-messages" id="chat-msgs">
       <div class="msg penny">
         <div class="msg-who">Penny</div>
-        <div class="msg-bubble">Hi! I'm Penny, your budget assistant. Ask me anything about your finances 💜</div>
+        <div class="msg-bubble">Hi! I'm Penny, your budget assistant. Ask me anything about your finances.</div>
       </div>
     </div>
     <div class="chat-input-bar">
@@ -291,10 +292,10 @@
 
 <!-- Bottom nav -->
 <nav class="bottom-nav">
-  <button class="nav-btn active" data-tab="summary"><span class="nav-icon">📊</span>Summary</button>
-  <button class="nav-btn" data-tab="transactions"><span class="nav-icon">📋</span>Spend</button>
-  <button class="nav-btn" data-tab="budget"><span class="nav-icon">🎯</span>Budget</button>
-  <button class="nav-btn" data-tab="penny"><span class="nav-icon">💬</span>Penny</button>
+  <button class="nav-btn active" data-tab="summary">Summary</button>
+  <button class="nav-btn" data-tab="transactions">Spend</button>
+  <button class="nav-btn" data-tab="budget">Budget</button>
+  <button class="nav-btn" data-tab="penny">Penny</button>
 </nav>
 
 <!-- FAB -->
@@ -737,7 +738,7 @@ function addApproval(interruptions, stateId) {
   let html = '<div class="msg-who">Penny — approval needed</div>';
   interruptions.forEach((item, i) => {
     html += `<div class="approval-card" id="aprc-${stateId}-${i}">
-      <div class="approval-tool">🔧 ${esc(item.tool_name.replace(/_/g,' '))}</div>
+      <div class="approval-tool">${esc(item.tool_name.replace(/_/g,' '))}</div>
       <pre class="approval-args">${esc(JSON.stringify(item.args, null, 2))}</pre>
       <div class="approval-btns">
         <button class="appr-btn appr-approve" id="aappr-${stateId}-${i}" onclick="setDecision('${stateId}',${i},true)">✓ Approve</button>
@@ -768,7 +769,7 @@ window.submitApprovals = async (stateId, count) => {
   const decisions = wrap ? wrap._decisions.map(d => d === true) : new Array(count).fill(false);
   if (wrap) wrap.remove();
 
-  const thinking = addMsg('penny', '⏳ Processing…', 'thinking');
+  const thinking = addMsg('penny', 'Processing…', 'thinking');
   sendBtn.disabled = true;
 
   try {
@@ -808,7 +809,7 @@ async function sendPenny() {
   chatInput.style.height = 'auto';
   sendBtn.disabled = true;
 
-  const thinking = addMsg('penny', '⏳ Thinking…', 'thinking');
+  const thinking = addMsg('penny', 'Thinking…', 'thinking');
 
   try {
     const data = await fetch('/penny/chat', {
