@@ -17,7 +17,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 MCP_URL = os.environ.get("BUDGET_MCP_URL", "http://localhost:8502/mcp")
-MODEL = os.environ.get("PENNY_MODEL", "gpt-4o")
+MODEL = os.environ.get("PENNY_MODEL", "gpt-5.4")
 
 WRITE_TOOL_NAMES = [
     "add_transaction_transactions_post",
