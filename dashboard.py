@@ -130,12 +130,9 @@ async def api_patch(path: str, data: dict):
         return r.json()
 
 
-async def api_delete(path: str, data: dict = None):
+async def api_delete(path: str, params: dict = None):
     async with httpx.AsyncClient(timeout=10.0) as c:
-        if data:
-            r = await c.request("DELETE", f"{API_BASE}{path}", content=json.dumps(data), headers={"Content-Type": "application/json"})
-        else:
-            r = await c.delete(f"{API_BASE}{path}")
+        r = await c.delete(f"{API_BASE}{path}", params=params)
         r.raise_for_status()
         return r.json()
 
@@ -1194,7 +1191,7 @@ class BudgetDashboard(App):
     @work
     async def _do_delete_budget(self, category: str) -> None:
         try:
-            await api_delete("/budget", {"MonthYear": self._my(), "Category": category})
+            await api_delete("/budget", params={"MonthYear": self._my(), "Category": category})
             self.notify("Budget deleted.", severity="information")
             await self._fetch_budget()
             await self._fetch_summary()
@@ -1214,7 +1211,7 @@ class BudgetDashboard(App):
     @work
     async def _replace_budget(self, old_category: str, payload: dict) -> None:
         try:
-            await api_delete("/budget", {"MonthYear": self._my(), "Category": old_category})
+            await api_delete("/budget", params={"MonthYear": self._my(), "Category": old_category})
             await api_post("/budget", payload)
             self.notify("Budget updated.", severity="information")
             await self._fetch_budget()
