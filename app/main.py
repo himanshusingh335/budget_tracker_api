@@ -43,7 +43,7 @@ def web_app():
     return FileResponse("static/app.html")
 
 
-mcp = FastApiMCP(app)
+mcp = FastApiMCP(app, exclude_tags=["Penny"])
 mcp.mount_http()
 
 
