@@ -287,11 +287,17 @@
 
   <!-- Transactions -->
   <div class="tab-panel" id="panel-transactions">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:8px">
+      <a href="/transactions/export/csv" class="btn btn-ghost" style="width:auto;font-size:12px;padding:6px 12px;margin-bottom:0;text-decoration:none" download>&#8595; CSV</a>
+    </div>
     <div id="tx-list"><div class="loading"><span class="spinner"></span>Loading…</div></div>
   </div>
 
   <!-- Budget -->
   <div class="tab-panel" id="panel-budget">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:8px">
+      <a href="/budget/export/csv" class="btn btn-ghost" style="width:auto;font-size:12px;padding:6px 12px;margin-bottom:0;text-decoration:none" download>&#8595; CSV</a>
+    </div>
     <div id="budget-list"><div class="loading"><span class="spinner"></span>Loading…</div></div>
   </div>
 
@@ -349,7 +355,9 @@ let txExpanded  = null;
 let budgets     = [];
 let budgetMY    = '';
 let budgExpanded = null;
-const pennySessionId = (crypto.randomUUID ?? (() => ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c => (c^crypto.getRandomValues(new Uint8Array(1))[0]&15>>c/4).toString(16))))();
+const pennySessionId = typeof crypto.randomUUID === 'function'
+  ? crypto.randomUUID()
+  : ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c => (c^crypto.getRandomValues(new Uint8Array(1))[0]&15>>c/4).toString(16));
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
