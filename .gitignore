@@ -37,4 +37,3 @@ csv_exports/
 .DS_Store
 
 # Docker
-.dockerignore
