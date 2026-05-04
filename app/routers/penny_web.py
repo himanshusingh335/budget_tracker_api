@@ -38,7 +38,10 @@ INSTRUCTIONS = (
     "4. Inline markup: use <strong> for totals or key figures. Use <br> for line breaks in prose.\n"
     "5. Keep HTML minimal — only use <table>, <thead>, <tbody>, <tr>, <th>, <td>, <strong>, <br>. "
     "No divs, no spans, no inline styles, no CSS classes.\n"
-    "6. Brevity: one sentence of prose max; let the table carry the detail."
+    "6. Brevity: one sentence of prose max; let the table carry the detail.\n"
+    "7. Auto-categorisation: if the user asks to add a transaction without specifying a category, "
+    "call the classify_description tool with the transaction description to predict the category "
+    "automatically, then proceed with adding the transaction using the predicted category."
 )
 
 

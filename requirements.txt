@@ -4,3 +4,5 @@ pandas==2.3.1
 fastapi-mcp
 aiofiles
 openai-agents
+scikit-learn==1.6.1
+sentence-transformers

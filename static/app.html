@@ -173,6 +173,11 @@
     .btn-primary { background: var(--primary); color: white; }
     .btn-danger { background: var(--danger); color: white; }
     .btn-ghost { background: var(--border); color: var(--text); }
+    .suggest-chip {
+      display: inline-block; margin-top: 6px; padding: 3px 10px;
+      border-radius: 20px; font-size: 11px; font-weight: 600;
+      background: rgba(200,150,90,0.18); color: var(--primary); letter-spacing: 0.3px;
+    }
 
     /* ── Section label ── */
     .section-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
@@ -631,12 +636,56 @@ function showAddTx() {
     <div class="form-group"><label>Amount (₹)</label>
       <input type="number" id="f-amt" placeholder="0.00" min="0.01" step="0.01" inputmode="decimal">
     </div>
-    <div class="form-group"><label>Category</label>
+    <div class="form-group" id="f-cat-wrap"><label>Category</label>
       <select id="f-cat">${CATEGORIES.map(c => `<option>${c}</option>`).join('')}</select>
     </div>
     <button class="btn btn-primary" onclick="submitAddTx()">Add Transaction</button>
     <button class="btn btn-ghost"   onclick="closeSheet()">Cancel</button>
   `);
+  setTimeout(_attachClassifySuggest, 50);
+}
+
+// ── Classify / auto-suggest ───────────────────────────────────────────────────
+
+let _classifyTimer = null;
+
+function _attachClassifySuggest() {
+  const descEl = document.getElementById('f-desc');
+  const catEl  = document.getElementById('f-cat');
+  if (!descEl || !catEl) return;
+
+  descEl.addEventListener('input', () => {
+    clearTimeout(_classifyTimer);
+    const val = descEl.value.trim();
+    if (!val) { _clearSuggestChip(); return; }
+    _classifyTimer = setTimeout(async () => {
+      try {
+        const data = await api('POST', '/classify', { description: val });
+        const select = document.getElementById('f-cat');
+        if (!select || !data) return;
+        select.value = data.category;
+        _showSuggestChip(data.category);
+      } catch (_) { /* silent — never block the form */ }
+    }, 500);
+  });
+
+  catEl.addEventListener('change', _clearSuggestChip);
+}
+
+function _showSuggestChip(category) {
+  _clearSuggestChip();
+  const wrap = document.getElementById('f-cat-wrap');
+  if (!wrap) return;
+  const chip = document.createElement('span');
+  chip.id = 'suggest-chip';
+  chip.className = 'suggest-chip';
+  chip.textContent = 'Suggested: ' + category;
+  wrap.appendChild(chip);
+}
+
+function _clearSuggestChip() {
+  const el = document.getElementById('suggest-chip');
+  if (el) el.remove();
 }
 
 async function submitAddTx() {

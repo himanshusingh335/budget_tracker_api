@@ -12,7 +12,7 @@ logging.basicConfig(
 )
 
 from app.config import APP_TITLE, APP_VERSION
-from app.routers import budget, penny_web, query, summary, transactions
+from app.routers import budget, classify, penny_web, query, summary, transactions
 
 
 @asynccontextmanager
@@ -27,6 +27,7 @@ app.include_router(summary.router)
 app.include_router(budget.router)
 app.include_router(transactions.router)
 app.include_router(query.router)
+app.include_router(classify.router)
 app.include_router(penny_web.router)
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
