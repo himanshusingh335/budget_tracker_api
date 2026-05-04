@@ -379,6 +379,16 @@ function todayDDMMYY() {
   return `${dd}/${mm}/${yy}`;
 }
 
+function todayISO() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function isoToDDMMYY(iso) {
+  const [y, m, d] = iso.split('-');
+  return `${d}/${m}/${String(y).slice(-2)}`;
+}
+
 function parseDDMMYY(s) {
   const [dd, mm, yy] = s.split('/').map(Number);
   return { day: dd, month: mm, year: 2000 + yy };
@@ -612,8 +622,8 @@ async function deleteTx(id) {
 
 function showAddTx() {
   openSheet('Add Transaction', `
-    <div class="form-group"><label>Date (DD/MM/YY)</label>
-      <input type="text" id="f-date" value="${todayDDMMYY()}" placeholder="DD/MM/YY" inputmode="numeric">
+    <div class="form-group"><label>Date</label>
+      <input type="date" id="f-date" value="${todayISO()}">
     </div>
     <div class="form-group"><label>Description</label>
       <input type="text" id="f-desc" placeholder="e.g. Supermarket" autocomplete="off">
@@ -630,12 +640,12 @@ function showAddTx() {
 }
 
 async function submitAddTx() {
-  const dateStr = document.getElementById('f-date').value.trim();
+  const isoDate = document.getElementById('f-date').value;
   const desc    = document.getElementById('f-desc').value.trim();
   const amt     = parseFloat(document.getElementById('f-amt').value);
   const cat     = document.getElementById('f-cat').value;
-  if (!dateStr || !desc || !amt) { alert('Fill in all fields'); return; }
-  if (!/^\d{2}\/\d{2}\/\d{2}$/.test(dateStr)) { alert('Date must be DD/MM/YY'); return; }
+  if (!isoDate || !desc || !amt) { alert('Fill in all fields'); return; }
+  const dateStr = isoToDDMMYY(isoDate);
   const { day, month: m, year: y } = parseDDMMYY(dateStr);
   try {
     await api('POST', '/transactions', { Date: dateStr, Description: desc, Category: cat, Expenditure: amt, Year: y, Month: m, Day: day });
