@@ -1,5 +1,6 @@
 import csv
 import io
+import logging
 import sqlite3
 from typing import Annotated
 
@@ -10,6 +11,7 @@ from app.database import get_db
 from app.models.budget import BudgetCreate
 
 router = APIRouter(prefix="/budget", tags=["Budget"])
+logger = logging.getLogger("budget-api")
 
 
 # Static path MUST be registered before parameterized path /{month}/{year}
@@ -45,6 +47,7 @@ def get_budget(month: int, year: int, db: Annotated[sqlite3.Connection, Depends(
         "SELECT Category, Budget FROM budget_set WHERE MonthYear = ?", (month_year,)
     ).fetchall()
     if not rows:
+        logger.error("get_budget %s: no budget data found", month_year)
         raise HTTPException(status_code=404, detail="No budget data found for this month")
     return {"MonthYear": month_year, "Budgets": [dict(r) for r in rows]}
 

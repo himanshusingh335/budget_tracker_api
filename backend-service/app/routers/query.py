@@ -1,3 +1,4 @@
+import logging
 import sqlite3
 from typing import Annotated
 
@@ -7,6 +8,7 @@ from pydantic import BaseModel
 from app.database import get_db
 
 router = APIRouter(prefix="/query", tags=["Query"])
+logger = logging.getLogger("budget-api")
 
 SCHEMA = """
 Tables:
@@ -123,6 +125,7 @@ def run_query(payload: QueryRequest, db: Annotated[sqlite3.Connection, Depends(g
 
     first_token = sql.split()[0].upper() if sql.split() else ""
     if first_token != "SELECT":
+        logger.error("Rejected non-SELECT query: %r", sql)
         raise HTTPException(
             status_code=400,
             detail="Only SELECT statements are permitted.",
@@ -131,6 +134,7 @@ def run_query(payload: QueryRequest, db: Annotated[sqlite3.Connection, Depends(g
     try:
         rows = db.execute(sql).fetchall()
     except Exception as e:
+        logger.error("Query error for %r: %s", sql, e)
         raise HTTPException(status_code=400, detail=f"Query error: {e}")
 
     return [dict(row) for row in rows]

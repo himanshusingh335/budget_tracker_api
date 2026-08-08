@@ -1,3 +1,4 @@
+import logging
 import threading
 from pathlib import Path
 
@@ -8,6 +9,7 @@ from pydantic import BaseModel
 from sentence_transformers import SentenceTransformer
 
 router = APIRouter(prefix="/classify", tags=["Classify"])
+logger = logging.getLogger("budget-api")
 
 _MODELS_DIR = Path(__file__).parent.parent.parent / "models"
 _lock = threading.Lock()
@@ -25,6 +27,7 @@ def _load_models():
             clf = joblib.load(_MODELS_DIR / "classifier.joblib")
             encoder = joblib.load(_MODELS_DIR / "label_encoder.joblib")
         except Exception as exc:
+            logger.error("Model load failed: %s", exc)
             raise HTTPException(status_code=503, detail=f"Model load failed: {exc}") from exc
         _cache.update(st=st, clf=clf, encoder=encoder)
     return _cache["st"], _cache["clf"], _cache["encoder"]

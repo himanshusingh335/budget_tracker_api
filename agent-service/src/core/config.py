@@ -15,6 +15,7 @@ class Settings(BaseSettings):
 
     summarization_keep_messages: int = 20
 
+    log_level: str = "INFO"
     log_dir: str = "logs"
     log_file: str = "app.log"
     log_retention_days: int = 30
