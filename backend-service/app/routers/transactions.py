@@ -34,7 +34,7 @@ def export_transactions_csv(db: Annotated[sqlite3.Connection, Depends(get_db)]):
     )
 
 
-@router.get("/{month}/{year}")
+@router.get("/{month}/{year}", operation_id="get_transactions")
 def get_transactions(month: int, year: int, db: Annotated[sqlite3.Connection, Depends(get_db)]):
     """Return all transactions (expenditures) for a given month and year.
 
@@ -48,12 +48,12 @@ def get_transactions(month: int, year: int, db: Annotated[sqlite3.Connection, De
     return [dict(r) for r in rows]
 
 
-@router.post("", status_code=201)
+@router.post("", status_code=201, operation_id="add_transaction")
 def add_transaction(payload: TransactionCreate, db: Annotated[sqlite3.Connection, Depends(get_db)]):
     """Record a new transaction (expenditure).
 
     Args:
-        payload: Transaction details including Date (DD/MM/YYYY), Description, Category, Expenditure amount, and Year/Month/Day as integers
+        payload: Transaction details including Date (DD/MM/YY, e.g. '15/01/25'), Description, Category, Expenditure amount, and Year/Month/Day as integers
     """
     db.execute(
         "INSERT INTO budget_tracker (Date, Description, Category, Expenditure, Year, Month, Day) VALUES (?, ?, ?, ?, ?, ?, ?)",
@@ -64,7 +64,7 @@ def add_transaction(payload: TransactionCreate, db: Annotated[sqlite3.Connection
     return {"message": "Expenditure added successfully"}
 
 
-@router.patch("/{id}", status_code=200)
+@router.patch("/{id}", status_code=200, operation_id="update_transaction")
 def update_transaction(id: int, payload: TransactionUpdate, db: Annotated[sqlite3.Connection, Depends(get_db)]):
     """Partially update a transaction by its ID.
 
@@ -90,7 +90,7 @@ def update_transaction(id: int, payload: TransactionUpdate, db: Annotated[sqlite
     return dict(row)
 
 
-@router.delete("/{id}", status_code=200)
+@router.delete("/{id}", status_code=200, operation_id="delete_transaction")
 def delete_transaction(id: int, db: Annotated[sqlite3.Connection, Depends(get_db)]):
     """Delete a transaction by its ID.
 

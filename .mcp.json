@@ -2,7 +2,7 @@
   "mcpServers": {
     "budget-tracker": {
       "type": "http",
-      "url": "http://raspberrypi4.tailad9f80.ts.net:8502/mcp"
+      "url": "https://raspberrypi4.tailad9f80.ts.net/mcp"
     }
   }
 }

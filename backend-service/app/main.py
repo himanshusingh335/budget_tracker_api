@@ -1,9 +1,10 @@
 import logging
-from contextlib import asynccontextmanager
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from fastapi import FastAPI
-from fastapi.responses import FileResponse
-from fastapi.staticfiles import StaticFiles
 from fastapi_mcp import FastApiMCP
 
 logging.basicConfig(
@@ -12,25 +13,15 @@ logging.basicConfig(
 )
 
 from app.config import APP_TITLE, APP_VERSION
-from app.routers import budget, classify, penny_web, query, summary, transactions
+from app.routers import budget, classify, query, summary, transactions
 
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    yield
-    await penny_web.shutdown()
-
-
-app = FastAPI(title=APP_TITLE, version=APP_VERSION, lifespan=lifespan)
+app = FastAPI(title=APP_TITLE, version=APP_VERSION)
 
 app.include_router(summary.router)
 app.include_router(budget.router)
 app.include_router(transactions.router)
 app.include_router(query.router)
 app.include_router(classify.router)
-app.include_router(penny_web.router)
-
-app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 @app.get("/", tags=["Health"])
@@ -39,12 +30,21 @@ def root():
     return {"status": "ok", "version": APP_VERSION}
 
 
-@app.get("/app", include_in_schema=False)
-def web_app():
-    return FileResponse("static/app.html")
-
-
-mcp = FastApiMCP(app, exclude_tags=["Penny"])
+mcp = FastApiMCP(
+    app,
+    include_operations=[
+        "get_summary",
+        "get_budget",
+        "add_budget",
+        "delete_budget",
+        "get_transactions",
+        "add_transaction",
+        "update_transaction",
+        "delete_transaction",
+        "run_query",
+        "classify_description",
+    ],
+)
 mcp.mount_http()
 
 

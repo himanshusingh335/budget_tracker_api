@@ -2,13 +2,22 @@
 set -euo pipefail
 
 DOCKERHUB_USER="mariox1105"
-API_IMAGE="budget-tracker-api"
 TAG="${1:-latest}"
 
-echo "Building $DOCKERHUB_USER/$API_IMAGE:$TAG ..."
-docker build -t "$DOCKERHUB_USER/$API_IMAGE:$TAG" .
+declare -A SERVICES=(
+  [backend-service]="budget-tracker-backend"
+  [frontend-service]="budget-tracker-frontend"
+  [agent-service]="budget-tracker-agent"
+  [nginx]="budget-tracker-nginx"
+)
 
-echo "Pushing $DOCKERHUB_USER/$API_IMAGE:$TAG ..."
-docker push "$DOCKERHUB_USER/$API_IMAGE:$TAG"
+for dir in "${!SERVICES[@]}"; do
+  image="$DOCKERHUB_USER/${SERVICES[$dir]}:$TAG"
+  echo "Building $image ..."
+  docker build -t "$image" "./$dir"
 
-echo "Done: $DOCKERHUB_USER/$API_IMAGE:$TAG"
+  echo "Pushing $image ..."
+  docker push "$image"
+
+  echo "Done: $image"
+done

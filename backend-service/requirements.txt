@@ -2,7 +2,7 @@ fastapi==0.129.0
 uvicorn==0.35.0
 pandas==2.3.1
 fastapi-mcp
+mcp<2.0
 aiofiles
-openai-agents
 scikit-learn==1.6.1
 sentence-transformers

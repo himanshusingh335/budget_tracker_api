@@ -32,7 +32,7 @@ def export_budget_csv(db: Annotated[sqlite3.Connection, Depends(get_db)]):
     )
 
 
-@router.get("/{month}/{year}")
+@router.get("/{month}/{year}", operation_id="get_budget")
 def get_budget(month: int, year: int, db: Annotated[sqlite3.Connection, Depends(get_db)]):
     """Return budget allocations for each category for a given month and year.
 
@@ -49,7 +49,7 @@ def get_budget(month: int, year: int, db: Annotated[sqlite3.Connection, Depends(
     return {"MonthYear": month_year, "Budgets": [dict(r) for r in rows]}
 
 
-@router.post("", status_code=201)
+@router.post("", status_code=201, operation_id="add_budget")
 def add_budget(payload: BudgetCreate, db: Annotated[sqlite3.Connection, Depends(get_db)]):
     """Add a new budget allocation for a category and month.
 
@@ -64,7 +64,7 @@ def add_budget(payload: BudgetCreate, db: Annotated[sqlite3.Connection, Depends(
     return {"message": "Budget entry added successfully"}
 
 
-@router.delete("", status_code=200)
+@router.delete("", status_code=200, operation_id="delete_budget")
 def delete_budget(
     MonthYear: Annotated[str, Query()],
     Category: Annotated[str, Query()],

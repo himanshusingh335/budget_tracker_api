@@ -241,6 +241,21 @@
     .appr-reject.selected  { background: var(--danger);  color: #fff; }
     .approval-submit { margin-top: 10px; }
 
+.tool-call-wrap { align-self: flex-start; width: 100%; max-width: 100%; margin-bottom: 6px; }
+.tool-call { border: 1px solid var(--border); border-radius: 10px; padding: 8px 12px; background: var(--card); }
+.tool-call summary { cursor: pointer; font-size: 12px; font-weight: 600; color: var(--muted); list-style: none; }
+.tool-call summary::-webkit-details-marker { display: none; }
+.tool-call summary::before { content: '▸ '; }
+.tool-call[open] summary::before { content: '▾ '; }
+.tool-call-body { margin-top: 8px; font-size: 12px; }
+.tool-call-args, .tool-call-result {
+  white-space: pre-wrap; word-break: break-word;
+  background: var(--bg); border-radius: 8px; padding: 8px 10px;
+  font-family: 'Menlo', 'Courier New', monospace; color: var(--muted);
+  margin-top: 6px;
+}
+.tool-call-result::before { content: 'result → '; color: var(--primary); font-family: inherit; }
+
     /* ── Ring chart ── */
     .ring-wrap { display: flex; flex-direction: column; align-items: center; padding: 20px 0 12px; }
     .ring-insight { font-size: 12px; color: var(--muted); margin-top: 10px; text-align: center; letter-spacing: 0.2px; }
@@ -887,25 +902,52 @@ function addMsg(role, text, cls = '') {
   return d;
 }
 
-function addApproval(interruptions, stateId) {
+const toolCallEls = {};
+
+function addToolCallExpander(id, name, args) {
+  const wrap = document.createElement('div');
+  wrap.className = 'tool-call-wrap';
+  wrap.innerHTML = `<details class="tool-call">
+    <summary>${esc(name.replace(/_/g,' '))}</summary>
+    <div class="tool-call-body">
+      <pre class="tool-call-args">${esc(JSON.stringify(args, null, 2))}</pre>
+    </div>
+  </details>`;
+  chatMsgs.appendChild(wrap);
+  chatMsgs.scrollTop = chatMsgs.scrollHeight;
+  toolCallEls[id] = wrap;
+}
+
+function resolveToolCallExpander(id, response) {
+  const wrap = toolCallEls[id];
+  if (!wrap) return;
+  const body = wrap.querySelector('.tool-call-body');
+  const result = document.createElement('pre');
+  result.className = 'tool-call-result';
+  result.textContent = response;
+  body.appendChild(result);
+}
+
+function addApproval(pendingActions) {
+  const wrapId = 'w' + Date.now() + Math.random().toString(36).slice(2);
   const wrap = document.createElement('div');
   wrap.className = 'approval-wrap';
-  wrap.id = 'appr-' + stateId;
+  wrap.id = 'appr-' + wrapId;
 
-  const decisions = new Array(interruptions.length).fill(null);
+  const decisions = new Array(pendingActions.length).fill(null);
 
   let html = '<div class="msg-who">Penny — approval needed</div>';
-  interruptions.forEach((item, i) => {
-    html += `<div class="approval-card" id="aprc-${stateId}-${i}">
-      <div class="approval-tool">${esc(item.tool_name.replace(/_/g,' '))}</div>
+  pendingActions.forEach((item, i) => {
+    html += `<div class="approval-card" id="aprc-${wrapId}-${i}">
+      <div class="approval-tool">${esc(item.name.replace(/_/g,' '))}</div>
       <pre class="approval-args">${esc(JSON.stringify(item.args, null, 2))}</pre>
       <div class="approval-btns">
-        <button class="appr-btn appr-approve" id="aappr-${stateId}-${i}" onclick="setDecision('${stateId}',${i},true)">✓ Approve</button>
-        <button class="appr-btn appr-reject"  id="arejc-${stateId}-${i}" onclick="setDecision('${stateId}',${i},false)">✗ Reject</button>
+        <button class="appr-btn appr-approve" id="aappr-${wrapId}-${i}" onclick="setDecision('${wrapId}',${i},true)">✓ Approve</button>
+        <button class="appr-btn appr-reject"  id="arejc-${wrapId}-${i}" onclick="setDecision('${wrapId}',${i},false)">✗ Reject</button>
       </div>
     </div>`;
   });
-  html += `<button class="btn btn-primary approval-submit" onclick="submitApprovals('${stateId}',${interruptions.length})">Submit decisions</button>`;
+  html += `<button class="btn btn-primary approval-submit" onclick="submitApprovals('${wrapId}',${pendingActions.length})">Submit decisions</button>`;
   wrap.innerHTML = html;
 
   // store decisions on element
@@ -915,27 +957,29 @@ function addApproval(interruptions, stateId) {
   chatMsgs.scrollTop = chatMsgs.scrollHeight;
 }
 
-window.setDecision = (stateId, idx, approved) => {
-  const wrap = document.getElementById('appr-' + stateId);
+window.setDecision = (wrapId, idx, approved) => {
+  const wrap = document.getElementById('appr-' + wrapId);
   if (!wrap) return;
   wrap._decisions[idx] = approved;
-  document.getElementById(`aappr-${stateId}-${idx}`).classList.toggle('selected', approved);
-  document.getElementById(`arejc-${stateId}-${idx}`).classList.toggle('selected', !approved);
+  document.getElementById(`aappr-${wrapId}-${idx}`).classList.toggle('selected', approved);
+  document.getElementById(`arejc-${wrapId}-${idx}`).classList.toggle('selected', !approved);
 };
 
-window.submitApprovals = async (stateId, count) => {
-  const wrap = document.getElementById('appr-' + stateId);
-  const decisions = wrap ? wrap._decisions.map(d => d === true) : new Array(count).fill(false);
+window.submitApprovals = async (wrapId, count) => {
+  const wrap = document.getElementById('appr-' + wrapId);
+  const decisions = wrap
+    ? wrap._decisions.map(d => ({ type: d === true ? 'approve' : 'reject' }))
+    : new Array(count).fill({ type: 'reject' });
   if (wrap) wrap.remove();
 
   const thinking = addMsg('penny', 'Processing…', 'thinking');
   sendBtn.disabled = true;
 
   try {
-    const data = await fetch('/penny/confirm', {
+    const data = await fetch('/chat/resume', {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ state_id: stateId, decisions }),
+      body: JSON.stringify({ session_id: pennySessionId, decisions }),
     }).then(r => r.json());
     thinking.remove();
     handlePennyResp(data);
@@ -948,14 +992,43 @@ window.submitApprovals = async (stateId, count) => {
 };
 
 function handlePennyResp(data) {
-  if (data.type === 'approval_needed') {
-    addApproval(data.interruptions, data.state_id);
-  } else {
-    addMsg('penny', data.message || '✓ Done');
-    // Silently refresh data
-    if (tab === 'summary')      loadSummary();
-    if (tab === 'transactions') loadTx();
-    if (tab === 'budget')       loadBudget();
+  (data.tool_calls || []).forEach(tc => {
+    addToolCallExpander(tc.id, tc.name, tc.args);
+    if (tc.response != null) resolveToolCallExpander(tc.id, tc.response);
+  });
+
+  if (data.pending_actions && data.pending_actions.length) {
+    addApproval(data.pending_actions);
+    return;
+  }
+
+  addMsg('penny', data.reply || '✓ Done');
+  // Silently refresh data
+  if (tab === 'summary')      loadSummary();
+  if (tab === 'transactions') loadTx();
+  if (tab === 'budget')       loadBudget();
+}
+
+// Parses a text/event-stream body from a fetch() Response into {event, data} frames.
+async function* parseSSE(response) {
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buf = '';
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    buf += decoder.decode(value, { stream: true });
+    let sep;
+    while ((sep = buf.indexOf('\n\n')) !== -1) {
+      const rawFrame = buf.slice(0, sep);
+      buf = buf.slice(sep + 2);
+      let event = 'message', data = '';
+      for (const line of rawFrame.split('\n')) {
+        if (line.startsWith('event:')) event = line.slice(6).trim();
+        else if (line.startsWith('data:')) data += line.slice(5).trim();
+      }
+      yield { event, data };
+    }
   }
 }
 
@@ -968,18 +1041,46 @@ async function sendPenny() {
   chatInput.style.height = 'auto';
   sendBtn.disabled = true;
 
-  const thinking = addMsg('penny', 'Thinking…', 'thinking');
+  let thinking = addMsg('penny', 'Thinking…', 'thinking');
+  let pennyBubble = null;
+  let replyText = '';
+
+  const stopThinking = () => {
+    if (thinking) { thinking.remove(); thinking = null; }
+  };
 
   try {
-    const data = await fetch('/penny/chat', {
+    const res = await fetch('/chat/stream', {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ message: text, session_id: pennySessionId }),
-    }).then(r => r.json());
-    thinking.remove();
-    handlePennyResp(data);
+      body: JSON.stringify({ session_id: pennySessionId, message: text }),
+    });
+
+    for await (const frame of parseSSE(res)) {
+      if (!frame.data) continue;
+
+      if (frame.event === 'message') {
+        stopThinking();
+        if (!pennyBubble) pennyBubble = addMsg('penny', '');
+        replyText += frame.data;
+        pennyBubble.querySelector('.msg-bubble').innerHTML = replyText;
+      } else if (frame.event === 'tool_call') {
+        stopThinking();
+        JSON.parse(frame.data).forEach(tc => addToolCallExpander(tc.id, tc.name, tc.args));
+      } else if (frame.event === 'tool_result') {
+        JSON.parse(frame.data).forEach(tr => resolveToolCallExpander(tr.id, tr.response));
+      } else if (frame.event === 'interrupt') {
+        stopThinking();
+        addApproval(JSON.parse(frame.data));
+      }
+    }
+
+    stopThinking();
+    if (tab === 'summary')      loadSummary();
+    if (tab === 'transactions') loadTx();
+    if (tab === 'budget')       loadBudget();
   } catch (e) {
-    thinking.remove();
+    stopThinking();
     addMsg('penny', 'Error: ' + e.message);
   } finally {
     sendBtn.disabled = false;

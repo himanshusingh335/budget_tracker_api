@@ -33,7 +33,7 @@ class QueryRequest(BaseModel):
     sql: str
 
 
-@router.post("")
+@router.post("", operation_id="run_query")
 def run_query(payload: QueryRequest, db: Annotated[sqlite3.Connection, Depends(get_db)]):
     """Execute a read-only SQL SELECT query against the budget database and return results as a list of objects.
 

@@ -1,0 +1,11 @@
+{
+  "example-stdio-server": {
+    "transport": "stdio",
+    "command": "npx",
+    "args": ["-y", "@modelcontextprotocol/server-everything"]
+  },
+  "example-http-server": {
+    "transport": "streamable_http",
+    "url": "http://localhost:9000/mcp"
+  }
+}

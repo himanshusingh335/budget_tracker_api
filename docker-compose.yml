@@ -1,16 +1,61 @@
 services:
-  api:
-    image: mariox1105/budget-tracker-api:latest
+  frontend-service:
     build:
-      context: .
+      context: ./frontend-service
       dockerfile: Dockerfile
-    ports:
-      - "8502:8502"
-    environment:
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - PENNY_MODEL=${PENNY_MODEL:-gpt-5.4}
+    restart: unless-stopped
+    networks:
+      - budget-network
+
+  backend-service:
+    build:
+      context: ./backend-service
+      dockerfile: Dockerfile
     volumes:
       - budget_data:/app/data
+    restart: unless-stopped
+    networks:
+      - budget-network
+
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: agent_service
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - budget-network
+
+  agent-service:
+    build:
+      context: ./agent-service
+      dockerfile: Dockerfile
+    environment:
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - GROQ_MODEL=${GROQ_MODEL:-llama-3.3-70b-versatile}
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/agent_service
+    depends_on:
+      - postgres
+      - backend-service
+    restart: unless-stopped
+    networks:
+      - budget-network
+
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    ports:
+      - "8502:80"
+    depends_on:
+      - frontend-service
+      - backend-service
+      - agent-service
     restart: unless-stopped
     networks:
       - budget-network
@@ -23,3 +68,5 @@ volumes:
   budget_data:
     name: budget_data
     external: true
+  postgres_data:
+    name: agent_postgres_data

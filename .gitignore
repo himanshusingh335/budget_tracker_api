@@ -15,10 +15,10 @@ venv/
 env/
 
 # Database
-data/budget.db
-data/penny_sessions.db
-data/penny_sessions.db-shm
-data/penny_sessions.db-wal
+**/data/budget.db
+**/data/penny_sessions.db
+**/data/penny_sessions.db-shm
+**/data/penny_sessions.db-wal
 
 # CSV exports
 csv_exports/
@@ -26,6 +26,14 @@ csv_exports/
 # Environment variables
 .env
 .env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+
+# Python bytecode caches
+**/__pycache__/
 
 # IDE
 .vscode/
