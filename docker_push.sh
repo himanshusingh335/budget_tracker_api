@@ -4,15 +4,12 @@ set -euo pipefail
 DOCKERHUB_USER="mariox1105"
 TAG="${1:-latest}"
 
-declare -A SERVICES=(
-  [backend-service]="budget-tracker-backend"
-  [frontend-service]="budget-tracker-frontend"
-  [agent-service]="budget-tracker-agent"
-  [nginx]="budget-tracker-nginx"
-)
+DIRS=(backend-service frontend-service agent-service nginx)
+IMAGE_NAMES=(budget-tracker-backend budget-tracker-frontend budget-tracker-agent budget-tracker-nginx)
 
-for dir in "${!SERVICES[@]}"; do
-  image="$DOCKERHUB_USER/${SERVICES[$dir]}:$TAG"
+for i in "${!DIRS[@]}"; do
+  dir="${DIRS[$i]}"
+  image="$DOCKERHUB_USER/${IMAGE_NAMES[$i]}:$TAG"
   echo "Building $image ..."
   docker build -t "$image" "./$dir"
 
