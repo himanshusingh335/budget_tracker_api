@@ -1,5 +1,6 @@
 import csv
 import io
+import logging
 import sqlite3
 from typing import Annotated
 
@@ -10,6 +11,7 @@ from app.database import get_db
 from app.models.transaction import TransactionCreate, TransactionUpdate
 
 router = APIRouter(prefix="/transactions", tags=["Transactions"])
+logger = logging.getLogger("budget-api")
 
 
 # Static path MUST be registered before parameterized path /{id}
@@ -74,10 +76,12 @@ def update_transaction(id: int, payload: TransactionUpdate, db: Annotated[sqlite
     """
     fields = payload.model_dump(exclude_none=True)
     if not fields:
+        logger.error("update_transaction %d: no fields provided", id)
         raise HTTPException(status_code=400, detail="No fields provided to update")
 
     existing = db.execute("SELECT id FROM budget_tracker WHERE id = ?", (id,)).fetchone()
     if not existing:
+        logger.error("update_transaction %d: not found", id)
         raise HTTPException(status_code=404, detail="Transaction not found")
 
     set_clause = ", ".join(f"{col} = ?" for col in fields)

@@ -6,20 +6,20 @@ import sys
 from contextvars import ContextVar
 from datetime import datetime, timezone
 
-from core.config import settings
+from app.config import LOG_DIR, LOG_FILE, LOG_LEVEL, LOG_RETENTION_DAYS
 
-session_id_var: ContextVar[str] = ContextVar("session_id", default="-")
+request_id_var: ContextVar[str] = ContextVar("request_id", default="-")
 
 _RESERVED_RECORD_ATTRS = set(logging.LogRecord("", 0, "", 0, "", (), None).__dict__) | {
     "message",
     "asctime",
-    "session_id",
+    "request_id",
 }
 
 
-class SessionIdFilter(logging.Filter):
+class RequestIdFilter(logging.Filter):
     def filter(self, record: logging.LogRecord) -> bool:
-        record.session_id = session_id_var.get()
+        record.request_id = request_id_var.get()
         return True
 
 
@@ -28,7 +28,7 @@ class JsonFormatter(logging.Formatter):
         payload = {
             "timestamp": datetime.fromtimestamp(record.created, tz=timezone.utc).isoformat(),
             "level": record.levelname,
-            "session_id": getattr(record, "session_id", "-"),
+            "request_id": getattr(record, "request_id", "-"),
             "logger": record.name,
             "message": record.getMessage(),
         }
@@ -51,30 +51,16 @@ class ColorFormatter(logging.Formatter):
         logging.ERROR: "\033[31m",
         logging.CRITICAL: "\033[1;31m",
     }
-    ROLE_COLORS = {
-        "human": "\033[34m",
-        "ai": "\033[35m",
-        "tool": "\033[36m",
-    }
 
     def format(self, record: logging.LogRecord) -> str:
-        role = getattr(record, "role", None)
-        color = self.ROLE_COLORS.get(role) or self.LEVEL_COLORS.get(record.levelno, "")
+        color = self.LEVEL_COLORS.get(record.levelno, "")
         timestamp = datetime.fromtimestamp(record.created, tz=timezone.utc).strftime("%H:%M:%S")
-        session_id = getattr(record, "session_id", "-")
+        request_id = getattr(record, "request_id", "-")
         prefix = (
-            f"{self.DIM}{timestamp} [{session_id}]{self.RESET} "
+            f"{self.DIM}{timestamp} [{request_id}]{self.RESET} "
             f"{color}{record.levelname:<8}{self.RESET}"
         )
-
-        if role:
-            line = f"{prefix} {color}{role}{self.RESET}: {record.getMessage()}"
-            tool_calls = getattr(record, "tool_calls", None)
-            if tool_calls:
-                line += f" {self.DIM}tool_calls={tool_calls}{self.RESET}"
-        else:
-            line = f"{prefix} {record.name}: {record.getMessage()}"
-
+        line = f"{prefix} {record.name}: {record.getMessage()}"
         if record.exc_info:
             line += "\n" + self.formatException(record.exc_info)
         return line
@@ -82,24 +68,24 @@ class ColorFormatter(logging.Formatter):
 
 def configure_logging() -> None:
     root = logging.getLogger()
-    root.setLevel(settings.log_level.upper())
+    root.setLevel(LOG_LEVEL.upper())
     root.handlers.clear()
 
     formatter = JsonFormatter()
-    session_filter = SessionIdFilter()
+    request_filter = RequestIdFilter()
 
     stream_handler = logging.StreamHandler()
     stream_handler.setFormatter(ColorFormatter() if sys.stdout.isatty() else formatter)
-    stream_handler.addFilter(session_filter)
+    stream_handler.addFilter(request_filter)
     root.addHandler(stream_handler)
 
-    os.makedirs(settings.log_dir, exist_ok=True)
+    os.makedirs(LOG_DIR, exist_ok=True)
     file_handler = logging.handlers.TimedRotatingFileHandler(
-        os.path.join(settings.log_dir, settings.log_file),
+        os.path.join(LOG_DIR, LOG_FILE),
         when="midnight",
-        backupCount=settings.log_retention_days,
+        backupCount=LOG_RETENTION_DAYS,
         utc=True,
     )
     file_handler.setFormatter(formatter)
-    file_handler.addFilter(session_filter)
+    file_handler.addFilter(request_filter)
     root.addHandler(file_handler)

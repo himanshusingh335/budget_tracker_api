@@ -1,4 +1,3 @@
-import logging
 import os
 import sys
 
@@ -7,15 +6,17 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from fastapi import FastAPI
 from fastapi_mcp import FastApiMCP
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
-)
+from app.logging_config import configure_logging
+
+configure_logging()
 
 from app.config import APP_TITLE, APP_VERSION
+from app.middleware import RequestLoggingMiddleware
 from app.routers import budget, classify, query, summary, transactions
 
 app = FastAPI(title=APP_TITLE, version=APP_VERSION)
+
+app.add_middleware(RequestLoggingMiddleware)
 
 app.include_router(summary.router)
 app.include_router(budget.router)
