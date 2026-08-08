@@ -414,6 +414,11 @@ function parseDDMMYY(s) {
   return { day: dd, month: mm, year: 2000 + yy };
 }
 
+function ddmmyyToIso(s) {
+  const [dd, mm, yy] = s.split('/');
+  return `20${yy}-${mm}-${dd}`;
+}
+
 function esc(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
@@ -722,6 +727,9 @@ function showEditTx(id) {
   const tx = txList.find(t => t.id === id);
   if (!tx) return;
   openSheet('Edit Transaction', `
+    <div class="form-group"><label>Date</label>
+      <input type="date" id="f-date" value="${ddmmyyToIso(tx.Date)}">
+    </div>
     <div class="form-group"><label>Description</label>
       <input type="text" id="f-desc" value="${esc(tx.Description)}" autocomplete="off">
     </div>
@@ -737,11 +745,14 @@ function showEditTx(id) {
 }
 
 async function submitEditTx(id) {
+  const isoDate = document.getElementById('f-date').value;
+  const dateStr = isoToDDMMYY(isoDate);
+  const { day, month, year } = parseDDMMYY(dateStr);
   const desc = document.getElementById('f-desc').value.trim();
   const amt  = parseFloat(document.getElementById('f-amt').value);
   const cat  = document.getElementById('f-cat').value;
   try {
-    await api('PATCH', `/transactions/${id}`, { Description: desc, Expenditure: amt, Category: cat });
+    await api('PATCH', `/transactions/${id}`, { Date: dateStr, Description: desc, Expenditure: amt, Category: cat, Year: year, Month: month, Day: day });
     closeSheet();
     txExpanded = null;
     await loadTx();
