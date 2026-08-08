@@ -21,7 +21,7 @@ history. It reuses the shared root `.venv` — no separate install step.
 None beyond what's already in the repo: the root `.venv` conda env already
 has every dependency for both services installed, `backend-service/data/budget.db`
 already has real data to query, and `agent-service/.env` already has
-`GROQ_API_KEY` set. Postgres must be reachable at `localhost:5432` with
+`OPENROUTER_API_KEY` set. Postgres must be reachable at `localhost:5432` with
 user/pass `postgres`/`postgres` — the project's own `docker-compose.yml`
 stack (run via `docker compose up`) provides this; on this machine it's
 already running in the background via OrbStack, so nothing extra is needed.
@@ -80,7 +80,7 @@ a copied sandbox dir (like the driver does) if you're testing mutations.
 ```bash
 conda activate ./.venv
 cd backend-service && python app/main.py       # :8502, real data
-cd agent-service && python src/main.py         # :8000, needs Postgres + GROQ_API_KEY
+cd agent-service && python src/main.py         # :8000, needs Postgres + OPENROUTER_API_KEY
 ```
 
 Useless in a headless/CI context since both just block in the foreground;

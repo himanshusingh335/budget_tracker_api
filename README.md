@@ -5,7 +5,7 @@ A personal budget tracker split into four independently deployed services, wired
 ## Services
 
 - **backend-service** (FastAPI, port `8502`) — owns the SQLite database (`data/budget.db`, tables `budget_set` and `budget_tracker`). Exposes REST routes under `/summary`, `/budget`, `/transactions`, `/query`, and `/classify`, and also mounts an MCP server at `/mcp` (via `fastapi-mcp`) so its routes can be called as tools.
-- **agent-service** (FastAPI + LangGraph, port `8000`) — "Penny", a Groq-backed LangChain agent that consumes backend-service's tools over MCP. Conversation state is checkpointed to Postgres. Data-mutating tools (adding/updating/deleting transactions or budgets) require human-in-the-loop confirmation; read-only tools do not.
+- **agent-service** (FastAPI + LangGraph, port `8000`) — "Penny", an OpenRouter-backed LangChain agent that consumes backend-service's tools over MCP. Conversation state is checkpointed to Postgres. Data-mutating tools (adding/updating/deleting transactions or budgets) require human-in-the-loop confirmation; read-only tools do not.
 - **frontend-service** — the static `app.html` UI, served by nginx.
 - **nginx** — reverse proxy that routes `/chat/*` → agent-service, `/summary|budget|transactions|query|classify|mcp|docs|redoc|openapi.json` → backend-service, and everything else → frontend-service (see `nginx/nginx.conf`).
 
@@ -29,7 +29,7 @@ Runs at **http://localhost:8502**, backed by the SQLite DB at `backend-service/d
 
 ### agent-service
 
-agent-service requires a reachable Postgres instance (for LangGraph checkpointing) and a Groq API key.
+agent-service requires a reachable Postgres instance (for LangGraph checkpointing) and an OpenRouter API key.
 
 ```bash
 cd agent-service
@@ -38,7 +38,7 @@ cp .env.example .env
 ```
 
 Edit `.env` and set:
-- `GROQ_API_KEY` — required.
+- `OPENROUTER_API_KEY` — required.
 - `DATABASE_URL` — pointing at a running Postgres instance (e.g. `postgresql://postgres:postgres@localhost:5432/agent_service`). You can start just the Postgres container from the compose file: `docker compose up -d postgres`.
 - `MCP_CONFIG_PATH=mcp_servers.local.json` — for local (non-docker) runs, so the agent reaches backend-service at `http://localhost:8502/mcp` instead of the docker-network hostname used by `mcp_servers.json`.
 
@@ -55,7 +55,7 @@ Runs at **http://localhost:8000** by default (configurable via `PORT` in `.env`)
 The full stack (frontend, backend, agent, Postgres, nginx) is defined in `docker-compose.yml`. From the repo root:
 
 ```bash
-export GROQ_API_KEY=your_key_here   # required by agent-service
+export OPENROUTER_API_KEY=your_key_here   # required by agent-service
 docker compose up --build
 ```
 

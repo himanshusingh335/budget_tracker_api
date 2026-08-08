@@ -4,8 +4,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
-    groq_api_key: str
-    groq_model: str = "llama-3.3-70b-versatile"
+    openrouter_api_key: str
+    openrouter_model: str = "deepseek/deepseek-v4-pro"
 
     database_url: str = "postgresql://postgres:postgres@localhost:5432/agent_service"
 

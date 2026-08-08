@@ -69,12 +69,12 @@ if not cur.fetchone():
     cur.execute("CREATE DATABASE $PGDB")
 conn.close()
 PYEOF
-  GROQ_API_KEY="$(grep '^GROQ_API_KEY=' "$ROOT/agent-service/.env" | cut -d= -f2-)"
-  GROQ_MODEL="$(grep '^GROQ_MODEL=' "$ROOT/agent-service/.env" | cut -d= -f2-)"
+  OPENROUTER_API_KEY="$(grep '^OPENROUTER_API_KEY=' "$ROOT/agent-service/.env" | cut -d= -f2-)"
+  OPENROUTER_MODEL="$(grep '^OPENROUTER_MODEL=' "$ROOT/agent-service/.env" | cut -d= -f2-)"
   echo "Starting agent-service on :$AGENT_PORT (isolated Postgres DB '$PGDB', MCP -> sandboxed backend)"
   (
     cd "$ROOT/agent-service"
-    GROQ_API_KEY="$GROQ_API_KEY" GROQ_MODEL="$GROQ_MODEL" \
+    OPENROUTER_API_KEY="$OPENROUTER_API_KEY" OPENROUTER_MODEL="$OPENROUTER_MODEL" \
     DATABASE_URL="postgresql://postgres:postgres@localhost:5432/$PGDB" \
     HOST=0.0.0.0 PORT="$AGENT_PORT" RELOAD=false SUMMARIZATION_KEEP_MESSAGES=20 \
     MCP_CONFIG_PATH="$SANDBOX/mcp_servers.json" \
