@@ -45,3 +45,6 @@ logs/
 .DS_Store
 
 # Docker
+
+# Skill sandboxes
+.claude/skills/*/.sandbox/

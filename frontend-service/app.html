@@ -1018,14 +1018,18 @@ async function* parseSSE(response) {
     const { value, done } = await reader.read();
     if (done) break;
     buf += decoder.decode(value, { stream: true });
-    let sep;
-    while ((sep = buf.indexOf('\n\n')) !== -1) {
-      const rawFrame = buf.slice(0, sep);
-      buf = buf.slice(sep + 2);
+    let m;
+    // sse-starlette frames with "\r\n\r\n" by default; plain "\n\n" is also valid SSE.
+    while ((m = buf.match(/\r?\n\r?\n/)) !== null) {
+      const rawFrame = buf.slice(0, m.index);
+      buf = buf.slice(m.index + m[0].length);
       let event = 'message', data = '';
-      for (const line of rawFrame.split('\n')) {
-        if (line.startsWith('event:')) event = line.slice(6).trim();
-        else if (line.startsWith('data:')) data += line.slice(5).trim();
+      for (const rawLine of rawFrame.split('\n')) {
+        const line = rawLine.replace(/\r$/, '');
+        // Per the SSE spec, only a single leading space after the colon is stripped —
+        // trimming further would eat a token's own leading space during streaming.
+        if (line.startsWith('event:')) event = line.slice(6).replace(/^ /, '');
+        else if (line.startsWith('data:')) data += line.slice(5).replace(/^ /, '');
       }
       yield { event, data };
     }
