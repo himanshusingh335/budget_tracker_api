@@ -1190,7 +1190,12 @@ async function loadSessionList() {
   drawerList.innerHTML = '<div class="drawer-empty"><span class="spinner"></span> Loading…</div>';
   let data;
   try {
-    data = await api('GET', '/chat/sessions');
+    const res = await fetch('/chat/sessions');
+    if (!res.ok) {
+      const j = await res.json().catch(() => ({}));
+      throw new Error(j.detail || `HTTP ${res.status}`);
+    }
+    data = await res.json();
   } catch (e) {
     drawerList.innerHTML = `<div class="drawer-empty">Failed to load: ${esc(e.message)}</div>`;
     return;

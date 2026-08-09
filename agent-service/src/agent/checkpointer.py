@@ -24,5 +24,6 @@ async def get_checkpointer():
 
 
 async def list_sessions(checkpointer: AsyncPostgresSaver) -> list[dict]:
-    cursor = await checkpointer.conn.execute(_LIST_SESSIONS_QUERY)
-    return await cursor.fetchall()
+    async with checkpointer.lock:
+        cursor = await checkpointer.conn.execute(_LIST_SESSIONS_QUERY)
+        return await cursor.fetchall()
