@@ -445,7 +445,7 @@ localStorage.setItem('pennySessionId', pennySessionId);
 
 function updateSessionIdDisplay() {
   const el = document.getElementById('session-id-badge');
-  el.textContent = pennySessionId.slice(0, 8);
+  el.textContent = pennySessionId;
   el.title = pennySessionId;
 }
 updateSessionIdDisplay();
