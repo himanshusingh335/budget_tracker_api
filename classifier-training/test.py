@@ -7,6 +7,9 @@ Usage:
     python test.py                          # run built-in example descriptions
     python test.py "swiggy order" "flight to goa"   # test specific descriptions
 """
+import os
+os.environ.setdefault("HF_HUB_OFFLINE", "1")
+
 import sys
 from pathlib import Path
 
@@ -28,6 +31,7 @@ EXAMPLE_DESCRIPTIONS = [
     "buy borosil tiffin from hometown",
     "buy bread and butter from instamart",
     "Hotel stay Bangalore",
+    "Fill petrol"
 ]
 
 

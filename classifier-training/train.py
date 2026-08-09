@@ -7,6 +7,9 @@ on a held-out test set, then refit it on all data before saving.
 Input data comes from db_backup/csv_exports/budget_tracker.csv — run
 db_backup/restore_latest_backup.py first to pull the latest snapshot.
 """
+import os
+os.environ.setdefault("HF_HUB_OFFLINE", "1")
+
 import sys
 from pathlib import Path
 
@@ -78,8 +81,7 @@ def split_train_test(X: np.ndarray, y: np.ndarray, num_classes: int):
 def build_candidates() -> dict:
     return {
         "Logistic Regression": LogisticRegression(
-            C=1.0, class_weight="balanced", max_iter=1000,
-            solver="lbfgs", multi_class="multinomial"
+            C=1.0, class_weight="balanced", max_iter=1000, solver="lbfgs"
         ),
         "LinearSVC": LinearSVC(C=1.0, class_weight="balanced", max_iter=5000),
         "RBF SVM": SVC(
