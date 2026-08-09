@@ -41,4 +41,8 @@ Full stack: `docker compose up --build` (nginx on `:8502`). `docker_push.sh <tag
 
 ## Data scripts
 
-`import_data.py` / `export_data_to_csv.py` (root) move data between the SQLite DB and the CSV files in `csv_exports/`; both operate on `backend-service/data/budget.db` by path, not through the API.
+`db_backup/` holds the DB backup/restore tooling, independent of path (all scripts resolve paths relative to the repo root, so they can be run from anywhere):
+
+- `import_data.py` / `export_data_to_csv.py` move data between `backend-service/data/budget.db` and CSV files in `csv_exports/`, not through the API.
+- `backup_to_s3.sh` is the checked-in copy of the script that runs nightly via cron on the Pi (`~/budget-tracker/budget-api-db-backup.sh`) — it `docker cp`s `budget.db` out of the running `backend-service` container and uploads it to `s3://budget-tracker-backups-358625410597/backups/backup_<timestamp>/budget.db`. The two copies aren't symlinked; keep them in sync by hand if you change one.
+- `restore_latest_backup.py` pulls the most recent S3 backup and restores it into `backend-service/data/budget.db` (backing up the existing file first) and the `run-budget-tracker-api` skill's sandbox DB if present, then regenerates `csv_exports/`. Requires `aws login` to have been run locally first.

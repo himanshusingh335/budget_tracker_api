@@ -1,8 +1,10 @@
 import csv
 import sqlite3
-from datetime import datetime
+from pathlib import Path
 
-DB_NAME = "data/budget.db"
+REPO_ROOT = Path(__file__).resolve().parent.parent
+DB_NAME = REPO_ROOT / "backend-service" / "data" / "budget.db"
+CSV_DIR = REPO_ROOT / "csv_exports"
 
 def init_db():
     with sqlite3.connect(DB_NAME) as conn:
@@ -59,5 +61,5 @@ def import_budget_tracker(csv_file):
 
 if __name__ == "__main__":
     init_db()
-    import_budget_set("budget_set.csv")
-    import_budget_tracker("budget_tracker.csv")
+    import_budget_set(CSV_DIR / "budget_set.csv")
+    import_budget_tracker(CSV_DIR / "budget_tracker.csv")
