@@ -1141,6 +1141,10 @@ async function sendPenny() {
       } else if (frame.event === 'tool_call') {
         stopThinking();
         JSON.parse(frame.data).forEach(tc => addToolCallExpander(tc.id, tc.name, tc.args));
+        // Any text streamed after this point belongs after the tool call in the
+        // conversation, so start a fresh bubble instead of resuming the old one.
+        pennyBubble = null;
+        replyText = '';
       } else if (frame.event === 'tool_result') {
         JSON.parse(frame.data).forEach(tr => resolveToolCallExpander(tr.id, tr.response));
       } else if (frame.event === 'interrupt') {

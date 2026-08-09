@@ -1,6 +1,7 @@
 import json
 
 from fastapi import APIRouter, Depends
+from langchain_core.messages import AIMessage, AIMessageChunk, ToolMessage
 from langgraph.types import Command, Interrupt
 from sse_starlette.sse import EventSourceResponse
 
@@ -83,35 +84,41 @@ async def stream(request: ChatRequest, agent=Depends(get_agent)):
             state = await agent.aget_state(config)
             prev_len = len(state.values.get("messages", []))
 
-            run_stream = await agent.astream_events(
-                _inputs(request.message), config=config, version="v3"
-            )
-            async for message in run_stream.messages:
-                async for text_delta in message.text:
-                    if text_delta:
-                        yield {"data": text_delta}
-
-                output = await message.output
-                if output.tool_calls:
-                    yield {
-                        "event": "tool_call",
-                        "data": json.dumps(
-                            [
-                                {"id": tc["id"], "name": tc["name"], "args": tc["args"]}
-                                for tc in output.tool_calls
-                            ]
-                        ),
-                    }
+            async for chunk in agent.astream(
+                _inputs(request.message),
+                config=config,
+                stream_mode=["messages", "updates"],
+                version="v2",
+            ):
+                if chunk["type"] == "messages":
+                    token, _metadata = chunk["data"]
+                    if isinstance(token, AIMessageChunk) and token.text:
+                        yield {"data": token.text}
+                elif chunk["type"] == "updates":
+                    for key, update in chunk["data"].items():
+                        if key == "__interrupt__" or not update:
+                            continue
+                        for message in update.get("messages", []):
+                            if isinstance(message, AIMessage) and message.tool_calls:
+                                yield {
+                                    "event": "tool_call",
+                                    "data": json.dumps(
+                                        [
+                                            {"id": tc["id"], "name": tc["name"], "args": tc["args"]}
+                                            for tc in message.tool_calls
+                                        ]
+                                    ),
+                                }
+                            elif isinstance(message, ToolMessage):
+                                yield {
+                                    "event": "tool_result",
+                                    "data": json.dumps(
+                                        [{"id": message.tool_call_id, "response": str(message.text)}]
+                                    ),
+                                }
 
             final_state = await agent.aget_state(config)
-            new_messages = final_state.values.get("messages", [])[prev_len:]
             log_new_messages(final_state.values.get("messages", []), prev_len)
-
-            if resolved := [tc for tc in extract_tool_calls(new_messages) if tc.response is not None]:
-                yield {
-                    "event": "tool_result",
-                    "data": json.dumps([{"id": tc.id, "response": tc.response} for tc in resolved]),
-                }
 
             if pending := _pending_actions(final_state.interrupts):
                 yield {
