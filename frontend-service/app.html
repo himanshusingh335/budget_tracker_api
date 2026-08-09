@@ -215,6 +215,7 @@
 
     /* ── Penny chat ── */
     .chat-toolbar { display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; flex-shrink: 0; }
+    .chat-toolbar-right { display: flex; align-items: center; gap: 10px; }
     .chat-toolbar-btn {
       background: none; border: none; color: var(--muted);
       font-size: 13px; font-weight: 600; cursor: pointer;
@@ -222,6 +223,7 @@
       padding: 6px 4px;
     }
     .chat-toolbar-btn:active { color: var(--primary); }
+    .session-id-badge { font-size: 11px; color: var(--muted); font-family: monospace; }
     .chat-messages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; padding-bottom: 8px; }
     .msg { max-width: 88%; }
     .msg.user { align-self: flex-end; }
@@ -364,7 +366,10 @@
   <div class="tab-panel" id="panel-penny">
     <div class="chat-toolbar">
       <button class="chat-toolbar-btn" id="history-btn" aria-label="Session history">&#9776; History</button>
-      <button class="chat-toolbar-btn" id="new-chat-btn" aria-label="New chat">+ New chat</button>
+      <div class="chat-toolbar-right">
+        <span class="session-id-badge" id="session-id-badge" title=""></span>
+        <button class="chat-toolbar-btn" id="new-chat-btn" aria-label="New chat">+ New chat</button>
+      </div>
     </div>
     <div class="chat-messages" id="chat-msgs">
       <div class="msg penny">
@@ -437,6 +442,13 @@ function newUuid() {
 
 let pennySessionId = localStorage.getItem('pennySessionId') || newUuid();
 localStorage.setItem('pennySessionId', pennySessionId);
+
+function updateSessionIdDisplay() {
+  const el = document.getElementById('session-id-badge');
+  el.textContent = pennySessionId.slice(0, 8);
+  el.title = pennySessionId;
+}
+updateSessionIdDisplay();
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -1252,6 +1264,7 @@ async function selectSession(id) {
   if (id !== pennySessionId) {
     pennySessionId = id;
     localStorage.setItem('pennySessionId', pennySessionId);
+    updateSessionIdDisplay();
     await loadPennyHistory(id);
   }
   closeDrawer();
@@ -1261,6 +1274,7 @@ async function selectSession(id) {
 function newSession() {
   pennySessionId = newUuid();
   localStorage.setItem('pennySessionId', pennySessionId);
+  updateSessionIdDisplay();
   chatMsgs.innerHTML = WELCOME_HTML;
   Object.keys(toolCallEls).forEach(k => delete toolCallEls[k]);
   pennyHistoryLoadedFor = pennySessionId;
