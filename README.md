@@ -71,6 +71,54 @@ This builds and starts all five containers and exposes the whole app through ngi
 
 To push built images to Docker Hub (used for deploying to the Raspberry Pi): `./docker_push.sh <tag>`.
 
+## Production deployment (Raspberry Pi)
+
+The Pi runs the same `docker-compose.yml` stack described above, pulling
+pre-built images from Docker Hub instead of building locally. nginx is the
+only container with a published port.
+
+```mermaid
+flowchart LR
+    user["Browser / Penny client"] -->|":8502"| nginx
+
+    subgraph pi["Raspberry Pi — docker compose"]
+        nginx["nginx"]
+        frontend["frontend-service<br/>static app.html"]
+        backend["backend-service<br/>FastAPI + MCP"]
+        agent["agent-service<br/>LangGraph 'Penny'"]
+        pg["postgres:16<br/>checkpoints"]
+        vol[("budget_data volume<br/>budget.db")]
+
+        nginx -->|"/ (default)"| frontend
+        nginx -->|"/summary /budget /transactions<br/>/query /classify /mcp /docs"| backend
+        nginx -->|"/chat/*"| agent
+        agent -.->|"MCP tool calls"| backend
+        backend --> vol
+        agent --> pg
+    end
+```
+
+Deploying is `bash .claude/skills/deploy-to-pi/deploy.sh`, which drives:
+
+```mermaid
+sequenceDiagram
+    participant Dev as Dev machine
+    participant Hub as Docker Hub
+    participant Pi as Pi
+
+    Dev->>Hub: 1. docker_push.sh — build + push 4 images
+    Hub->>Pi: 2. docker compose pull && up -d (recreates only changed images)
+    Note over Pi: 3. docker compose restart nginx — always, not conditional
+    Pi-->>Dev: 4. curl /app and /chat/sessions — expect 200
+```
+
+**Why step 3 always runs:** `docker compose up -d` only recreates containers
+whose image changed — e.g. a frontend-only deploy leaves `backend-service`
+and `nginx` untouched. The recreated container gets a new internal Docker
+IP, but nginx resolved its upstream hostnames to IPs once at its own
+startup and won't re-resolve them, so every route 502s until nginx is
+restarted — even though `docker compose ps` shows everything "Up".
+
 ## Pulling prod data down for local testing
 
 `db_backup/` is **not** a disaster-recovery tool for the Pi — the Pi keeps
@@ -86,6 +134,27 @@ features against real data.
 - `restore_latest_backup.py` pulls the most recent S3 backup and restores it
   locally. Requires the `aws` CLI to already be authenticated
   (`aws login`), since it shells out to `aws s3`.
+
+```mermaid
+flowchart LR
+    subgraph nightly["Nightly cron, on the Pi"]
+        direction LR
+        c1["backend-service<br/>container"] -->|"docker cp"| tmp["host /tmp"]
+        tmp -->|"aws s3 cp"| s3[("s3://…-backups/<br/>backup_&lt;timestamp&gt;/budget.db")]
+    end
+
+    subgraph manual["Manual, on a dev machine"]
+        direction RL
+        s3b[("s3://…-backups/<br/>latest prefix")] -->|"aws s3 ls"| restore["restore_latest_backup.py"]
+        restore --> dbfile["backend-service/data/budget.db"]
+        restore --> sandbox[".sandbox db (if present)"]
+        restore --> csv["csv_exports/ (regenerated)"]
+    end
+```
+
+The restore path never writes back to the Pi — it's for pulling a
+prod-shaped dataset down to test against locally, not for recovering the
+Pi's own volume.
 
 ```bash
 aws login   # if your session has expired
