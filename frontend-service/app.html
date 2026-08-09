@@ -154,6 +154,37 @@
     .sheet-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 10px auto 18px; }
     .sheet-title { font-size: 18px; font-weight: 700; margin-bottom: 20px; }
 
+    /* ── Session drawer ── */
+    .drawer-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.65);
+      z-index: 100; display: none;
+    }
+    .drawer-overlay.open { display: block; }
+    .drawer {
+      position: fixed; top: 0; bottom: 0; left: 0;
+      width: min(84vw, 320px);
+      background: var(--card);
+      transform: translateX(-100%);
+      transition: transform 0.2s ease;
+      display: flex; flex-direction: column;
+      padding: calc(16px + env(safe-area-inset-top)) 0 env(safe-area-inset-bottom);
+      box-shadow: 4px 0 24px rgba(0,0,0,0.4);
+    }
+    .drawer-overlay.open .drawer { transform: translateX(0); }
+    .drawer-header { display: flex; align-items: center; justify-content: space-between; padding: 0 16px 16px; flex-shrink: 0; }
+    .drawer-title { font-size: 16px; font-weight: 700; }
+    .drawer-new-btn { background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 12px; font-weight: 700; padding: 8px 12px; cursor: pointer; }
+    .drawer-list { flex: 1; overflow-y: auto; padding: 0 16px; }
+    .session-row {
+      padding: 12px 4px; border-bottom: 1px solid var(--border);
+      cursor: pointer; user-select: none;
+    }
+    .session-row:active { filter: brightness(1.15); }
+    .session-row.active { border-left: 3px solid var(--primary); padding-left: 8px; margin-left: -4px; }
+    .session-preview { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .session-time { font-size: 11px; color: var(--muted); margin-top: 3px; }
+    .drawer-empty { color: var(--muted); font-size: 13px; padding: 20px 4px; text-align: center; }
+
     /* ── Forms ── */
     .form-group { margin-bottom: 16px; }
     .form-group label { display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 7px; font-weight: 600; }
@@ -183,6 +214,14 @@
     .section-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
 
     /* ── Penny chat ── */
+    .chat-toolbar { display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; flex-shrink: 0; }
+    .chat-toolbar-btn {
+      background: none; border: none; color: var(--muted);
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      display: flex; align-items: center; gap: 6px;
+      padding: 6px 4px;
+    }
+    .chat-toolbar-btn:active { color: var(--primary); }
     .chat-messages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; padding-bottom: 8px; }
     .msg { max-width: 88%; }
     .msg.user { align-self: flex-end; }
@@ -323,6 +362,10 @@
 
   <!-- Penny -->
   <div class="tab-panel" id="panel-penny">
+    <div class="chat-toolbar">
+      <button class="chat-toolbar-btn" id="history-btn" aria-label="Session history">&#9776; History</button>
+      <button class="chat-toolbar-btn" id="new-chat-btn" aria-label="New chat">+ New chat</button>
+    </div>
     <div class="chat-messages" id="chat-msgs">
       <div class="msg penny">
         <div class="msg-who">Penny</div>
@@ -356,6 +399,17 @@
   </div>
 </div>
 
+<!-- Session history drawer -->
+<div class="drawer-overlay" id="drawer-overlay">
+  <div class="drawer">
+    <div class="drawer-header">
+      <div class="drawer-title">Chat history</div>
+      <button class="drawer-new-btn" id="drawer-new-btn">+ New</button>
+    </div>
+    <div class="drawer-list" id="drawer-list"></div>
+  </div>
+</div>
+
 <script>
 'use strict';
 
@@ -375,9 +429,14 @@ let txExpanded  = null;
 let budgets     = [];
 let budgetMY    = '';
 let budgExpanded = null;
-const pennySessionId = typeof crypto.randomUUID === 'function'
-  ? crypto.randomUUID()
-  : ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c => (c^crypto.getRandomValues(new Uint8Array(1))[0]&15>>c/4).toString(16));
+function newUuid() {
+  return typeof crypto.randomUUID === 'function'
+    ? crypto.randomUUID()
+    : ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c => (c^crypto.getRandomValues(new Uint8Array(1))[0]&15>>c/4).toString(16));
+}
+
+let pennySessionId = localStorage.getItem('pennySessionId') || newUuid();
+localStorage.setItem('pennySessionId', pennySessionId);
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -1101,6 +1160,102 @@ async function sendPenny() {
     sendBtn.disabled = false;
   }
 }
+
+// ── Session drawer ───────────────────────────────────────────────────────────
+
+const WELCOME_HTML = `<div class="msg penny">
+  <div class="msg-who">Penny</div>
+  <div class="msg-bubble">Hi! I'm Penny, your budget assistant. Ask me anything about your finances.</div>
+</div>`;
+
+const drawerOverlay = document.getElementById('drawer-overlay');
+const drawerList = document.getElementById('drawer-list');
+
+function formatSessionTime(iso) {
+  const d = new Date(iso);
+  if (isNaN(d)) return iso;
+  return d.toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+}
+
+function openDrawer() {
+  drawerOverlay.classList.add('open');
+  loadSessionList();
+}
+
+function closeDrawer() {
+  drawerOverlay.classList.remove('open');
+}
+
+async function loadSessionList() {
+  drawerList.innerHTML = '<div class="drawer-empty"><span class="spinner"></span> Loading…</div>';
+  let data;
+  try {
+    data = await api('GET', '/chat/sessions');
+  } catch (e) {
+    drawerList.innerHTML = `<div class="drawer-empty">Failed to load: ${esc(e.message)}</div>`;
+    return;
+  }
+  const sessions = (data && data.sessions) || [];
+  if (!sessions.length) {
+    drawerList.innerHTML = '<div class="drawer-empty">No past conversations yet.</div>';
+    return;
+  }
+  drawerList.innerHTML = sessions.map(s => `
+    <div class="session-row${s.session_id === pennySessionId ? ' active' : ''}" data-id="${esc(s.session_id)}">
+      <div class="session-preview">${esc(s.preview || 'New conversation')}</div>
+      <div class="session-time">${esc(formatSessionTime(s.last_modified))}</div>
+    </div>
+  `).join('');
+  drawerList.querySelectorAll('.session-row').forEach(row => {
+    row.addEventListener('click', () => selectSession(row.dataset.id));
+  });
+}
+
+async function selectSession(id) {
+  if (id !== pennySessionId) {
+    pennySessionId = id;
+    localStorage.setItem('pennySessionId', pennySessionId);
+
+    chatMsgs.innerHTML = '<div class="drawer-empty"><span class="spinner"></span> Loading conversation…</div>';
+    try {
+      const data = await api('GET', `/chat/${encodeURIComponent(id)}/history`);
+      chatMsgs.innerHTML = '';
+      Object.keys(toolCallEls).forEach(k => delete toolCallEls[k]);
+      const messages = (data && data.messages) || [];
+      if (!messages.length) chatMsgs.innerHTML = WELCOME_HTML;
+      messages.forEach(m => {
+        if (m.role === 'user') {
+          addMsg('user', m.content);
+        } else if (m.role === 'ai') {
+          if (m.content) addMsg('penny', m.content);
+          (m.tool_calls || []).forEach(tc => addToolCallExpander(tc.id, tc.name, tc.args));
+        } else if (m.role === 'tool') {
+          resolveToolCallExpander(m.tool_call_id, m.content);
+        }
+      });
+    } catch (e) {
+      chatMsgs.innerHTML = WELCOME_HTML;
+      addMsg('penny', 'Error loading conversation: ' + e.message);
+    }
+  }
+  closeDrawer();
+  if (tab !== 'penny') switchTab('penny');
+}
+
+function newSession() {
+  pennySessionId = newUuid();
+  localStorage.setItem('pennySessionId', pennySessionId);
+  chatMsgs.innerHTML = WELCOME_HTML;
+  Object.keys(toolCallEls).forEach(k => delete toolCallEls[k]);
+  closeDrawer();
+}
+
+document.getElementById('history-btn').addEventListener('click', openDrawer);
+document.getElementById('new-chat-btn').addEventListener('click', newSession);
+document.getElementById('drawer-new-btn').addEventListener('click', newSession);
+drawerOverlay.addEventListener('click', e => {
+  if (e.target === drawerOverlay) closeDrawer();
+});
 
 // ── Boot ──────────────────────────────────────────────────────────────────────
 

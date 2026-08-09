@@ -79,6 +79,7 @@ class SessionLogsResponse(BaseModel):
 class SessionInfo(BaseModel):
     session_id: str
     last_modified: str
+    preview: str | None = None
 
 
 class SessionListResponse(BaseModel):
