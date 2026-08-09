@@ -22,7 +22,7 @@ env/
 **/data/penny_sessions.db-wal
 
 # CSV exports
-csv_exports/
+db_backup/csv_exports/
 
 # Environment variables
 .env

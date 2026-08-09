@@ -11,7 +11,7 @@ A personal budget tracker split into four independently deployed services, wired
 
 ## Running locally (backend-service + agent-service)
 
-All services (and the root scripts `import_data.py`, `export_data_to_csv.py`) share a single root `.venv` (a conda env) — there is no per-service virtualenv.
+All services (and the `db_backup/` scripts) share a single root `.venv` (a conda env) — there is no per-service virtualenv.
 
 ```bash
 conda activate /Users/himanshusingh/Developer/budget-tracker/budget_tracker_api/.venv
@@ -70,3 +70,30 @@ This builds and starts all five containers and exposes the whole app through ngi
 | Postgres (host access) | localhost:5432 |
 
 To push built images to Docker Hub (used for deploying to the Raspberry Pi): `./docker_push.sh <tag>`.
+
+## Pulling prod data down for local testing
+
+`db_backup/` is **not** a disaster-recovery tool for the Pi — the Pi keeps
+its own Docker volume and isn't restored via this repo. Instead it's for
+pulling the latest prod data snapshot down locally so you can test new
+features against real data.
+
+- `backup_to_s3.sh` is a reference copy of the script that actually runs
+  nightly via cron on the Pi (`~/budget-tracker/budget-api-db-backup.sh`) —
+  it dumps `budget.db` out of the running `backend-service` container and
+  uploads it to S3. It isn't meant to be run from a dev machine; keep the two
+  copies in sync by hand if you change one.
+- `restore_latest_backup.py` pulls the most recent S3 backup and restores it
+  locally. Requires the `aws` CLI to already be authenticated
+  (`aws login`), since it shells out to `aws s3`.
+
+```bash
+aws login   # if your session has expired
+python db_backup/restore_latest_backup.py
+```
+
+This restores `backend-service/data/budget.db` (backing up whatever was
+already there to `budget.db.bak-<timestamp>` first), also refreshes the
+`run-budget-tracker-api` skill's sandboxed DB copy if present, and
+regenerates CSVs into `db_backup/csv_exports/` for a quick human-readable
+look at the data.

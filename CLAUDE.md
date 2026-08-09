@@ -19,7 +19,7 @@ Money formats to preserve when touching agent/formatting code: `MonthYear` is al
 
 ## Running services locally
 
-All services (and the ad-hoc root scripts `import_data.py`, `export_data_to_csv.py`) share the single root `.venv` (a conda env) — there is no per-service virtualenv. Activate it before running anything:
+All services (and the `db_backup/` scripts) share the single root `.venv` (a conda env) — there is no per-service virtualenv. Activate it before running anything:
 
 ```bash
 conda activate /Users/himanshusingh/Developer/budget-tracker/budget_tracker_api/.venv
@@ -41,8 +41,7 @@ Full stack: `docker compose up --build` (nginx on `:8502`). `docker_push.sh <tag
 
 ## Data scripts
 
-`db_backup/` holds the DB backup/restore tooling, independent of path (all scripts resolve paths relative to the repo root, so they can be run from anywhere):
+`db_backup/` holds tooling for pulling the latest prod data snapshot down locally to test against — not a disaster-recovery mechanism for the Pi (it keeps its own Docker volume, unrelated to this repo). All paths resolve relative to the repo root, so scripts can be run from anywhere:
 
-- `import_data.py` / `export_data_to_csv.py` move data between `backend-service/data/budget.db` and CSV files in `csv_exports/`, not through the API.
-- `backup_to_s3.sh` is the checked-in copy of the script that runs nightly via cron on the Pi (`~/budget-tracker/budget-api-db-backup.sh`) — it `docker cp`s `budget.db` out of the running `backend-service` container and uploads it to `s3://budget-tracker-backups-358625410597/backups/backup_<timestamp>/budget.db`. The two copies aren't symlinked; keep them in sync by hand if you change one.
-- `restore_latest_backup.py` pulls the most recent S3 backup and restores it into `backend-service/data/budget.db` (backing up the existing file first) and the `run-budget-tracker-api` skill's sandbox DB if present, then regenerates `csv_exports/`. Requires `aws login` to have been run locally first.
+- `backup_to_s3.sh` is a reference copy of the script that runs nightly via cron on the Pi (`~/budget-tracker/budget-api-db-backup.sh`) — it `docker cp`s `budget.db` out of the running `backend-service` container and uploads it to `s3://budget-tracker-backups-358625410597/backups/backup_<timestamp>/budget.db`. Not meant to be run from a dev machine; the two copies aren't symlinked, keep them in sync by hand if you change one.
+- `restore_latest_backup.py` pulls the most recent S3 backup and restores it into `backend-service/data/budget.db` (backing up the existing file first) and the `run-budget-tracker-api` skill's sandbox DB if present, then regenerates CSVs into `db_backup/csv_exports/`. Requires `aws login` to have been run locally first.
