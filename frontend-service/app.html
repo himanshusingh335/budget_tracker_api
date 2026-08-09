@@ -534,6 +534,7 @@ function refreshTab() {
   if (tab === 'summary')      loadSummary();
   else if (tab === 'transactions') loadTx();
   else if (tab === 'budget')  loadBudget();
+  else if (tab === 'penny' && pennyHistoryLoadedFor !== pennySessionId) loadPennyHistory(pennySessionId);
 }
 
 // ── Summary ───────────────────────────────────────────────────────────────────
@@ -1175,6 +1176,33 @@ const WELCOME_HTML = `<div class="msg penny">
 const drawerOverlay = document.getElementById('drawer-overlay');
 const drawerList = document.getElementById('drawer-list');
 
+let pennyHistoryLoadedFor = null;
+
+async function loadPennyHistory(id) {
+  chatMsgs.innerHTML = '<div class="drawer-empty"><span class="spinner"></span> Loading conversation…</div>';
+  try {
+    const data = await api('GET', `/chat/${encodeURIComponent(id)}/history`);
+    chatMsgs.innerHTML = '';
+    Object.keys(toolCallEls).forEach(k => delete toolCallEls[k]);
+    const messages = (data && data.messages) || [];
+    if (!messages.length) chatMsgs.innerHTML = WELCOME_HTML;
+    messages.forEach(m => {
+      if (m.role === 'user') {
+        addMsg('user', m.content);
+      } else if (m.role === 'ai') {
+        if (m.content) addMsg('penny', m.content);
+        (m.tool_calls || []).forEach(tc => addToolCallExpander(tc.id, tc.name, tc.args));
+      } else if (m.role === 'tool') {
+        resolveToolCallExpander(m.tool_call_id, m.content);
+      }
+    });
+  } catch (e) {
+    chatMsgs.innerHTML = WELCOME_HTML;
+    addMsg('penny', 'Error loading conversation: ' + e.message);
+  }
+  pennyHistoryLoadedFor = id;
+}
+
 function formatSessionTime(iso) {
   const d = new Date(iso);
   if (isNaN(d)) return iso;
@@ -1224,28 +1252,7 @@ async function selectSession(id) {
   if (id !== pennySessionId) {
     pennySessionId = id;
     localStorage.setItem('pennySessionId', pennySessionId);
-
-    chatMsgs.innerHTML = '<div class="drawer-empty"><span class="spinner"></span> Loading conversation…</div>';
-    try {
-      const data = await api('GET', `/chat/${encodeURIComponent(id)}/history`);
-      chatMsgs.innerHTML = '';
-      Object.keys(toolCallEls).forEach(k => delete toolCallEls[k]);
-      const messages = (data && data.messages) || [];
-      if (!messages.length) chatMsgs.innerHTML = WELCOME_HTML;
-      messages.forEach(m => {
-        if (m.role === 'user') {
-          addMsg('user', m.content);
-        } else if (m.role === 'ai') {
-          if (m.content) addMsg('penny', m.content);
-          (m.tool_calls || []).forEach(tc => addToolCallExpander(tc.id, tc.name, tc.args));
-        } else if (m.role === 'tool') {
-          resolveToolCallExpander(m.tool_call_id, m.content);
-        }
-      });
-    } catch (e) {
-      chatMsgs.innerHTML = WELCOME_HTML;
-      addMsg('penny', 'Error loading conversation: ' + e.message);
-    }
+    await loadPennyHistory(id);
   }
   closeDrawer();
   if (tab !== 'penny') switchTab('penny');
@@ -1256,6 +1263,7 @@ function newSession() {
   localStorage.setItem('pennySessionId', pennySessionId);
   chatMsgs.innerHTML = WELCOME_HTML;
   Object.keys(toolCallEls).forEach(k => delete toolCallEls[k]);
+  pennyHistoryLoadedFor = pennySessionId;
   closeDrawer();
 }
 
