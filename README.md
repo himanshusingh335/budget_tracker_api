@@ -166,3 +166,44 @@ already there to `budget.db.bak-<timestamp>` first), also refreshes the
 `run-budget-tracker-api` skill's sandboxed DB copy if present, and
 regenerates CSVs into `db_backup/csv_exports/` for a quick human-readable
 look at the data.
+
+**If you're running the stack via `docker compose`**, this restore alone
+has no effect on a running container: `backend-service/data` is mounted
+from the named `budget_data` volume, which only ever seeds from the local
+`data/` folder once, the first time the (empty) volume is created — after
+that it's fully decoupled from the file on disk. To push a freshly
+restored DB into an already-running container:
+
+```bash
+docker cp backend-service/data/budget.db $(docker compose ps -q backend-service):/app/data/budget.db
+docker compose restart backend-service
+```
+
+## Retraining the transaction category classifier
+
+`classifier-training/` retrains the model behind `/classify` (`classify_description`
+in the MCP tool list) — the sentence-transformer + classifier pair that suggests
+a category from a free-text transaction description. It reads the CSV export
+produced by the data-pulling step above, so run that first if you want to train
+on the latest prod data:
+
+```mermaid
+flowchart LR
+    csv["db_backup/csv_exports/<br/>budget_tracker.csv"] -->|"train.py"| artifacts["backend-service/models/<br/>classifier.joblib + label_encoder.joblib"]
+    artifacts -->|"docker build<br/>COPY models/"| image["backend-service image"]
+    artifacts -.->|"test.py<br/>(local sanity check)"| dev["dev machine"]
+```
+
+```bash
+python db_backup/restore_latest_backup.py   # optional — pulls the latest data first
+python classifier-training/train.py         # retrains, overwrites backend-service/models/*.joblib
+python classifier-training/test.py          # sanity-check predictions locally
+```
+
+Training is deterministic (fixed `RANDOM_STATE`), so re-running it against
+unchanged data produces byte-identical model files — a no-op in `git diff`.
+Retraining is manual only; there's no cron job for it. A running
+`backend-service` caches the model in-process, so a locally running container
+needs a restart (see `docker cp`/restart above, targeting
+`backend-service/models/` instead of `data/`) and the Pi needs a redeploy
+(`deploy-to-pi` skill) to pick up a newly trained model.
