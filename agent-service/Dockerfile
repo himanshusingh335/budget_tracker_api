@@ -10,4 +10,4 @@ COPY mcp_servers.json .
 
 EXPOSE 8000
 
-CMD ["python", "src/main.py"]
+CMD ["uvicorn", "api.app:create_app", "--factory", "--app-dir", "src", "--host", "0.0.0.0", "--port", "8000", "--workers", "1", "--log-config", "src/uvicorn_log_config.json"]
