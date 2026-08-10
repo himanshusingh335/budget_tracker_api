@@ -16,6 +16,12 @@ services:
     volumes:
       - budget_data:/app/data
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8502/', timeout=3)"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
     networks:
       - budget-network
 
@@ -30,6 +36,12 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
     networks:
       - budget-network
 
@@ -43,8 +55,10 @@ services:
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/agent_service
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
     depends_on:
-      - postgres
-      - backend-service
+      postgres:
+        condition: service_healthy
+      backend-service:
+        condition: service_healthy
     restart: unless-stopped
     networks:
       - budget-network
