@@ -52,14 +52,14 @@ Runs at **http://localhost:8000** by default (configurable via `PORT` in `.env`)
 
 ## Running the entire app end-to-end with Docker
 
-The full stack (frontend, backend, agent, Postgres, nginx, pgAdmin, NocoDB) is defined in `docker-compose.yml`. From the repo root:
+The full stack (frontend, backend, agent, Postgres, nginx, NocoDB) is defined in `docker-compose.yml`. From the repo root:
 
 ```bash
-cp .env.example .env   # set OPENROUTER_API_KEY, PGADMIN_*, NC_ADMIN_* vars
+cp .env.example .env   # set OPENROUTER_API_KEY, NC_ADMIN_* vars
 docker compose up --build
 ```
 
-This builds and starts all seven containers and exposes the whole app through nginx at **http://localhost:8502**; frontend-service, backend-service, agent-service, and Postgres are only reachable from each other over the internal `budget-network` Docker network (Postgres is additionally published on `localhost:5432` for convenience). pgAdmin and NocoDB are admin UIs for those databases, published on their own ports for local/Tailscale access only — not routed through nginx. Backend data persists in the external `budget_data` volume and agent checkpoints persist in `agent_postgres_data`.
+This builds and starts all six containers and exposes the whole app through nginx at **http://localhost:8502**; frontend-service, backend-service, agent-service, and Postgres are only reachable from each other over the internal `budget-network` Docker network (Postgres is additionally published on `localhost:5432` for convenience). NocoDB is an admin UI for both databases, published on its own port for local/Tailscale access only — not routed through nginx. Backend data persists in the external `budget_data` volume and agent checkpoints persist in `agent_postgres_data`.
 
 | Service | URL |
 | --- | --- |
@@ -68,7 +68,6 @@ This builds and starts all seven containers and exposes the whole app through ng
 | → agent chat | http://localhost:8502/chat |
 | → backend API/MCP | http://localhost:8502/summary, /budget, /transactions, /query, /classify, /mcp, /docs |
 | Postgres (host access) | localhost:5432 |
-| pgAdmin (Postgres admin UI) | localhost:8504 |
 | NocoDB (Postgres + SQLite admin UI) | localhost:8505 |
 
 To push built images to Docker Hub (used for deploying to the Raspberry Pi): `./docker_push.sh <tag>`.
@@ -77,9 +76,9 @@ To push built images to Docker Hub (used for deploying to the Raspberry Pi): `./
 
 The Pi runs the same `docker-compose.yml` stack described above, pulling
 pre-built images from Docker Hub instead of building locally. nginx is the
-only container with a port published to the public internet — Postgres,
-pgAdmin, and NocoDB publish ports on the Pi host too, but those are reachable
-only over Tailscale, not the public internet.
+only container with a port published to the public internet — Postgres and
+NocoDB publish ports on the Pi host too, but those are reachable only over
+Tailscale, not the public internet.
 
 ```mermaid
 flowchart LR

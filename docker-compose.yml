@@ -63,22 +63,6 @@ services:
     networks:
       - budget-network
 
-  pgadmin:
-    image: dpage/pgadmin4:latest
-    environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
-    ports:
-      - "8504:80"
-    volumes:
-      - pgadmin_data:/var/lib/pgadmin
-    depends_on:
-      postgres:
-        condition: service_healthy
-    restart: unless-stopped
-    networks:
-      - budget-network
-
   nocodb:
     image: nocodb/nocodb:latest
     environment:
@@ -121,7 +105,5 @@ volumes:
     external: true
   postgres_data:
     name: agent_postgres_data
-  pgadmin_data:
-    name: pgadmin_data
   nocodb_data:
     name: nocodb_data
