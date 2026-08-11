@@ -63,6 +63,24 @@ services:
     networks:
       - budget-network
 
+  nocodb:
+    image: nocodb/nocodb:latest
+    environment:
+      NC_ADMIN_EMAIL: ${NC_ADMIN_EMAIL}
+      NC_ADMIN_PASSWORD: ${NC_ADMIN_PASSWORD}
+      NC_ALLOW_LOCAL_EXTERNAL_DBS: "true"
+    ports:
+      - "8505:8080"
+    volumes:
+      - nocodb_data:/usr/app/data
+      - budget_data:/data/budget:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - budget-network
+
   nginx:
     build:
       context: ./nginx
@@ -87,3 +105,5 @@ volumes:
     external: true
   postgres_data:
     name: agent_postgres_data
+  nocodb_data:
+    name: nocodb_data
