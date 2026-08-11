@@ -84,6 +84,7 @@ services:
     environment:
       NC_ADMIN_EMAIL: ${NC_ADMIN_EMAIL}
       NC_ADMIN_PASSWORD: ${NC_ADMIN_PASSWORD}
+      NC_ALLOW_LOCAL_EXTERNAL_DBS: "true"
     ports:
       - "8505:8080"
     volumes:
