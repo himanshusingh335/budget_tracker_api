@@ -8,7 +8,6 @@ A personal budget tracker split into four independently deployed services, wired
 - **agent-service** (FastAPI + LangGraph, port `8000`) — "Penny", an OpenRouter-backed LangChain agent that consumes backend-service's tools over MCP. Conversation state is checkpointed to Postgres. Data-mutating tools (adding/updating/deleting transactions or budgets) require human-in-the-loop confirmation; read-only tools do not.
 - **frontend-service** — the static `app.html` UI, served by nginx.
 - **nginx** — reverse proxy that routes `/chat/*` → agent-service, `/summary|budget|transactions|query|classify|mcp|docs|redoc|openapi.json` → backend-service, and everything else → frontend-service (see `nginx/nginx.conf`).
-- **dozzle** (port `8503`) — optional log viewer sidecar (`amir20/dozzle`), reads the Docker socket read-only. Not routed through nginx. backend-service and agent-service log structured JSON to stdout, which Dozzle parses live; its SQL Engine (DuckDB-in-browser, `Cmd+Shift+F`) lets you filter on fields like `session_id`/`request_id` (e.g. `SELECT * FROM logs WHERE session_id = '...'`).
 
 ## Running locally (backend-service + agent-service)
 
@@ -60,7 +59,7 @@ export OPENROUTER_API_KEY=your_key_here   # required by agent-service
 docker compose up --build
 ```
 
-This builds and starts all six containers and exposes the whole app through nginx at **http://localhost:8502**; frontend-service, backend-service, agent-service, and Postgres are only reachable from each other over the internal `budget-network` Docker network (Postgres is additionally published on `localhost:5432` for convenience, and Dozzle on `localhost:8503`). Backend data persists in the external `budget_data` volume and agent checkpoints persist in `agent_postgres_data`.
+This builds and starts all five containers and exposes the whole app through nginx at **http://localhost:8502**; frontend-service, backend-service, agent-service, and Postgres are only reachable from each other over the internal `budget-network` Docker network (Postgres is additionally published on `localhost:5432` for convenience). Backend data persists in the external `budget_data` volume and agent checkpoints persist in `agent_postgres_data`.
 
 | Service | URL |
 | --- | --- |
@@ -69,7 +68,6 @@ This builds and starts all six containers and exposes the whole app through ngin
 | → agent chat | http://localhost:8502/chat |
 | → backend API/MCP | http://localhost:8502/summary, /budget, /transactions, /query, /classify, /mcp, /docs |
 | Postgres (host access) | localhost:5432 |
-| Dozzle (log viewer) | http://localhost:8503 |
 
 To push built images to Docker Hub (used for deploying to the Raspberry Pi): `./docker_push.sh <tag>`.
 
@@ -77,14 +75,11 @@ To push built images to Docker Hub (used for deploying to the Raspberry Pi): `./
 
 The Pi runs the same `docker-compose.yml` stack described above, pulling
 pre-built images from Docker Hub instead of building locally. nginx is the
-only container with a port published to the public internet; Dozzle is
-published too, but only reachable over Tailscale (see below), since its
-raw log output can include session/request IDs.
+only container with a port published to the public internet.
 
 ```mermaid
 flowchart LR
     user["Browser / Penny client"] -->|":8502"| nginx
-    tsuser["Dev machine (Tailscale)"] -->|":8503"| dozzle
 
     subgraph pi["Raspberry Pi — docker compose"]
         nginx["nginx"]
@@ -93,7 +88,6 @@ flowchart LR
         agent["agent-service<br/>LangGraph 'Penny'"]
         pg["postgres:16<br/>checkpoints"]
         vol[("budget_data volume<br/>budget.db")]
-        dozzle["dozzle<br/>log viewer"]
 
         nginx -->|"/ (default)"| frontend
         nginx -->|"/summary /budget /transactions<br/>/query /classify /mcp /docs"| backend
@@ -103,11 +97,6 @@ flowchart LR
         agent --> pg
     end
 ```
-
-**On Dozzle's Pi config:** the `~/budget-tracker/docker-compose.yaml` on the
-Pi is a manually-synced copy of this repo's `docker-compose.yml` (not pushed
-by `deploy-to-pi`), so the `dozzle` service block needs to be added there by
-hand and brought up with `docker compose up -d dozzle`.
 
 Deploying is `bash .claude/skills/deploy-to-pi/deploy.sh`, which drives:
 
