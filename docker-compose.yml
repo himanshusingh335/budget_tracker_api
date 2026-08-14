@@ -86,7 +86,7 @@ services:
       context: ./nginx
       dockerfile: Dockerfile
     ports:
-      - "8502:80"
+      - "127.0.0.1:8502:80"
     depends_on:
       - frontend-service
       - backend-service
