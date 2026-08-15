@@ -6,6 +6,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Mariox's Budget Tracker</title>
+  <link rel="icon" type="image/svg+xml" href="/assets/icon.svg">
+  <link rel="apple-touch-icon" href="/assets/icon.svg">
   <style>
     :root {
       --bg: #0c0c0c;
@@ -39,7 +41,8 @@
       flex-shrink: 0;
       border-bottom: 1px solid var(--border);
     }
-    .header-title { font-size: 15px; font-weight: 600; color: var(--text); letter-spacing: 0.2px; }
+    .header-title { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 600; color: var(--text); letter-spacing: 0.2px; }
+    .header-logo { width: 22px; height: 22px; border-radius: 6px; flex-shrink: 0; }
     .month-nav { display: flex; align-items: center; gap: 4px; }
     .month-nav button {
       background: none; border: none; color: var(--text);
@@ -338,7 +341,7 @@
 
 <!-- Header -->
 <header class="header">
-  <div class="header-title">Mariox's Budget Tracker</div>
+  <div class="header-title"><img class="header-logo" src="/assets/icon.svg" alt=""> Mariox's Budget Tracker</div>
   <div class="month-nav">
     <button id="prev-month" aria-label="Previous month">&#9664;</button>
     <span class="month-label" id="month-label">April 2026</span>
