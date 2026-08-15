@@ -23,8 +23,10 @@ This does, in order:
 2. SSH to the Pi, `cd ~/budget-tracker && docker compose pull && docker compose up -d`.
 3. SSH again to `docker compose restart nginx` (see gotcha below — always
    needed, not conditional).
-4. curl `/app` and `/chat/sessions` through the Pi's nginx and fail loudly
-   if either isn't a 200.
+4. SSH to the Pi and curl `/app` and `/chat/sessions` against
+   `127.0.0.1:8502` (nginx is bound to `127.0.0.1` only, see gotcha below —
+   curling the Tailscale IP directly from a dev machine won't reach it),
+   failing loudly if either isn't a 200.
 
 Requires: SSH key access to the Pi already set up (`ssh mariox@100.127.54.94`
 with no password prompt), and `docker login` already done locally for the
@@ -52,14 +54,24 @@ unconditionally rather than trying to detect which services changed, since
 the restart is cheap and skipping it is the actual failure mode this
 gotcha describes.
 
+## Gotcha: nginx is bound to 127.0.0.1 on the Pi
+
+`docker-compose.yml` publishes nginx as `127.0.0.1:8502:80`, not
+`0.0.0.0:8502:80` (done to avoid a port conflict with `tailscaled`). That
+means curling `http://100.127.54.94:8502` or the Tailscale hostname's plain
+HTTP port directly from a dev machine will *not* reach it — verify from a
+shell on the Pi itself (`curl http://127.0.0.1:8502/...`, or `ssh
+mariox@100.127.54.94 "curl ..."` from elsewhere), or go through whatever
+actually terminates the public/Tailscale HTTPS endpoint.
+
 ## Manual steps (if the script isn't suitable)
 
 ```bash
 ./docker_push.sh                                              # or a tag
 ssh mariox@100.127.54.94 "cd ~/budget-tracker && docker compose pull && docker compose up -d"
 ssh mariox@100.127.54.94 "cd ~/budget-tracker && docker compose restart nginx"
-curl -s -o /dev/null -w '%{http_code}\n' http://100.127.54.94:8502/app
-curl -s http://100.127.54.94:8502/chat/sessions
+ssh mariox@100.127.54.94 "curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8502/app"
+ssh mariox@100.127.54.94 "curl -s http://127.0.0.1:8502/chat/sessions"
 ```
 
 ## Troubleshooting

@@ -6,7 +6,7 @@ set -euo pipefail
 TAG="${1:-latest}"
 PI_HOST="mariox@100.127.54.94"
 PI_DIR="~/budget-tracker"
-PI_URL="http://100.127.54.94:8502"
+PI_URL="http://127.0.0.1:8502"
 
 cd "$(dirname "$0")/../../.."
 
@@ -26,7 +26,7 @@ echo
 echo "=== 4/4: verify ==="
 sleep 2
 for path in /app /chat/sessions; do
-  code=$(curl -s -o /dev/null -w "%{http_code}" "$PI_URL$path")
+  code=$(ssh "$PI_HOST" "curl -s -o /dev/null -w '%{http_code}' '$PI_URL$path'")
   echo "$path -> $code"
   if [ "$code" != "200" ]; then
     echo "FAILED: $path returned $code, check 'ssh $PI_HOST \"cd $PI_DIR && docker compose logs --tail=40\"'"
