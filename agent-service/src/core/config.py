@@ -8,6 +8,8 @@ class Settings(BaseSettings):
     openrouter_model: str = "deepseek/deepseek-v4-pro"
 
     database_url: str = "postgresql://postgres:postgres@localhost:5432/agent_service"
+    db_pool_min_size: int = 1
+    db_pool_max_size: int = 5
 
     host: str = "0.0.0.0"
     port: int = 8000
