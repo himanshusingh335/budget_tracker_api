@@ -29,7 +29,8 @@ Tables:
     - Month       INTEGER  Month number 1-12
     - Day         INTEGER  Day of month 1-31
 
-  email_transactions   (bank alerts parsed from email; independent of budget_tracker)
+  email_transactions   (bank alerts parsed from email; independent of budget_tracker.
+                        Only for reconciling logged expenses against the bank, never for spending totals)
     - id          INTEGER  PRIMARY KEY
     - Date        TEXT     Transaction date as "DD/MM/YY"
     - Description TEXT     Merchant / VPA / counterparty
@@ -70,7 +71,8 @@ def run_query(payload: QueryRequest, db: Annotated[sqlite3.Connection, Depends(g
         - Month       INTEGER  Month number 1-12
         - Day         INTEGER  Day of month 1-31
 
-      email_transactions   (bank alerts parsed from email; independent of budget_tracker)
+      email_transactions   (bank alerts parsed from email; independent of budget_tracker.
+                            Only for reconciling logged expenses against the bank, never for spending totals)
         - id          INTEGER  PRIMARY KEY
         - Date        TEXT     Transaction date as "DD/MM/YY"
         - Description TEXT     Merchant / VPA / counterparty

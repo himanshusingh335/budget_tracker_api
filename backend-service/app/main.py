@@ -48,6 +48,7 @@ mcp = FastApiMCP(
         "delete_transaction",
         "run_query",
         "classify_description",
+        "get_email_transactions",
     ],
 )
 mcp.mount_http()

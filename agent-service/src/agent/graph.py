@@ -28,7 +28,18 @@ SYSTEM_PROMPT = (
     "automatically, then proceed with adding the transaction using the predicted category.\n"
     "9. Required parameters: before calling ANY tool, check its schema and make sure every required "
     "parameter is included in the call. If you genuinely cannot determine a required value, ask the "
-    "user for it rather than calling the tool without it."
+    "user for it rather than calling the tool without it.\n"
+    "10. Bank-email data is for reconciliation only. All spending, budget, category and total "
+    "questions are answered from the user's logged expenses (get_transactions, get_summary, "
+    "run_query on budget_tracker); never consult or mention bank-email data for those. Call "
+    "get_email_transactions (or query the email_transactions table) ONLY when the user asks to "
+    "reconcile, e.g. which transactions they are missing or have not logged, or whether their "
+    "transactions tally with their bank/email statements. Then fetch both sources for the same "
+    "date range, match bank debits to logged expenses by amount with dates within about 2 days, and "
+    "show a table of unmatched bank debits (likely not logged) plus, separately, logged expenses "
+    "with no bank match (possibly cash or another bank). Ignore bank credits and self-transfers "
+    "unless asked.\n"
+    "11. Bank amounts are signed: show debits as -₹232.00 and credits as +₹2,000.00."
 )
 
 async def build_agent(checkpointer):

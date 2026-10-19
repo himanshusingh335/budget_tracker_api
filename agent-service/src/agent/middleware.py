@@ -18,7 +18,7 @@ def build_human_in_the_loop_middleware() -> HumanInTheLoopMiddleware:
     backend-service/app/routers/{budget,transactions}.py) - all data-modifying
     actions, so the agent must pause and get an explicit approve/reject decision
     before the tool actually executes. Read-only tools (get_summary, get_budget,
-    get_transactions, run_query, classify_description) and local tools
+    get_transactions, get_email_transactions, run_query, classify_description) and local tools
     (get_current_date) are not gated.
     """
     return HumanInTheLoopMiddleware(
