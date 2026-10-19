@@ -70,7 +70,7 @@ if not cur.fetchone():
 conn.close()
 PYEOF
   OPENROUTER_API_KEY="$(grep '^OPENROUTER_API_KEY=' "$ROOT/agent-service/.env" | cut -d= -f2-)"
-  OPENROUTER_MODEL="$(grep '^OPENROUTER_MODEL=' "$ROOT/agent-service/.env" | cut -d= -f2-)"
+  OPENROUTER_MODEL="${OPENROUTER_MODEL:-$(grep '^OPENROUTER_MODEL=' "$ROOT/agent-service/.env" | cut -d= -f2-)}"
   echo "Starting agent-service on :$AGENT_PORT (isolated Postgres DB '$PGDB', MCP -> sandboxed backend)"
   (
     cd "$ROOT/agent-service"
