@@ -10,7 +10,7 @@ import logging
 import os
 import re
 import sys
-from datetime import date, datetime, timedelta
+from datetime import date, datetime
 from email.message import Message
 from email.utils import parsedate_to_datetime
 from html.parser import HTMLParser
