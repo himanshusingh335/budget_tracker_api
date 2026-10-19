@@ -63,6 +63,27 @@ services:
     networks:
       - budget-network
 
+  # One-shot job, not started by `up` (profile "cron"). On the Pi, host cron runs:
+  #   docker compose --profile cron run --rm email-ingest
+  email-ingest:
+    build:
+      context: ./email-ingest-service
+      dockerfile: Dockerfile
+    profiles: ["cron"]
+    environment:
+      - GMAIL_USER=${GMAIL_USER}
+      - GMAIL_APP_PASSWORD=${GMAIL_APP_PASSWORD}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - EXTRACT_MODEL=${EXTRACT_MODEL:-google/gemini-2.5-flash}
+      - LOOKBACK_DAYS=${LOOKBACK_DAYS:-2}
+      - BACKEND_URL=http://backend-service:8502
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    depends_on:
+      backend-service:
+        condition: service_healthy
+    networks:
+      - budget-network
+
   nocodb:
     image: nocodb/nocodb:latest
     environment:

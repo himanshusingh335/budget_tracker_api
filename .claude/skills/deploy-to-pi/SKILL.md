@@ -18,9 +18,11 @@ bash .claude/skills/deploy-to-pi/deploy.sh v1.2.3   # or a specific tag
 ```
 
 This does, in order:
-1. `./docker_push.sh <tag>` — builds and pushes all four images
-   (`mariox1105/budget-tracker-{backend,frontend,agent,nginx}`) to Docker Hub.
-2. SSH to the Pi, `cd ~/budget-tracker && docker compose pull && docker compose up -d`.
+1. `./docker_push.sh <tag>` — builds and pushes all images
+   (`mariox1105/budget-tracker-{backend,frontend,agent,nginx,email-ingest}`) to Docker Hub.
+2. SSH to the Pi, `cd ~/budget-tracker && docker compose --profile cron pull && docker compose up -d`.
+   `--profile cron` is needed on `pull` so the one-shot `email-ingest` image (which `up`
+   never starts) is refreshed too; host cron runs it daily.
 3. SSH again to `docker compose restart nginx` (see gotcha below — always
    needed, not conditional).
 4. SSH to the Pi and curl `/app` and `/chat/sessions` against
@@ -68,7 +70,7 @@ actually terminates the public/Tailscale HTTPS endpoint.
 
 ```bash
 ./docker_push.sh                                              # or a tag
-ssh mariox@100.127.54.94 "cd ~/budget-tracker && docker compose pull && docker compose up -d"
+ssh mariox@100.127.54.94 "cd ~/budget-tracker && docker compose --profile cron pull && docker compose up -d"
 ssh mariox@100.127.54.94 "cd ~/budget-tracker && docker compose restart nginx"
 ssh mariox@100.127.54.94 "curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8502/app"
 ssh mariox@100.127.54.94 "curl -s http://127.0.0.1:8502/chat/sessions"

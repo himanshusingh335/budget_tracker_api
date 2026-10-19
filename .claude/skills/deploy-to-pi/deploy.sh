@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build+push all four service images and deploy them to the production
+# Build+push all service images and deploy them to the production
 # Raspberry Pi. Run from the repo root.
 set -euo pipefail
 
@@ -15,7 +15,7 @@ echo "=== 1/4: build + push images (tag: $TAG) ==="
 
 echo
 echo "=== 2/4: pull + restart stack on Pi ==="
-ssh "$PI_HOST" "cd $PI_DIR && docker compose pull && docker compose up -d"
+ssh "$PI_HOST" "cd $PI_DIR && docker compose --profile cron pull && docker compose up -d"
 
 echo
 echo "=== 3/4: restart nginx (upstream IPs get stale whenever another ==="

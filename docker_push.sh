@@ -4,8 +4,8 @@ set -euo pipefail
 DOCKERHUB_USER="mariox1105"
 TAG="${1:-latest}"
 
-DIRS=(backend-service frontend-service agent-service nginx)
-IMAGE_NAMES=(budget-tracker-backend budget-tracker-frontend budget-tracker-agent budget-tracker-nginx)
+DIRS=(backend-service frontend-service agent-service nginx email-ingest-service)
+IMAGE_NAMES=(budget-tracker-backend budget-tracker-frontend budget-tracker-agent budget-tracker-nginx budget-tracker-email-ingest)
 
 for i in "${!DIRS[@]}"; do
   dir="${DIRS[$i]}"
