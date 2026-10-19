@@ -11,3 +11,29 @@ def get_db() -> Generator[sqlite3.Connection, None, None]:
         yield conn
     finally:
         conn.close()
+
+
+def init_db() -> None:
+    """Create tables that the app owns outright (the legacy tables pre-exist in the prod DB)."""
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS email_transactions (
+                id          INTEGER PRIMARY KEY,
+                Date        TEXT    NOT NULL,
+                Description TEXT    NOT NULL,
+                Type        TEXT    NOT NULL,
+                Amount      REAL    NOT NULL,
+                Account     TEXT,
+                Year        INTEGER NOT NULL,
+                Month       INTEGER NOT NULL,
+                Day         INTEGER NOT NULL,
+                MessageId   TEXT    NOT NULL UNIQUE,
+                CreatedAt   TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )
+            """
+        )
+        conn.commit()
+    finally:
+        conn.close()

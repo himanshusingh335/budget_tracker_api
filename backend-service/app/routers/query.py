@@ -28,6 +28,15 @@ Tables:
     - Year        INTEGER  4-digit year (e.g. 2025)
     - Month       INTEGER  Month number 1-12
     - Day         INTEGER  Day of month 1-31
+
+  email_transactions   (bank alerts parsed from email; independent of budget_tracker)
+    - id          INTEGER  PRIMARY KEY
+    - Date        TEXT     Transaction date as "DD/MM/YY"
+    - Description TEXT     Merchant / VPA / counterparty
+    - Type        TEXT     One of "UPI", "Credit Card", "Debit Card", "Net Banking", "Other"
+    - Amount      REAL     Signed INR amount: negative = debit, positive = credit
+    - Account     TEXT     Last 4 digits of card/account, may be NULL
+    - Year, Month, Day  INTEGER
 """
 
 
@@ -60,6 +69,15 @@ def run_query(payload: QueryRequest, db: Annotated[sqlite3.Connection, Depends(g
         - Year        INTEGER  4-digit year (e.g. 2025)
         - Month       INTEGER  Month number 1-12
         - Day         INTEGER  Day of month 1-31
+
+      email_transactions   (bank alerts parsed from email; independent of budget_tracker)
+        - id          INTEGER  PRIMARY KEY
+        - Date        TEXT     Transaction date as "DD/MM/YY"
+        - Description TEXT     Merchant / VPA / counterparty
+        - Type        TEXT     One of "UPI", "Credit Card", "Debit Card", "Net Banking", "Other"
+        - Amount      REAL     Signed INR amount: negative = debit, positive = credit
+        - Account     TEXT     Last 4 digits of card/account, may be NULL
+        - Year, Month, Day  INTEGER
 
     Example queries:
 

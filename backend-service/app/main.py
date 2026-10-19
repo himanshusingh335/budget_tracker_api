@@ -12,7 +12,10 @@ configure_logging()
 
 from app.config import APP_TITLE, APP_VERSION
 from app.middleware import RequestLoggingMiddleware
-from app.routers import budget, classify, query, summary, transactions
+from app.database import init_db
+from app.routers import budget, classify, email_transactions, query, summary, transactions
+
+init_db()
 
 app = FastAPI(title=APP_TITLE, version=APP_VERSION)
 
@@ -23,6 +26,7 @@ app.include_router(budget.router)
 app.include_router(transactions.router)
 app.include_router(query.router)
 app.include_router(classify.router)
+app.include_router(email_transactions.router)
 
 
 @app.get("/", tags=["Health"])
