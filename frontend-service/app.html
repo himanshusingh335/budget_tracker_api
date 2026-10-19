@@ -380,6 +380,16 @@
     <div id="budget-list"><div class="loading"><span class="spinner"></span>Loading…</div></div>
   </div>
 
+  <!-- Bank (transactions parsed from bank alert emails; read-only) -->
+  <div class="tab-panel" id="panel-bank">
+    <div class="stat-row">
+      <div class="stat-card"><div class="slabel">Debits</div><div class="svalue c-red" id="b-debit">—</div></div>
+      <div class="stat-card"><div class="slabel">Credits</div><div class="svalue c-green" id="b-credit">—</div></div>
+      <div class="stat-card"><div class="slabel">Net</div><div class="svalue" id="b-net">—</div></div>
+    </div>
+    <div id="bank-list"><div class="loading"><span class="spinner"></span>Loading…</div></div>
+  </div>
+
   <!-- Penny -->
   <div class="tab-panel" id="panel-penny">
     <div class="chat-toolbar">
@@ -408,6 +418,7 @@
   <button class="nav-btn active" data-tab="summary">Summary</button>
   <button class="nav-btn" data-tab="transactions">Spend</button>
   <button class="nav-btn" data-tab="budget">Budget</button>
+  <button class="nav-btn" data-tab="bank">Bank</button>
   <button class="nav-btn" data-tab="penny">Penny</button>
 </nav>
 
@@ -575,6 +586,7 @@ function refreshTab() {
   if (tab === 'summary')      loadSummary();
   else if (tab === 'transactions') loadTx();
   else if (tab === 'budget')  loadBudget();
+  else if (tab === 'bank')    loadBank();
   else if (tab === 'penny' && pennyHistoryLoadedFor !== pennySessionId) loadPennyHistory(pennySessionId);
 }
 
@@ -730,6 +742,44 @@ function renderTx() {
   }
   html += '</div>';
   el.innerHTML = html;
+}
+
+// ── Bank (email-sourced) ──────────────────────────────────────────────────────
+
+async function loadBank() {
+  const el = document.getElementById('bank-list');
+  el.innerHTML = '<div class="loading"><span class="spinner"></span>Loading…</div>';
+  ['b-debit','b-credit','b-net'].forEach(id => document.getElementById(id).textContent = '—');
+  const mm = String(month).padStart(2, '0');
+  const lastDay = new Date(year, month, 0).getDate();
+  try {
+    const rows = await api('GET', `/email-transactions?start=${year}-${mm}-01&end=${year}-${mm}-${lastDay}`) || [];
+    const debit  = rows.filter(r => r.Amount < 0).reduce((a, r) => a + r.Amount, 0);
+    const credit = rows.filter(r => r.Amount > 0).reduce((a, r) => a + r.Amount, 0);
+    document.getElementById('b-debit').textContent  = fmt(-debit);
+    document.getElementById('b-credit').textContent = fmt(credit);
+    const netEl = document.getElementById('b-net');
+    netEl.textContent = fmt(credit + debit);
+    netEl.className = 'svalue ' + (credit + debit >= 0 ? 'c-green' : 'c-red');
+
+    if (!rows.length) { el.innerHTML = '<div class="empty">No bank transactions this month</div>'; return; }
+    let html = '<div class="item-list">';
+    for (const r of rows) {
+      const sub = [r.Date, r.Type, r.Account ? `••${r.Account}` : ''].filter(Boolean).map(esc).join(' · ');
+      html += `<div class="item-row" style="cursor:default">
+        <div class="item-head">
+          <div class="item-main">
+            <div class="item-title">${esc(r.Description)}</div>
+            <div class="item-sub">${sub}</div>
+          </div>
+          <div class="item-amount ${r.Amount < 0 ? 'c-red' : 'c-green'}">${r.Amount > 0 ? '+' : ''}${fmt(r.Amount)}</div>
+        </div>
+      </div>`;
+    }
+    el.innerHTML = html + '</div>';
+  } catch (e) {
+    el.innerHTML = `<div class="empty">${esc(e.message)}</div>`;
+  }
 }
 
 function toggleTx(id) {
