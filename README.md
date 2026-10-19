@@ -1,13 +1,14 @@
 # Budget Tracker
 
-A personal budget tracker split into four independently deployed services, wired together by `docker-compose.yml` and reverse-proxied by nginx.
+A personal budget tracker split into independently deployed services, plus a daily one-shot job that imports bank transactions from email. Everything is wired together by `docker-compose.yml` and reverse-proxied by nginx.
 
 ## Services
 
-- **backend-service** (FastAPI, port `8502`) — owns the SQLite database (`data/budget.db`, tables `budget_set` and `budget_tracker`). Exposes REST routes under `/summary`, `/budget`, `/transactions`, `/query`, and `/classify`, and also mounts an MCP server at `/mcp` (via `fastapi-mcp`) so its routes can be called as tools.
+- **backend-service** (FastAPI, port `8502`) — owns the SQLite database (`data/budget.db`, tables `budget_set`, `budget_tracker` and `email_transactions`). Exposes REST routes under `/summary`, `/budget`, `/transactions`, `/query`, `/classify` and `/email-transactions`, and also mounts an MCP server at `/mcp` (via `fastapi-mcp`) so selected routes can be called as tools. `/email-transactions` is deliberately not one of them.
 - **agent-service** (FastAPI + LangGraph, port `8000`) — "Penny", an OpenRouter-backed LangChain agent that consumes backend-service's tools over MCP. Conversation state is checkpointed to Postgres. Data-mutating tools (adding/updating/deleting transactions or budgets) require human-in-the-loop confirmation; read-only tools do not.
-- **frontend-service** — the static `app.html` UI, served by nginx.
-- **nginx** — reverse proxy that routes `/chat/*` → agent-service, `/summary|budget|transactions|query|classify|mcp|docs|redoc|openapi.json` → backend-service, and everything else → frontend-service (see `nginx/nginx.conf`).
+- **frontend-service** — the static `app.html` UI, served by nginx. Tabs: Summary, Spend, Budget, Bank (email-sourced, read-only) and Penny.
+- **email-ingest-service** — a one-shot job, not a server. It reads HDFC bank alert emails from Gmail, has an LLM extract each transaction, and POSTs them to backend-service. Host cron runs it daily. See [Email-sourced bank transactions](#email-sourced-bank-transactions).
+- **nginx** — reverse proxy that routes `/chat/*` → agent-service, `/summary|budget|transactions|query|classify|mcp|docs|redoc|openapi.json` → backend-service, and everything else → frontend-service. `/email-transactions` also goes to backend-service but is GET-only: anything else gets a 403, because only email-ingest writes there, directly over the Docker network. See `nginx/nginx.conf`.
 
 ## Running locally (backend-service + agent-service)
 
@@ -55,11 +56,11 @@ Runs at **http://localhost:8000** by default (configurable via `PORT` in `.env`)
 The full stack (frontend, backend, agent, Postgres, nginx, NocoDB) is defined in `docker-compose.yml`. From the repo root:
 
 ```bash
-cp .env.example .env   # set OPENROUTER_API_KEY, NC_ADMIN_* vars
+cp .env.example .env   # set OPENROUTER_API_KEY, NC_ADMIN_* vars (and GMAIL_* for email-ingest)
 docker compose up --build
 ```
 
-This builds and starts all six containers and exposes the whole app through nginx at **http://localhost:8502**; frontend-service, backend-service, agent-service, and Postgres are only reachable from each other over the internal `budget-network` Docker network (Postgres is additionally published on `localhost:5432` for convenience). NocoDB is an admin UI for both databases, published on its own port for local/Tailscale access only — not routed through nginx. Backend data persists in the external `budget_data` volume and agent checkpoints persist in `agent_postgres_data`.
+This builds and starts six containers and exposes the whole app through nginx at **http://localhost:8502**; frontend-service, backend-service, agent-service, and Postgres are only reachable from each other over the internal `budget-network` Docker network (Postgres is additionally published on `localhost:5432` for convenience). NocoDB is an admin UI for both databases, published on its own port for local/Tailscale access only — not routed through nginx. Backend data persists in the external `budget_data` volume and agent checkpoints persist in `agent_postgres_data`. The seventh service, `email-ingest`, sits behind the `cron` profile, so `up` never starts it; run it on demand with `docker compose --profile cron run --rm email-ingest`.
 
 | Service | URL |
 | --- | --- |
@@ -67,6 +68,7 @@ This builds and starts all six containers and exposes the whole app through ngin
 | → frontend (UI) | http://localhost:8502/ |
 | → agent chat | http://localhost:8502/chat |
 | → backend API/MCP | http://localhost:8502/summary, /budget, /transactions, /query, /classify, /mcp, /docs |
+| → email transactions (GET only) | http://localhost:8502/email-transactions?start=YYYY-MM-DD&end=YYYY-MM-DD |
 | Postgres (host access) | localhost:5432 |
 | NocoDB (Postgres + SQLite admin UI) | localhost:8505 |
 
@@ -91,14 +93,22 @@ flowchart LR
         agent["agent-service<br/>LangGraph 'Penny'"]
         pg["postgres:16<br/>checkpoints"]
         vol[("budget_data volume<br/>budget.db")]
+        ingest["email-ingest<br/>one-shot, cron profile"]
 
         nginx -->|"/ (default)"| frontend
         nginx -->|"/summary /budget /transactions<br/>/query /classify /mcp /docs"| backend
+        nginx -->|"/email-transactions<br/>(GET only)"| backend
         nginx -->|"/chat/*"| agent
         agent -.->|"MCP tool calls"| backend
+        ingest -->|"POST /email-transactions<br/>(docker network, bypasses nginx)"| backend
         backend --> vol
         agent --> pg
     end
+
+    cron["host crontab<br/>06:00 daily"] -.->|"docker compose run --rm"| ingest
+    gmail[("Gmail<br/>IMAP, read-only")] --> ingest
+    ingest <-->|"structured output"| openrouter["OpenRouter LLM"]
+    agent <--> openrouter
 ```
 
 Deploying is `bash .claude/skills/deploy-to-pi/deploy.sh`, which drives:
@@ -109,8 +119,8 @@ sequenceDiagram
     participant Hub as Docker Hub
     participant Pi as Pi
 
-    Dev->>Hub: 1. docker_push.sh — build + push 4 images
-    Hub->>Pi: 2. docker compose pull && up -d (recreates only changed images)
+    Dev->>Hub: 1. docker_push.sh — build + push 5 images
+    Hub->>Pi: 2. docker compose --profile cron pull && up -d (recreates only changed images)
     Note over Pi: 3. docker compose restart nginx — always, not conditional
     Pi-->>Dev: 4. curl /app and /chat/sessions — expect 200
 ```
@@ -121,6 +131,56 @@ and `nginx` untouched. The recreated container gets a new internal Docker
 IP, but nginx resolved its upstream hostnames to IPs once at its own
 startup and won't re-resolve them, so every route 502s until nginx is
 restarted — even though `docker compose ps` shows everything "Up".
+
+**Why `--profile cron` on pull:** `email-ingest` is behind the `cron` profile so
+that `up` never starts it. A plain `docker compose pull` skips it too, and the
+Pi would keep running a stale ingester image.
+
+## Email-sourced bank transactions
+
+The Bank tab shows every transaction your bank emailed you about. It is kept
+separate from the manually curated spend in the Spend tab, so you can
+reconcile the two. The data comes from `email-ingest-service`, a short script
+that runs once a day and exits. There's no agent loop, just one LLM call per
+email:
+
+```mermaid
+flowchart LR
+    cron["host crontab 06:00"] --> run["docker compose --profile cron<br/>run --rm email-ingest"]
+    run --> search["IMAP search (read-only)<br/>from:hdfcbank -smartstatement<br/>subject:&quot;Credit Card&quot;<br/>newer_than:2d"]
+    search --> llm["per email: LLM with_structured_output<br/>→ is_transaction, amount, direction,<br/>type, description, account, date"]
+    llm -->|"non-transactions dropped"| post["POST /email-transactions<br/>backend-service:8502"]
+    post --> table[("email_transactions<br/>UNIQUE MessageId")]
+```
+
+- **Idempotent:** every row stores the email's `Message-ID`, and the POST is
+  `INSERT OR IGNORE`. The 2-day lookback (`LOOKBACK_DAYS`) means a missed run
+  is picked up the next day with no duplicates.
+- **Read-only mail access:** the script uses stdlib `imaplib`, opens the
+  mailbox with `EXAMINE`, and fetches with `BODY.PEEK[]`, so alerts are never
+  marked as read. It authenticates with a Gmail app password created only for
+  this job, so you can revoke it without affecting anything else.
+- **Amounts are signed:** debits are negative and credits positive. `Type` is
+  one of `UPI`, `Credit Card`, `Debit Card`, `Net Banking` or `Other`. A UPI
+  payment made with the RuPay credit card counts as `UPI`.
+- **Penny can read it** through `run_query`, but has no tool to change it.
+
+Configuration lives in the root `.env`: `GMAIL_USER`, `GMAIL_APP_PASSWORD`,
+`OPENROUTER_API_KEY` and `EXTRACT_MODEL` (default `google/gemini-2.5-flash`).
+To run it locally against a natively running backend-service:
+
+```bash
+cd email-ingest-service
+pip install -r requirements.txt
+cp .env.example .env   # fill in, BACKEND_URL=http://localhost:8502
+set -a; source .env; set +a; python src/ingest.py
+```
+
+On the Pi, the crontab line is:
+
+```
+0 6 * * * cd ~/budget-tracker && docker compose --profile cron run --rm email-ingest >> email-ingest.log 2>&1
+```
 
 ## Pulling prod data down for local testing
 

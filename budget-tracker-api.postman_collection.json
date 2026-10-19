@@ -1,0 +1,1114 @@
+{
+  "info": {
+    "name": "budget-tracker API (local)",
+    "description": "Requests for backend-service and agent-service (\"Penny\"). Two top-level folders: \"Local (OrbStack)\" targets `{{baseUrl}}` (http://localhost:8502, docker compose up --build locally), \"Deployed (Pi)\" targets `{{piBaseUrl}}` (http://100.127.54.94:8502, the production Raspberry Pi, also reachable via Tailscale as https://raspberrypi4.tailad9f80.ts.net). No auth required anywhere. Everything is exposed through nginx \u2014 backend-service routes (/summary, /budget, /transactions, /query, /classify, /email-transactions) pass straight through with no rewriting, except that /email-transactions is GET-only through nginx (POST gets 403), and agent-service is only reachable via /chat/* (no port published directly).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8502",
+      "type": "string"
+    },
+    {
+      "key": "sessionId",
+      "value": "postman-test-session",
+      "type": "string"
+    },
+    {
+      "key": "piBaseUrl",
+      "value": "http://100.127.54.94:8502",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Local (OrbStack)",
+      "item": [
+        {
+          "name": "Health",
+          "item": [
+            {
+              "name": "Health check",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    ""
+                  ]
+                },
+                "description": "Returns {\"status\": \"ok\", \"version\": \"2.0.0\"}"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Summary",
+          "item": [
+            {
+              "name": "Get summary for month/year",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/summary/10/2023",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "summary",
+                    "10",
+                    "2023"
+                  ]
+                },
+                "description": "Path params: month (1-12), year (e.g. 2023). Returns per-category Budget/Expenditure/Difference rows plus a Total row. 404 if no budget data exists for that month."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Budget",
+          "item": [
+            {
+              "name": "Export budget CSV",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/budget/export/csv",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "budget",
+                    "export",
+                    "csv"
+                  ]
+                },
+                "description": "Downloads full budget_set table as CSV (id,MonthYear,Category,Budget)."
+              }
+            },
+            {
+              "name": "Get budget for month/year",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/budget/10/2023",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "budget",
+                    "10",
+                    "2023"
+                  ]
+                },
+                "description": "Path params: month (1-12), year. Returns {MonthYear, Budgets: [{Category, Budget}, ...]}. 404 if none found."
+              }
+            },
+            {
+              "name": "Add budget",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"MonthYear\": \"04/25\",\n  \"Category\": \"Groceries\",\n  \"Budget\": 5000.0\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/budget",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "budget"
+                  ]
+                },
+                "description": "MonthYear must match pattern MM/YY. Budget must be > 0. Returns 201 on success."
+              }
+            },
+            {
+              "name": "Delete budget",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/budget?MonthYear=04%2F25&Category=Groceries",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "budget"
+                  ],
+                  "query": [
+                    {
+                      "key": "MonthYear",
+                      "value": "04%2F25"
+                    },
+                    {
+                      "key": "Category",
+                      "value": "Groceries"
+                    }
+                  ]
+                },
+                "description": "MonthYear and Category are passed as query params, not a body. MonthYear must be URL-encoded (e.g. 04/25 -> 04%2F25)."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Transactions",
+          "item": [
+            {
+              "name": "Export transactions CSV",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/transactions/export/csv",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "transactions",
+                    "export",
+                    "csv"
+                  ]
+                },
+                "description": "Downloads full budget_tracker table as CSV (id,Date,Description,Category,Expenditure,Year,Month,Day)."
+              }
+            },
+            {
+              "name": "Get transactions for month/year",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/transactions/8/2026",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "transactions",
+                    "8",
+                    "2026"
+                  ]
+                },
+                "description": "Path params: month (1-12), year. Returns list of raw transaction rows."
+              }
+            },
+            {
+              "name": "Add transaction",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"Date\": \"08/08/26\",\n  \"Description\": \"Smoke test\",\n  \"Category\": \"Food\",\n  \"Expenditure\": 1,\n  \"Year\": 2026,\n  \"Month\": 8,\n  \"Day\": 8\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/transactions",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "transactions"
+                  ]
+                },
+                "description": "Date must match pattern DD/MM/YY. Expenditure must be > 0. Year is the full 4-digit year (note it differs from the 2-digit year in Date). Month 1-12, Day 1-31. Returns 201 on success."
+              }
+            },
+            {
+              "name": "Update transaction",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"Expenditure\": 2\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/transactions/1",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "transactions",
+                    "1"
+                  ]
+                },
+                "description": "Path param: id. All body fields optional, same types/constraints as Add transaction; only supplied fields are updated. 400 if body is empty/all-null, 404 if id not found. Returns the updated row."
+              }
+            },
+            {
+              "name": "Delete transaction",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/transactions/1",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "transactions",
+                    "1"
+                  ]
+                },
+                "description": "Path param: id."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Email Transactions",
+          "item": [
+            {
+              "name": "Get email transactions (date range)",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/email-transactions?start=2026-10-01&end=2026-10-31",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "email-transactions"
+                  ],
+                  "query": [
+                    {
+                      "key": "start",
+                      "value": "2026-10-01"
+                    },
+                    {
+                      "key": "end",
+                      "value": "2026-10-31"
+                    }
+                  ]
+                },
+                "description": "Bank transactions parsed from HDFC alert emails by the email-ingest cron job (separate from curated spend in /transactions). Optional query params start/end (YYYY-MM-DD, inclusive); omit both for everything. 400 if start > end. Rows sorted newest first: id, Date (DD/MM/YY), Description, Type (UPI | Credit Card | Debit Card | Net Banking | Other), Amount (signed: negative = debit, positive = credit), Account (last 4, nullable), Year, Month, Day, MessageId, CreatedAt. Not exposed as an MCP tool."
+              }
+            },
+            {
+              "name": "Add email transactions (backend direct only)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "[\n  {\n    \"Date\": \"19/10/26\",\n    \"Description\": \"Postman smoke test\",\n    \"Type\": \"UPI\",\n    \"Amount\": -1,\n    \"Account\": \"0000\",\n    \"Year\": 2026,\n    \"Month\": 10,\n    \"Day\": 19,\n    \"MessageId\": \"<postman-smoke-test>\"\n  }\n]"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/email-transactions",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "email-transactions"
+                  ]
+                },
+                "description": "Normally only called by email-ingest-service over the docker network (http://backend-service:8502). Through nginx this returns 403 by design, so it only works when {{baseUrl}} points at a natively run backend-service (python app/main.py, also on :8502). Body is a single object or a list. Rows whose MessageId already exists are skipped (INSERT OR IGNORE). Returns 201 {inserted, skipped}. Date DD/MM/YY; Type one of UPI | Credit Card | Debit Card | Net Banking | Other; Amount negative for debits."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Query",
+          "item": [
+            {
+              "name": "Run SQL query",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"sql\": \"SELECT COUNT(*) as cnt FROM budget_tracker\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/query",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "query"
+                  ]
+                },
+                "description": "Only SELECT statements are allowed (rejected with 400 otherwise). Tables: budget_set(id, MonthYear TEXT 'MM/YY', Category TEXT, Budget REAL); budget_tracker(id, Date TEXT 'DD/MM/YYYY', Description TEXT, Category TEXT, Expenditure REAL, Year INTEGER, Month INTEGER, Day INTEGER). Returns list of row objects keyed by the query's column aliases."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Classify",
+          "item": [
+            {
+              "name": "Classify description",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"description\": \"Uber ride to airport\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/classify",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "classify"
+                  ]
+                },
+                "description": "description must be non-empty after trimming (400 otherwise). Returns {category, confidence}. Categories: Auto, Entertainment, Food, Home, Medical, Personal Items, Travel, Utilities, Other."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Agent (Penny chat)",
+          "item": [
+            {
+              "name": "Invoke chat",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"session_id\": \"{{sessionId}}\",\n  \"message\": \"What did I spend on Food this month?\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/chat/invoke",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "chat",
+                    "invoke"
+                  ]
+                },
+                "description": "session_id is any string you choose to identify/continue a conversation thread (checkpointed in Postgres). Returns {session_id, reply, tool_calls} or, if the agent wants to run a mutating tool (add/update/delete transaction or budget), {session_id, pending_actions, tool_calls} instead \u2014 use Resume chat to approve/reject."
+              }
+            },
+            {
+              "name": "Resume chat (approve/reject pending action)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"session_id\": \"{{sessionId}}\",\n  \"decisions\": [\n    { \"type\": \"approve\" }\n  ]\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/chat/resume",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "chat",
+                    "resume"
+                  ]
+                },
+                "description": "Continues a run that paused because Invoke chat returned pending_actions (a mutating tool call: add/update/delete transaction or budget). decisions is a list matching the pending actions, each {type: \"approve\"} or {type: \"reject\", message: \"why\"}. Returns the same ChatResponse shape as Invoke chat."
+              }
+            },
+            {
+              "name": "Stream chat (SSE)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "text/event-stream"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"session_id\": \"{{sessionId}}\",\n  \"message\": \"What did I spend on Food this month?\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/chat/stream",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "chat",
+                    "stream"
+                  ]
+                },
+                "description": "Server-Sent Events stream of the agent's response \u2014 token deltas as unnamed 'data' events, plus 'tool_call', 'tool_result', and 'interrupt' named events. Postman will show the raw event stream in the response body rather than rendering it live."
+              }
+            },
+            {
+              "name": "List sessions",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/chat/sessions",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "chat",
+                    "sessions"
+                  ]
+                },
+                "description": "Returns {sessions: [{session_id, last_modified, preview}, ...]} \u2014 one entry per checkpointed conversation thread."
+              }
+            },
+            {
+              "name": "Get session history",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/chat/{{sessionId}}/history",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "chat",
+                    "{{sessionId}}",
+                    "history"
+                  ]
+                },
+                "description": "Full message history for a session: {session_id, messages: [{role: user|ai|tool, content, tool_calls?, tool_call_id?, tool_name?}, ...]}."
+              }
+            },
+            {
+              "name": "Get session logs",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/chat/{{sessionId}}/logs?limit=200&offset=0",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "chat",
+                    "{{sessionId}}",
+                    "logs"
+                  ],
+                  "query": [
+                    {
+                      "key": "level",
+                      "value": "INFO",
+                      "disabled": true
+                    },
+                    {
+                      "key": "logger",
+                      "value": "",
+                      "disabled": true
+                    },
+                    {
+                      "key": "start_time",
+                      "value": "",
+                      "disabled": true
+                    },
+                    {
+                      "key": "end_time",
+                      "value": "",
+                      "disabled": true
+                    },
+                    {
+                      "key": "limit",
+                      "value": "200"
+                    },
+                    {
+                      "key": "offset",
+                      "value": "0"
+                    }
+                  ]
+                },
+                "description": "Optional query params: level (DEBUG/INFO/WARNING/ERROR/CRITICAL), logger (name filter), start_time/end_time (ISO datetimes), limit (default 200, max 1000), offset (default 0). Returns {session_id, logs, total, limit, offset}."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Deployed (Pi)",
+      "item": [
+        {
+          "name": "Health",
+          "item": [
+            {
+              "name": "Health check",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{piBaseUrl}}/",
+                  "host": [
+                    "{{piBaseUrl}}"
+                  ],
+                  "path": [
+                    ""
+                  ]
+                },
+                "description": "Returns {\"status\": \"ok\", \"version\": \"2.0.0\"}"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Summary",
+          "item": [
+            {
+              "name": "Get summary for month/year",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{piBaseUrl}}/summary/10/2023",
+                  "host": [
+                    "{{piBaseUrl}}"
+                  ],
+                  "path": [
+                    "summary",
+                    "10",
+                    "2023"
+                  ]
+                },
+                "description": "Path params: month (1-12), year (e.g. 2023). Returns per-category Budget/Expenditure/Difference rows plus a Total row. 404 if no budget data exists for that month."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Budget",
+          "item": [
+            {
+              "name": "Export budget CSV",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{piBaseUrl}}/budget/export/csv",
+                  "host": [
+                    "{{piBaseUrl}}"
+                  ],
+                  "path": [
+                    "budget",
+                    "export",
+                    "csv"
+                  ]
+                },
+                "description": "Downloads full budget_set table as CSV (id,MonthYear,Category,Budget)."
+              }
+            },
+            {
+              "name": "Get budget for month/year",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{piBaseUrl}}/budget/10/2023",
+                  "host": [
+                    "{{piBaseUrl}}"
+                  ],
+                  "path": [
+                    "budget",
+                    "10",
+                    "2023"
+                  ]
+                },
+                "description": "Path params: month (1-12), year. Returns {MonthYear, Budgets: [{Category, Budget}, ...]}. 404 if none found."
+              }
+            },
+            {
+              "name": "Add budget",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"MonthYear\": \"04/25\",\n  \"Category\": \"Groceries\",\n  \"Budget\": 5000.0\n}"
+                },
+                "url": {
+                  "raw": "{{piBaseUrl}}/budget",
+                  "host": [
+                    "{{piBaseUrl}}"
+                  ],
+                  "path": [
+                    "budget"
+                  ]
+                },
+                "description": "MonthYear must match pattern MM/YY. Budget must be > 0. Returns 201 on success."
+              }
+            },
+            {
+              "name": "Delete budget",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{piBaseUrl}}/budget?MonthYear=04%2F25&Category=Groceries",
+                  "host": [
+                    "{{piBaseUrl}}"
+                  ],
+                  "path": [
+                    "budget"
+                  ],
+                  "query": [
+                    {
+                      "key": "MonthYear",
+                      "value": "04%2F25"
+                    },
+                    {
+                      "key": "Category",
+                      "value": "Groceries"
+                    }
+                  ]
+                },
+                "description": "MonthYear and Category are passed as query params, not a body. MonthYear must be URL-encoded (e.g. 04/25 -> 04%2F25)."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Transactions",
+          "item": [
+            {
+              "name": "Export transactions CSV",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{piBaseUrl}}/transactions/export/csv",
+                  "host": [
+                    "{{piBaseUrl}}"
+                  ],
+                  "path": [
+                    "transactions",
+                    "export",
+                    "csv"
+                  ]
+                },
+                "description": "Downloads full budget_tracker table as CSV (id,Date,Description,Category,Expenditure,Year,Month,Day)."
+              }
+            },
+            {
+              "name": "Get transactions for month/year",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{piBaseUrl}}/transactions/8/2026",
+                  "host": [
+                    "{{piBaseUrl}}"
+                  ],
+                  "path": [
+                    "transactions",
+                    "8",
+                    "2026"
+                  ]
+                },
+                "description": "Path params: month (1-12), year. Returns list of raw transaction rows."
+              }
+            },
+            {
+              "name": "Add transaction",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"Date\": \"08/08/26\",\n  \"Description\": \"Smoke test\",\n  \"Category\": \"Food\",\n  \"Expenditure\": 1,\n  \"Year\": 2026,\n  \"Month\": 8,\n  \"Day\": 8\n}"
+                },
+                "url": {
+                  "raw": "{{piBaseUrl}}/transactions",
+                  "host": [
+                    "{{piBaseUrl}}"
+                  ],
+                  "path": [
+                    "transactions"
+                  ]
+                },
+                "description": "Date must match pattern DD/MM/YY. Expenditure must be > 0. Year is the full 4-digit year (note it differs from the 2-digit year in Date). Month 1-12, Day 1-31. Returns 201 on success."
+              }
+            },
+            {
+              "name": "Update transaction",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"Expenditure\": 2\n}"
+                },
+                "url": {
+                  "raw": "{{piBaseUrl}}/transactions/1",
+                  "host": [
+                    "{{piBaseUrl}}"
+                  ],
+                  "path": [
+                    "transactions",
+                    "1"
+                  ]
+                },
+                "description": "Path param: id. All body fields optional, same types/constraints as Add transaction; only supplied fields are updated. 400 if body is empty/all-null, 404 if id not found. Returns the updated row."
+              }
+            },
+            {
+              "name": "Delete transaction",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{piBaseUrl}}/transactions/1",
+                  "host": [
+                    "{{piBaseUrl}}"
+                  ],
+                  "path": [
+                    "transactions",
+                    "1"
+                  ]
+                },
+                "description": "Path param: id."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Email Transactions",
+          "item": [
+            {
+              "name": "Get email transactions (date range)",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{piBaseUrl}}/email-transactions?start=2026-10-01&end=2026-10-31",
+                  "host": [
+                    "{{piBaseUrl}}"
+                  ],
+                  "path": [
+                    "email-transactions"
+                  ],
+                  "query": [
+                    {
+                      "key": "start",
+                      "value": "2026-10-01"
+                    },
+                    {
+                      "key": "end",
+                      "value": "2026-10-31"
+                    }
+                  ]
+                },
+                "description": "Bank transactions parsed from HDFC alert emails by the email-ingest cron job (separate from curated spend in /transactions). Optional query params start/end (YYYY-MM-DD, inclusive); omit both for everything. 400 if start > end. Rows sorted newest first: id, Date (DD/MM/YY), Description, Type (UPI | Credit Card | Debit Card | Net Banking | Other), Amount (signed: negative = debit, positive = credit), Account (last 4, nullable), Year, Month, Day, MessageId, CreatedAt. Not exposed as an MCP tool."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Query",
+          "item": [
+            {
+              "name": "Run SQL query",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"sql\": \"SELECT COUNT(*) as cnt FROM budget_tracker\"\n}"
+                },
+                "url": {
+                  "raw": "{{piBaseUrl}}/query",
+                  "host": [
+                    "{{piBaseUrl}}"
+                  ],
+                  "path": [
+                    "query"
+                  ]
+                },
+                "description": "Only SELECT statements are allowed (rejected with 400 otherwise). Tables: budget_set(id, MonthYear TEXT 'MM/YY', Category TEXT, Budget REAL); budget_tracker(id, Date TEXT 'DD/MM/YYYY', Description TEXT, Category TEXT, Expenditure REAL, Year INTEGER, Month INTEGER, Day INTEGER). Returns list of row objects keyed by the query's column aliases."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Classify",
+          "item": [
+            {
+              "name": "Classify description",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"description\": \"Uber ride to airport\"\n}"
+                },
+                "url": {
+                  "raw": "{{piBaseUrl}}/classify",
+                  "host": [
+                    "{{piBaseUrl}}"
+                  ],
+                  "path": [
+                    "classify"
+                  ]
+                },
+                "description": "description must be non-empty after trimming (400 otherwise). Returns {category, confidence}. Categories: Auto, Entertainment, Food, Home, Medical, Personal Items, Travel, Utilities, Other."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Agent (Penny chat)",
+          "item": [
+            {
+              "name": "Invoke chat",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"session_id\": \"{{sessionId}}\",\n  \"message\": \"What did I spend on Food this month?\"\n}"
+                },
+                "url": {
+                  "raw": "{{piBaseUrl}}/chat/invoke",
+                  "host": [
+                    "{{piBaseUrl}}"
+                  ],
+                  "path": [
+                    "chat",
+                    "invoke"
+                  ]
+                },
+                "description": "session_id is any string you choose to identify/continue a conversation thread (checkpointed in Postgres). Returns {session_id, reply, tool_calls} or, if the agent wants to run a mutating tool (add/update/delete transaction or budget), {session_id, pending_actions, tool_calls} instead \u2014 use Resume chat to approve/reject."
+              }
+            },
+            {
+              "name": "Resume chat (approve/reject pending action)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"session_id\": \"{{sessionId}}\",\n  \"decisions\": [\n    { \"type\": \"approve\" }\n  ]\n}"
+                },
+                "url": {
+                  "raw": "{{piBaseUrl}}/chat/resume",
+                  "host": [
+                    "{{piBaseUrl}}"
+                  ],
+                  "path": [
+                    "chat",
+                    "resume"
+                  ]
+                },
+                "description": "Continues a run that paused because Invoke chat returned pending_actions (a mutating tool call: add/update/delete transaction or budget). decisions is a list matching the pending actions, each {type: \"approve\"} or {type: \"reject\", message: \"why\"}. Returns the same ChatResponse shape as Invoke chat."
+              }
+            },
+            {
+              "name": "Stream chat (SSE)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "text/event-stream"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"session_id\": \"{{sessionId}}\",\n  \"message\": \"What did I spend on Food this month?\"\n}"
+                },
+                "url": {
+                  "raw": "{{piBaseUrl}}/chat/stream",
+                  "host": [
+                    "{{piBaseUrl}}"
+                  ],
+                  "path": [
+                    "chat",
+                    "stream"
+                  ]
+                },
+                "description": "Server-Sent Events stream of the agent's response \u2014 token deltas as unnamed 'data' events, plus 'tool_call', 'tool_result', and 'interrupt' named events. Postman will show the raw event stream in the response body rather than rendering it live."
+              }
+            },
+            {
+              "name": "List sessions",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{piBaseUrl}}/chat/sessions",
+                  "host": [
+                    "{{piBaseUrl}}"
+                  ],
+                  "path": [
+                    "chat",
+                    "sessions"
+                  ]
+                },
+                "description": "Returns {sessions: [{session_id, last_modified, preview}, ...]} \u2014 one entry per checkpointed conversation thread."
+              }
+            },
+            {
+              "name": "Get session history",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{piBaseUrl}}/chat/{{sessionId}}/history",
+                  "host": [
+                    "{{piBaseUrl}}"
+                  ],
+                  "path": [
+                    "chat",
+                    "{{sessionId}}",
+                    "history"
+                  ]
+                },
+                "description": "Full message history for a session: {session_id, messages: [{role: user|ai|tool, content, tool_calls?, tool_call_id?, tool_name?}, ...]}."
+              }
+            },
+            {
+              "name": "Get session logs",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{piBaseUrl}}/chat/{{sessionId}}/logs?limit=200&offset=0",
+                  "host": [
+                    "{{piBaseUrl}}"
+                  ],
+                  "path": [
+                    "chat",
+                    "{{sessionId}}",
+                    "logs"
+                  ],
+                  "query": [
+                    {
+                      "key": "level",
+                      "value": "INFO",
+                      "disabled": true
+                    },
+                    {
+                      "key": "logger",
+                      "value": "",
+                      "disabled": true
+                    },
+                    {
+                      "key": "start_time",
+                      "value": "",
+                      "disabled": true
+                    },
+                    {
+                      "key": "end_time",
+                      "value": "",
+                      "disabled": true
+                    },
+                    {
+                      "key": "limit",
+                      "value": "200"
+                    },
+                    {
+                      "key": "offset",
+                      "value": "0"
+                    }
+                  ]
+                },
+                "description": "Optional query params: level (DEBUG/INFO/WARNING/ERROR/CRITICAL), logger (name filter), start_time/end_time (ISO datetimes), limit (default 200, max 1000), offset (default 0). Returns {session_id, logs, total, limit, offset}."
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
