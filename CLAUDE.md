@@ -4,12 +4,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Architecture
 
-This is a personal budget tracker split into four independently deployed services, wired together by `docker-compose.yml` and reverse-proxied by nginx:
+This is a personal budget tracker split into independently deployed services (plus a one-shot cron job), wired together by `docker-compose.yml` and reverse-proxied by nginx:
 
 - **backend-service** (FastAPI, port 8502) — owns the SQLite database (`data/budget.db`, tables `budget_set` and `budget_tracker`). Exposes REST routes under `/summary`, `/budget`, `/transactions`, `/query`, `/classify`, and also mounts an MCP server at `/mcp` via `fastapi-mcp` (see `app/main.py`). Every FastAPI route that should be callable as an MCP tool must be explicitly listed in the `FastApiMCP(include_operations=[...])` call in `app/main.py`, matching the route's `operation_id`.
 - **agent-service** (FastAPI + LangGraph, port 8000) — "Penny", an OpenRouter-backed LangChain agent (`src/agent/graph.py`) that consumes backend-service's tools over MCP (`src/agent/mcp.py`, configured via `mcp_servers.json`/`mcp_servers.local.json`). Conversation state is checkpointed to Postgres (`src/agent/checkpointer.py`, `langgraph-checkpoint-postgres`). All data-mutating tools (`add_transaction`, `update_transaction`, `delete_transaction`, `add_budget`, `delete_budget`) are gated behind `HumanInTheLoopMiddleware` in `src/agent/middleware.py` — read-only tools are not. The system prompt in `graph.py` enforces response formatting (₹ currency, Indian-style digit grouping, HTML tables only, one sentence of prose).
 - **frontend-service** — static `app.html` served by nginx.
-- **nginx** — routes `/chat/*` → agent-service, `/summary|budget|transactions|query|classify|mcp|docs|redoc|openapi.json` → backend-service, everything else → frontend-service. See `nginx/nginx.conf` for the exact regex.
+- **email-ingest-service** — one-shot job (`src/ingest.py`), not a server. Reads HDFC bank alert emails from Gmail over IMAP (stdlib `imaplib`, mailbox opened read-only, app password from `.env`), extracts each one with an OpenRouter model via LangChain `with_structured_output` (one call per email, no agent), and POSTs the batch to backend-service's `/email-transactions`. Lives in `docker-compose.yml` under `profiles: ["cron"]`, so `docker compose up` never starts it. On the Pi, host crontab runs `cd ~/budget-tracker && docker compose --profile cron run --rm email-ingest >> email-ingest.log 2>&1` daily at 06:00. It looks back `LOOKBACK_DAYS` (default 2), so re-runs are safe.
+- **nginx** — routes `/chat/*` → agent-service, `/summary|budget|transactions|query|classify|mcp|docs|redoc|openapi.json` → backend-service, everything else → frontend-service. `/email-transactions` also goes to backend-service but is **GET-only** (`limit_except GET`). Writes come only from email-ingest, which hits `backend-service:8502` directly on the docker network. See `nginx/nginx.conf` for the exact regex.
+
+`email_transactions` table: bank alerts parsed from email, kept separate from `budget_tracker`, the manually curated spend. It is created by `init_db()` in `app/database.py` at startup, because the prod DB volume pre-exists. Columns: `Date` (DD/MM/YY), `Year`/`Month`/`Day`, `Amount` (signed: debit < 0, credit > 0), `Type` (`UPI`/`Credit Card`/`Debit Card`/`Net Banking`/`Other`), `Description`, `Account` (last 4), and `MessageId` (UNIQUE; POST does `INSERT OR IGNORE` on it). Its GET/POST routes are deliberately **not** in `FastApiMCP(include_operations=...)`. Penny can still read the table through `run_query`, and the schema is documented in `query.py`. The frontend's "Bank" tab shows it per month.
 
 Query flow for the agent: user message → agent-service → MCP tool call → backend-service route → SQLite. `query.py`'s `run_query` tool is the general-purpose escape hatch for cross-month/aggregation questions that the single-month `get_summary`/`get_budget`/`get_transactions` endpoints can't answer; it only permits `SELECT` statements (rejects any non-SELECT first token).
 
@@ -37,7 +40,7 @@ python src/main.py
 
 agent-service requires a reachable Postgres (`DATABASE_URL`) for checkpointing — `docker-compose.yml` provides one, or point at a local instance.
 
-Full stack: `docker compose up --build` (nginx on `:8502`). `docker_push.sh <tag>` builds and pushes all four service images to Docker Hub (`mariox1105/budget-tracker-{backend,frontend,agent,nginx}`) — this is used for deploying to the Raspberry Pi.
+Full stack: `docker compose up --build` (nginx on `:8502`). `docker_push.sh <tag>` builds and pushes all service images to Docker Hub (`mariox1105/budget-tracker-{backend,frontend,agent,nginx,email-ingest}`) — this is used for deploying to the Raspberry Pi.
 
 ## Data scripts
 
