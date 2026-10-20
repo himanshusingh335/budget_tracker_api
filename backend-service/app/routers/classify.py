@@ -6,7 +6,8 @@ import joblib
 import numpy as np
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from sentence_transformers import SentenceTransformer
+
+from app.embedder import Embedder
 
 router = APIRouter(prefix="/classify", tags=["Classify"])
 logger = logging.getLogger("budget-api")
@@ -23,7 +24,7 @@ def _load_models():
         if _cache:
             return _cache["st"], _cache["clf"], _cache["encoder"]
         try:
-            st = SentenceTransformer("all-MiniLM-L6-v2")
+            st = Embedder()
             clf = joblib.load(_MODELS_DIR / "classifier.joblib")
             encoder = joblib.load(_MODELS_DIR / "label_encoder.joblib")
         except Exception as exc:
@@ -46,14 +47,14 @@ class ClassifyResponse(BaseModel):
 def classify(payload: ClassifyRequest):
     """Predict the budget category for a transaction description.
 
-    Uses a trained LinearSVC with sentence-transformer embeddings to map free-text
+    Uses a trained scikit-learn classifier over MiniLM sentence embeddings to map free-text
     descriptions to one of: Auto, Entertainment, Food, Home, Medical, Personal Items,
     Travel, Utilities, Other.
     """
     if not payload.description.strip():
         raise HTTPException(status_code=400, detail="description must not be empty")
     st, clf, encoder = _load_models()
-    embedding = st.encode([payload.description], normalize_embeddings=True, show_progress_bar=False)
+    embedding = st.encode([payload.description])
     scores = clf.decision_function(embedding)
     pred_idx = int(np.argmax(scores, axis=1)[0])
     category = str(encoder.inverse_transform([pred_idx])[0])

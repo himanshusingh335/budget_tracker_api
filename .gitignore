@@ -49,3 +49,6 @@ logs/
 
 # Skill sandboxes
 .claude/skills/*/.sandbox/
+
+# Embedding model, downloaded by `python -m app.embedder`
+backend-service/models/minilm/

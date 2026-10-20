@@ -1,22 +1,19 @@
 """Train the transaction category classifier and publish it to backend-service/models/.
 
-Pipeline: embed transaction descriptions with a sentence-transformer, compare a
+Pipeline: embed transaction descriptions with backend-service's MiniLM ONNX
+embedder (app/embedder.py, the exact code /classify serves with), compare a
 handful of scikit-learn classifiers via cross-validation, evaluate the best one
 on a held-out test set, then refit it on all data before saving.
 
 Input data comes from db_backup/csv_exports/budget_tracker.csv — run
 db_backup/restore_latest_backup.py first to pull the latest snapshot.
 """
-import os
-os.environ.setdefault("HF_HUB_OFFLINE", "1")
-
 import sys
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import joblib
-from sentence_transformers import SentenceTransformer
 from sklearn.preprocessing import LabelEncoder
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import LinearSVC, SVC
@@ -28,7 +25,9 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 DATA_PATH = REPO_ROOT / "db_backup" / "csv_exports" / "budget_tracker.csv"
 MODELS_DIR = REPO_ROOT / "backend-service" / "models"
 
-EMBEDDING_MODEL = "all-MiniLM-L6-v2"
+sys.path.insert(0, str(REPO_ROOT / "backend-service"))
+from app.embedder import Embedder, download  # noqa: E402
+
 CV_FOLDS = 3
 TEST_SIZE = 0.2
 RANDOM_STATE = 42
@@ -51,12 +50,8 @@ def load_data() -> pd.DataFrame:
 
 
 def embed(descriptions: list[str]) -> np.ndarray:
-    # normalize_embeddings=True applies L2 normalization, which improves all
-    # downstream classifiers on dense vector spaces.
-    embedder = SentenceTransformer(EMBEDDING_MODEL)
-    return embedder.encode(
-        descriptions, batch_size=64, show_progress_bar=True, normalize_embeddings=True
-    )
+    download()
+    return Embedder().encode(descriptions)
 
 
 def split_train_test(X: np.ndarray, y: np.ndarray, num_classes: int):

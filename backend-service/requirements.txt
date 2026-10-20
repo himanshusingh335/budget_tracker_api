@@ -1,8 +1,7 @@
 fastapi==0.129.0
 uvicorn==0.35.0
-pandas==2.3.1
 fastapi-mcp
 mcp<2.0
-aiofiles
 scikit-learn==1.6.1
-sentence-transformers
+onnxruntime==1.31.0
+tokenizers==0.22.2

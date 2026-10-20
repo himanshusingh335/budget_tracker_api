@@ -7,20 +7,17 @@ Usage:
     python test.py                          # run built-in example descriptions
     python test.py "swiggy order" "flight to goa"   # test specific descriptions
 """
-import os
-os.environ.setdefault("HF_HUB_OFFLINE", "1")
-
 import sys
 from pathlib import Path
 
 import joblib
 import numpy as np
-from sentence_transformers import SentenceTransformer
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 MODELS_DIR = REPO_ROOT / "backend-service" / "models"
 
-EMBEDDING_MODEL = "all-MiniLM-L6-v2"
+sys.path.insert(0, str(REPO_ROOT / "backend-service"))
+from app.embedder import Embedder, download  # noqa: E402
 
 EXAMPLE_DESCRIPTIONS = [
     "Buy medicine",
@@ -36,11 +33,12 @@ EXAMPLE_DESCRIPTIONS = [
 
 
 def predict(descriptions: list[str]):
-    embedder = SentenceTransformer(EMBEDDING_MODEL)
+    download()
+    embedder = Embedder()
     clf = joblib.load(MODELS_DIR / "classifier.joblib")
     encoder = joblib.load(MODELS_DIR / "label_encoder.joblib")
 
-    embeddings = embedder.encode(descriptions, normalize_embeddings=True, show_progress_bar=False)
+    embeddings = embedder.encode(descriptions)
     scores = clf.decision_function(embeddings)
     pred_idx = np.argmax(scores, axis=1)
     categories = encoder.inverse_transform(pred_idx)
