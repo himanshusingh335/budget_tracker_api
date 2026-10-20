@@ -26,7 +26,8 @@ python classifier-training/test.py
 ```
 
 `train.py` reads `db_backup/csv_exports/budget_tracker.csv`, embeds
-descriptions with `sentence-transformers` (`all-MiniLM-L6-v2`), compares a
+descriptions with `all-MiniLM-L6-v2` via backend-service's ONNX embedder
+(`backend-service/app/embedder.py`, downloaded on first run), compares a
 few scikit-learn classifiers via cross-validation (macro F1), evaluates the
 winner on a held-out test set, then refits it on 100% of the data before
 saving.

@@ -245,7 +245,7 @@ docker compose restart backend-service
 ## Retraining the transaction category classifier
 
 `classifier-training/` retrains the model behind `/classify` (`classify_description`
-in the MCP tool list) — the sentence-transformer + classifier pair that suggests
+in the MCP tool list) — the MiniLM embedder (int8 ONNX, via `onnxruntime`) + classifier pair that suggests
 a category from a free-text transaction description. It reads the CSV export
 produced by the data-pulling step above, so run that first if you want to train
 on the latest prod data:
